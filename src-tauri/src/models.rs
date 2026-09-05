@@ -1,0 +1,72 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameInstance {
+    pub id: String,
+    pub name: String,
+    pub game_version: String,
+    pub loader: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub loader_version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub java_path: Option<String>,
+    pub min_ram: u32,
+    pub max_ram: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub jvm_args: Option<String>,
+    pub icon: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub server_ip: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub server_port: Option<u16>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub custom_skin_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skin_model: Option<String>,
+    pub enable_skin_in_game: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_played: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_play_time: Option<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct JavaInstallation {
+    pub path: String,
+    pub major_version: u32,
+    pub version_string: String,
+    pub is_64_bit: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ServerStatus {
+    pub ip: String,
+    pub port: u16,
+    pub online: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub players_online: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub players_max: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub motd: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ping_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub favicon: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalMod {
+    pub file_name: String,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+    pub enabled: bool,
+    pub size_bytes: u64,
+}
