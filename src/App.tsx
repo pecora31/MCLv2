@@ -571,13 +571,7 @@ export const App: React.FC = () => {
           {/* Riot-Style Vertical Left Sidebar: ALWAYS rendered and interactive */}
           <Sidebar
             currentTab={currentTab}
-            onTabChange={(tab) => {
-              if (currentTab === tab) {
-                setCurrentTab('home'); // Toggle close if clicking active tab
-              } else {
-                setCurrentTab(tab);
-              }
-            }}
+            onTabChange={(tab) => setCurrentTab(tab)}
             account={account}
             onUpdateUsername={handleUpdateUsername}
             language={language}

@@ -125,7 +125,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
                     }`}
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>PLAY NOW</span>
+                    <span>PLAY</span>
                   </button>
 
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>

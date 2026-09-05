@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     MINECRAFT_AVATAR_ICONS[0];
 
   return (
-    <aside className="w-20 bg-[#0a0a0a]/92 backdrop-blur-md flex flex-col justify-between items-center py-5 select-none z-30 shrink-0 h-full border-r border-white/[0.05]">
+    <aside className="w-20 bg-[#0a0a0a]/92 backdrop-blur-md flex flex-col justify-between items-center py-5 select-none z-50 shrink-0 h-full border-r border-white/[0.05]">
       {/* Top MCL Logo - Subdued (chìm), Unclickable */}
       <div className="w-full flex items-center justify-center pt-1 select-none pointer-events-none">
         <img
@@ -60,7 +60,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               <button
                 onClick={() => onTabChange(item.id as NavigationTab)}
-                onMouseDown={() => onTabChange(item.id as NavigationTab)}
                 className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-100 border-none outline-none ${
                   isActive
                     ? 'bg-white/10 text-amber-400'
@@ -70,8 +69,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Icon className="w-6 h-6" />
               </button>
 
-              {/* Pure CSS Tooltip (Zero JS delay) */}
-              <div className="absolute left-16 px-3 py-1.5 rounded-lg bg-[#181818] border border-white/10 text-xs font-semibold text-white shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+              {/* Pure CSS Tooltip (Zero JS delay, positioned comfortably outside sidebar) */}
+              <div className="absolute left-[88px] px-3.5 py-1.5 rounded-lg bg-[#161616] border border-white/10 text-xs font-semibold text-white shadow-2xl whitespace-nowrap z-[60] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
                 {item.label}
               </div>
             </div>
@@ -83,7 +82,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="relative group flex flex-col items-center px-2 pb-1 w-full">
         <button
           onClick={() => onTabChange('profile')}
-          onMouseDown={() => onTabChange('profile')}
           className={`relative w-12 h-12 rounded-xl overflow-hidden bg-[#171717] border transition-colors duration-100 flex items-center justify-center outline-none ${
             currentTab === 'profile'
               ? 'border-amber-400 ring-2 ring-amber-400/40'
@@ -115,9 +113,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {/* Pure CSS Tooltip for profile */}
-        <div className="absolute left-16 bottom-2 px-3.5 py-2 rounded-lg bg-[#181818] border border-white/10 text-xs text-white shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+        <div className="absolute left-[88px] bottom-2 px-3.5 py-2 rounded-lg bg-[#161616] border border-white/10 text-xs text-white shadow-2xl whitespace-nowrap z-[60] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
           <div className="font-bold text-amber-300 text-sm">{account.username}</div>
-          <div className="text-xs text-slate-400">Xem Hồ Sơ & Đổi Avatar</div>
+          <div className="text-xs text-slate-400">View Profile & Customize Skin</div>
         </div>
       </div>
     </aside>
