@@ -83,7 +83,7 @@ pub fn run() {
                 )?;
             }
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.set_shadow(true);
+                let _ = window.set_shadow(false);
                 let _ = window.set_size(tauri::LogicalSize::new(1600.0, 900.0));
                 let _ = window.set_resizable(false);
                 let _ = window.center();
@@ -100,8 +100,8 @@ pub fn run() {
                             cbAttribute: u32,
                         ) -> i32;
                     }
-                    // DWMWA_BORDER_COLOR = 34. Color in 0x00BBGGRR -> dark neutral gray 0x00222222
-                    let border_color: u32 = 0x00222222;
+                    // DWMWA_BORDER_COLOR = 34. 0xFFFFFFFE = DWMWA_COLOR_NONE (no border drawn by Windows DWM)
+                    let border_color: u32 = 0xFFFFFFFE;
                     unsafe {
                         let _ = DwmSetWindowAttribute(
                             hwnd.0 as isize,

@@ -322,9 +322,11 @@
   box-shadow: 0 0 28px rgba(185, 28, 28, 0.55) !important;
 }
 
-/* Outer Window Perimeter Definition */
+/* Completely Seamless Window Shell - No border and no shadow */
 .window-shell {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 /* Palette overrides: Clean flat colors, no 3D bevels */
