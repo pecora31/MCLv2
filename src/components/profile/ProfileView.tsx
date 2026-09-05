@@ -97,7 +97,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="flex-1 flex flex-col overflow-y-auto p-8 space-y-6 animate-fadeIn">
       {/* Top Banner & Player Identity Card */}
-      <div className="glass-panel rounded-3xl p-6 border border-white/10 shadow-2xl relative overflow-hidden">
+      <div className="glass-panel rounded-2xl p-6 border border-white/[0.04] shadow-2xl relative overflow-hidden">
         {/* Ambient background glow */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-amber-500/10 via-indigo-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -106,7 +106,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="flex items-center gap-5">
             {/* Big Avatar Frame */}
             <div className="relative group">
-              <div className="w-24 h-24 rounded-3xl overflow-hidden bg-slate-900 border-2 border-amber-400/50 shadow-[0_0_25px_rgba(245,158,11,0.3)] flex items-center justify-center text-4xl">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-400/50 shadow-[0_0_25px_rgba(245,158,11,0.3)] flex items-center justify-center text-4xl">
                 {account.avatarCustom ? (
                   <img src={account.avatarCustom} alt={account.username} className="w-full h-full object-cover" />
                 ) : (
@@ -130,7 +130,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       value={usernameInput}
                       onChange={(e) => setUsernameInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-                      className="glass-input px-3 py-1.5 rounded-xl text-base font-bold text-white font-['Outfit']"
+                      className="glass-input px-3 py-1.5 rounded-xl text-base font-bold text-white font-riot tracking-wide"
                       autoFocus
                     />
                     <button
@@ -142,7 +142,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-black font-['Outfit'] text-white">{account.username}</h1>
+                    <h1 className="text-2xl font-black font-riot text-white tracking-wide">{account.username}</h1>
                     <button
                       onClick={() => setIsEditingName(true)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition"
@@ -153,7 +153,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </div>
                 )}
 
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 font-riot">
                   {account.type.toUpperCase()}
                 </span>
               </div>
@@ -174,16 +174,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={onNavigateSkin}
-              className="px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-2 border border-white/10 transition shadow-lg"
+              className="px-5 py-2.5 rounded-xl bg-[#0c121e] hover:bg-[#141b2b] text-white font-bold text-xs flex items-center gap-2 border border-white/[0.08] transition shadow-lg font-riot tracking-wide uppercase"
             >
-              <Shirt className="w-4 h-4 text-indigo-400" />
+              <Shirt className="w-4 h-4 text-amber-400" />
               <span>Chỉnh Sửa Skin 3D</span>
             </button>
           </div>
         </div>
 
         {savedSuccess && (
-          <div className="mt-4 p-3 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
+          <div className="mt-4 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
             <Check className="w-4 h-4" />
             <span>Đã cập nhật thông tin hồ sơ thành công!</span>
           </div>
@@ -193,10 +193,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       {/* Main Grid: Avatar Gallery (Left) & Player Stats (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Avatar Picker (8 cols) */}
-        <div className="lg:col-span-8 glass-panel rounded-3xl p-6 border border-white/10 space-y-5">
+        <div className="lg:col-span-8 glass-panel rounded-2xl p-6 border border-white/[0.04] space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
             <div>
-              <h2 className="text-base font-bold text-white font-['Outfit'] flex items-center gap-2">
+              <h2 className="text-base font-bold text-white font-riot tracking-wide flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span>Biểu Tượng Đại Diện (Player Avatar)</span>
               </h2>
@@ -205,7 +205,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
             {/* Upload Custom Avatar Button */}
             <div className="flex items-center gap-2">
-              <label className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs cursor-pointer flex items-center gap-1.5 transition">
+              <label className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs cursor-pointer flex items-center gap-1.5 transition font-riot">
                 <Upload className="w-3.5 h-3.5" />
                 <span>Tải ảnh từ máy</span>
                 <input type="file" accept="image/png, image/jpeg, image/webp" onChange={handleUploadCustomAvatar} className="hidden" />
@@ -231,17 +231,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleSelectPresetIcon(item.id)}
-                  className={`p-3.5 rounded-2xl border text-left transition flex items-center gap-3 group relative ${
+                  className={`p-3.5 rounded-xl border text-left transition flex items-center gap-3 group relative ${
                     isSelected
                       ? 'bg-amber-500/20 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]'
-                      : 'bg-white/[0.02] border-white/5 text-slate-400 hover:border-white/15 hover:bg-white/[0.04]'
+                      : 'bg-[#080c14] border-white/[0.04] text-slate-400 hover:border-white/10 hover:bg-[#0c121e]'
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br ${item.color} shadow-md group-hover:scale-110 transition shrink-0`}>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-gradient-to-br ${item.color} shadow-md group-hover:scale-110 transition shrink-0`}>
                     <span className="select-none">{item.icon}</span>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-white truncate">{item.name}</div>
+                    <div className="text-xs font-bold text-white truncate font-riot tracking-wide">{item.name}</div>
                     <div className="text-[10px] text-slate-400 truncate">{item.desc}</div>
                   </div>
                   {isSelected && (
@@ -255,9 +255,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
         {/* Player Stats & Information (4 cols) */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
-            <h3 className="text-sm font-bold text-white font-['Outfit'] flex items-center gap-2">
-              <Award className="w-4 h-4 text-indigo-400" />
+          <div className="glass-panel rounded-2xl p-6 border border-white/[0.04] space-y-4">
+            <h3 className="text-sm font-bold text-white font-riot tracking-wide flex items-center gap-2">
+              <Award className="w-4 h-4 text-amber-400" />
               <span>Thống Kê Người Chơi</span>
             </h3>
 

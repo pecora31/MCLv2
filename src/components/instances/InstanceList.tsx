@@ -63,7 +63,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
               {/* Header: Loader Badge & Icon */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center font-['Outfit'] font-bold text-base text-indigo-400 shadow-md">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-900 border border-white/[0.06] flex items-center justify-center font-riot font-bold text-base text-amber-400 shadow-md">
                     {inst.loader === 'fabric' ? 'Fb' : inst.loader === 'forge' ? 'Fg' : inst.loader === 'neoforge' ? 'Nf' : 'Mc'}
                   </div>
                   <div>
@@ -71,13 +71,13 @@ export const InstanceList: React.FC<InstanceListProps> = ({
                     <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
                       <span>MC {inst.gameVersion}</span>
                       <span>•</span>
-                      <span className="capitalize text-indigo-400 font-semibold">{inst.loader}</span>
+                      <span className="capitalize text-amber-400 font-semibold">{inst.loader}</span>
                     </div>
                   </div>
                 </div>
 
                 {isSelected && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shrink-0">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 font-riot">
                     ĐANG CHỌN
                   </span>
                 )}
@@ -111,10 +111,10 @@ export const InstanceList: React.FC<InstanceListProps> = ({
                     onLaunchInstance(inst.id);
                   }}
                   disabled={isRunning}
-                  className={`flex-1 py-2 px-3 rounded-xl font-['Outfit'] font-bold text-xs flex items-center justify-center gap-2 transition ${
+                  className={`flex-1 py-2 px-3 rounded-xl font-riot font-bold text-xs flex items-center justify-center gap-2 transition uppercase tracking-wider ${
                     isSelected
-                      ? 'btn-launch text-white'
-                      : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
+                      ? 'btn-riot-play !h-9 !text-xs !text-slate-950'
+                      : 'bg-[#101624] hover:bg-[#162035] text-white border border-white/[0.06]'
                   }`}
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />

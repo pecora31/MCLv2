@@ -35,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const presetAvatar = MINECRAFT_AVATAR_ICONS.find((i) => i.id === (account.avatarIcon || 'creeper')) || MINECRAFT_AVATAR_ICONS[0];
 
   return (
-    <aside className="w-20 bg-[#06080e]/95 border-r border-white/5 flex flex-col justify-between items-center py-4 select-none z-30 shrink-0 shadow-2xl backdrop-blur-md">
+    <aside className="w-20 bg-black/60 flex flex-col justify-between items-center py-4 select-none z-30 shrink-0 shadow-2xl">
       {/* Top Logo & Navigation Icons */}
       <div className="space-y-4 flex flex-col items-center w-full">
         {/* Top Logo Icon (Riot Style Emblem) */}
@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>MC</span>
         </div>
 
-        <div className="w-8 h-[1px] bg-white/10" />
+        <div className="w-8 h-[1px] bg-white/5" />
 
         {navItems.map((item) => {
           const Icon = item.icon;

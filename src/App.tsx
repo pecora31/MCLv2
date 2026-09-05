@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TitleBar } from './components/layout/TitleBar';
 import { Sidebar } from './components/layout/Sidebar';
 import type { NavigationTab } from './components/layout/Sidebar';
@@ -74,9 +74,10 @@ const DEFAULT_SETTINGS: LauncherSettings = {
   defaultMaxRam: 4096,
   defaultJvmArgs: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200',
   language: 'vi',
-  uiStyle: 'glass',
-  colorPalette: 'indigo',
-  bgOpacity: 0.6,
+  uiStyle: 'riot',
+  colorPalette: 'amber',
+  bgType: 'video',
+  bgOpacity: 0.5,
   closeOnLaunch: false,
   enableDiscordRpc: true,
   serverHost: 'play.ourserver.mc',
@@ -97,7 +98,12 @@ export const App: React.FC = () => {
   });
   const [settings, setSettings] = useState<LauncherSettings>(() => {
     const saved = localStorage.getItem('mcl_settings');
-    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+    const parsed = saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+    return {
+      ...DEFAULT_SETTINGS,
+      ...parsed,
+      bgType: parsed.bgType || (parsed.customBgImage ? 'image' : 'video'),
+    };
   });
 
   const [language, setLanguage] = useState<Language>(() => {
@@ -131,6 +137,22 @@ export const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('mcl_settings', JSON.stringify(settings));
   }, [settings]);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Ensure video auto-plays when active
+  useEffect(() => {
+    if (settings.bgType !== 'image' && videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.log('Video autoplay handled:', err);
+        });
+      }
+    }
+  }, [settings.bgType, settings.customVideoUrl]);
 
   // Load instances from backend if in Tauri
   useEffect(() => {
@@ -307,125 +329,144 @@ export const App: React.FC = () => {
 
   return (
     <div
-      className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-[#07090f] text-slate-100 style-${settings.uiStyle || 'glass'} palette-${settings.colorPalette || 'indigo'}`}
+      className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-black text-slate-100 style-riot palette-${settings.colorPalette || 'amber'}`}
     >
       {/* Dynamic Background Media: Looping Video or Custom Image */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-20">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Atmospheric fallback gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0e1422] via-[#090d16] to-[#04060a]" />
+
         {settings.bgType === 'image' && settings.customBgImage ? (
-          <div
-            className="w-full h-full bg-cover bg-center transition-all duration-300"
-            style={{ backgroundImage: `url(${settings.customBgImage})` }}
+          <img
+            src={settings.customBgImage}
+            alt="Launcher Background"
+            className="w-full h-full object-cover select-none relative z-1"
+            onError={() => {
+              console.warn('Background image failed to load, falling back to video');
+              setSettings((s) => ({ ...s, bgType: 'video' }));
+            }}
           />
         ) : (
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover"
+            preload="auto"
+            className="w-full h-full object-cover select-none relative z-1"
             src={settings.customVideoUrl || '/background.mp4'}
-          />
+          >
+            <source src={settings.customVideoUrl || '/background.mp4'} type="video/mp4" />
+          </video>
         )}
-        {/* Darkness overlay */}
+        {/* Darkness overlay (vignette) */}
         <div
-          className="absolute inset-0 bg-[#06080e]"
-          style={{ opacity: settings.bgOpacity ?? 0.5 }}
+          className="absolute inset-0 bg-[#06080e] z-2"
+          style={{
+            opacity: typeof settings.bgOpacity === 'number'
+              ? Math.min(Math.max(settings.bgOpacity, 0.1), 0.85)
+              : 0.45,
+          }}
         />
       </div>
 
-      {/* Frameless TitleBar */}
-      <TitleBar
-        onOpenConsole={() => setIsConsoleOpen(true)}
-        isRunning={isRunning}
-        language={language}
-        onToggleLanguage={handleToggleLanguage}
-      />
-
-      {/* Main App Layout */}
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Wider Sidebar (80px) */}
-        <Sidebar
-          currentTab={currentTab}
-          onTabChange={setCurrentTab}
-          account={account}
-          onUpdateUsername={handleUpdateUsername}
+      {/* Main Foreground Container */}
+      <div className="relative z-10 flex flex-col h-full w-full bg-transparent overflow-hidden">
+        {/* Frameless TitleBar */}
+        <TitleBar
+          onOpenConsole={() => setIsConsoleOpen(true)}
+          isRunning={isRunning}
           language={language}
+          onToggleLanguage={handleToggleLanguage}
         />
 
-        {/* Dynamic Content View */}
-        <main className="flex-1 flex overflow-hidden bg-transparent">
-          {currentTab === 'home' && (
-            <ServerHub
-              instances={instances}
-              selectedInstanceId={selectedInstanceId}
-              onSelectInstance={setSelectedInstanceId}
-              onLaunch={handleLaunch}
-              onStopGame={handleStopGame}
-              launchProgress={launchProgress}
-              isRunning={isRunning}
-              isPreparing={isPreparing}
-              language={language}
-            />
-          )}
+        {/* Main App Layout */}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Wider Sidebar (80px) */}
+          <Sidebar
+            currentTab={currentTab}
+            onTabChange={setCurrentTab}
+            account={account}
+            onUpdateUsername={handleUpdateUsername}
+            language={language}
+          />
 
-          {currentTab === 'instances' && (
-            <InstanceList
-              instances={instances}
-              selectedInstanceId={selectedInstanceId}
-              onSelectInstance={setSelectedInstanceId}
-              onLaunchInstance={(id) => {
-                setSelectedInstanceId(id);
-                handleLaunch();
-              }}
-              onDeleteInstance={handleDeleteInstance}
-              onOpenCreateModal={() => setIsCreateModalOpen(true)}
-              isRunning={isRunning}
-            />
-          )}
+          {/* Dynamic Content View */}
+          <main className="flex-1 flex overflow-hidden bg-transparent">
+            {currentTab === 'home' && (
+              <ServerHub
+                instances={instances}
+                selectedInstanceId={selectedInstanceId}
+                onSelectInstance={setSelectedInstanceId}
+                onLaunch={handleLaunch}
+                onStopGame={handleStopGame}
+                launchProgress={launchProgress}
+                isRunning={isRunning}
+                isPreparing={isPreparing}
+                language={language}
+              />
+            )}
 
-          {currentTab === 'mods' && <ModStore activeInstance={activeInstance} />}
+            {currentTab === 'instances' && (
+              <InstanceList
+                instances={instances}
+                selectedInstanceId={selectedInstanceId}
+                onSelectInstance={setSelectedInstanceId}
+                onLaunchInstance={(id) => {
+                  setSelectedInstanceId(id);
+                  handleLaunch();
+                }}
+                onDeleteInstance={handleDeleteInstance}
+                onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                isRunning={isRunning}
+              />
+            )}
 
-          {currentTab === 'skin' && (
-            <SkinStudio
-              account={account}
-              onUpdateSkin={handleUpdateSkin}
-              instances={instances}
-            />
-          )}
+            {currentTab === 'mods' && <ModStore activeInstance={activeInstance} />}
 
-          {currentTab === 'profile' && (
-            <ProfileView
-              account={account}
-              onUpdateAccount={setAccount}
-              onNavigateSkin={() => setCurrentTab('skin')}
-              instances={instances}
-              language={language}
-            />
-          )}
+            {currentTab === 'skin' && (
+              <SkinStudio
+                account={account}
+                onUpdateSkin={handleUpdateSkin}
+                instances={instances}
+              />
+            )}
 
-          {currentTab === 'settings' && (
-            <SettingsView
-              settings={settings}
-              onSaveSettings={setSettings}
-              language={language}
-            />
-          )}
-        </main>
+            {currentTab === 'profile' && (
+              <ProfileView
+                account={account}
+                onUpdateAccount={setAccount}
+                onNavigateSkin={() => setCurrentTab('skin')}
+                instances={instances}
+                language={language}
+              />
+            )}
+
+            {currentTab === 'settings' && (
+              <SettingsView
+                settings={settings}
+                onSaveSettings={setSettings}
+                language={language}
+              />
+            )}
+          </main>
+        </div>
+
+        {/* Modals */}
+        <CreateInstanceModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateInstance}
+        />
+
+        <ConsoleModal
+          isOpen={isConsoleOpen}
+          onClose={() => setIsConsoleOpen(false)}
+          logs={consoleLogs}
+          onClearLogs={() => setConsoleLogs([])}
+        />
       </div>
-
-      {/* Modals */}
-      <CreateInstanceModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreateInstance}
-      />
-
-      <ConsoleModal
-        isOpen={isConsoleOpen}
-        onClose={() => setIsConsoleOpen(false)}
-        logs={consoleLogs}
-        onClearLogs={() => setConsoleLogs([])}
-      />
     </div>
   );
 };

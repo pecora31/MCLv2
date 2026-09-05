@@ -95,7 +95,7 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
         </div>
 
         {/* Tab Switcher: Store vs Installed */}
-        <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-white/10 shrink-0">
+        <div className="flex items-center p-1 rounded-xl bg-[#0c121e] border border-white/[0.06] shrink-0 font-riot">
           <button
             onClick={() => setActiveSubTab('store')}
             className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
@@ -168,7 +168,7 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
                   className="glass-card rounded-2xl p-4 border flex items-start gap-3.5 justify-between"
                 >
                   {/* Mod Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-slate-900/80 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-slate-900/80 border border-white/[0.06] overflow-hidden flex items-center justify-center shrink-0">
                     {mod.icon_url ? (
                       <img src={mod.icon_url} alt={mod.title} className="w-full h-full object-cover" />
                     ) : (

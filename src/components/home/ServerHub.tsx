@@ -76,15 +76,15 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
   return (
     <div className="flex-1 flex flex-col justify-between overflow-hidden relative select-none bg-transparent">
-      {/* Riot-Style Top Navigation Bar (Seamless without hard borders) */}
-      <div className="px-8 pt-5 pb-3 flex items-center justify-between bg-gradient-to-b from-black/75 via-black/30 to-transparent z-10">
+      {/* Riot-Style Top Navigation Bar (Clean matte without glassmorphism) */}
+      <div className="px-8 pt-5 pb-3 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent z-10">
         {/* Game Title on Left */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center font-black text-slate-950 text-sm shadow-[0_0_15px_rgba(245,158,11,0.4)]">
             MC
           </div>
           <div>
-            <div className="text-[11px] font-black uppercase tracking-widest text-amber-400 font-['Outfit']">
+            <div className="text-[11px] font-black uppercase tracking-widest text-amber-400 font-riot">
               MCL CLIENT
             </div>
             <div className="text-xs font-bold text-white tracking-wide">
@@ -93,13 +93,13 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           </div>
         </div>
 
-        {/* Center Capsule Tabs (Riot Style Pill) */}
-        <div className="p-1 rounded-full bg-black/60 border border-white/10 backdrop-blur-md flex items-center gap-1 shadow-inner">
+        {/* Center Capsule Tabs (Riot Style Clean Obsidian) */}
+        <div className="p-1 rounded-full bg-[#0c121e] border border-white/[0.06] flex items-center gap-1 shadow-md">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${
+            className={`px-5 py-1.5 rounded-full text-xs font-bold font-riot transition-all ${
               activeTab === 'overview'
-                ? 'bg-white/15 text-white shadow-sm border-b-2 border-amber-400'
+                ? 'bg-amber-500/20 text-amber-300 shadow-sm border border-amber-500/40'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -107,9 +107,9 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('server')}
-            className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${
+            className={`px-5 py-1.5 rounded-full text-xs font-bold font-riot transition-all ${
               activeTab === 'server'
-                ? 'bg-white/15 text-white shadow-sm border-b-2 border-amber-400'
+                ? 'bg-amber-500/20 text-amber-300 shadow-sm border border-amber-500/40'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -119,7 +119,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
         {/* Right Status Pill */}
         <div className="flex items-center gap-2">
-          <div className="px-3.5 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-md flex items-center gap-2.5 text-xs shadow-lg">
+          <div className="px-3.5 py-1.5 rounded-full bg-[#0c121e] border border-white/[0.06] flex items-center gap-2.5 text-xs shadow-md">
             <span className={`w-2.5 h-2.5 rounded-full ${serverStatus.online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
             <span className="font-mono text-slate-200 font-semibold">{serverStatus.playersOnline}/{serverStatus.playersMax}</span>
             <span className="text-slate-600">•</span>
@@ -133,13 +133,13 @@ export const ServerHub: React.FC<ServerHubProps> = ({
         {activeTab === 'overview' ? (
           <div className="max-w-2xl space-y-5 animate-fadeIn">
             {/* Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md shadow-md">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-extrabold uppercase tracking-wider shadow-sm font-riot">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>MÙA 2 • KHÁM PHÁ SINH TỒN</span>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl md:text-5xl font-black text-white font-['Outfit'] tracking-tight leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+            {/* Headline with Riot Condensed Font */}
+            <h1 className="text-5xl md:text-6xl font-black text-white font-riot tracking-wide leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
               {t.heroTitle}
             </h1>
 
@@ -152,14 +152,14 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleCopyIp}
-                className="px-7 py-3 rounded-full bg-white hover:bg-slate-200 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:scale-105 active:scale-95 flex items-center gap-2"
+                className="px-7 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(245,158,11,0.35)] hover:scale-105 active:scale-95 flex items-center gap-2 font-riot"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-emerald-950" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? t.copied : `${t.heroCta} (IP: ${serverStatus.ip})`}</span>
               </button>
               <button
                 onClick={() => setActiveTab('server')}
-                className="px-6 py-3 rounded-full bg-black/50 hover:bg-black/70 text-white font-bold text-xs border border-white/20 transition-all backdrop-blur-md shadow-lg"
+                className="px-6 py-3 rounded-xl bg-[#0c121e]/90 hover:bg-[#141c2e] text-white font-bold text-xs border border-white/[0.06] transition-all shadow-lg font-riot tracking-wider uppercase"
               >
                 {t.tabServerInfo}
               </button>
@@ -168,14 +168,14 @@ export const ServerHub: React.FC<ServerHubProps> = ({
         ) : (
           /* Server Info Tab */
           <div className="max-w-3xl space-y-4 animate-fadeIn">
-            <div className="glass-panel rounded-3xl p-6 border border-white/10 space-y-5 shadow-2xl backdrop-blur-xl">
+            <div className="glass-panel rounded-2xl p-6 border border-white/[0.04] space-y-5 shadow-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
                     <Server className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-white">{t.serverHeader}</h2>
+                    <h2 className="text-base font-bold text-white font-riot tracking-wide">{t.serverHeader}</h2>
                     <p className="text-xs text-slate-400">{t.serverSub}</p>
                   </div>
                 </div>
@@ -190,15 +190,15 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               </div>
 
               {/* MOTD */}
-              <div className="p-4 rounded-2xl bg-black/50 border border-white/5 font-mono text-sm text-amber-200 shadow-inner">
+              <div className="p-4 rounded-xl bg-black/50 border border-white/5 font-mono text-sm text-amber-200 shadow-inner">
                 {serverStatus.motd?.replace(/§[0-9a-fk-or]/g, '') || 'Máy Chủ Minecraft Nhóm Bạn'}
               </div>
 
               {/* Metrics */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
                   <div className="text-slate-400 text-xs mb-1 flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-indigo-400" />
+                    <Users className="w-3.5 h-3.5 text-amber-400" />
                     <span>{t.players}</span>
                   </div>
                   <div className="text-xl font-bold text-white font-mono">
@@ -206,7 +206,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
                   <div className="text-slate-400 text-xs mb-1 flex items-center gap-1.5">
                     <Wifi className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{t.latency}</span>
@@ -216,7 +216,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex flex-col justify-between">
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
                   <div className="text-slate-400 text-xs mb-1">{t.serverIp}</div>
                   <button
                     onClick={handleCopyIp}
@@ -237,12 +237,12 @@ export const ServerHub: React.FC<ServerHubProps> = ({
         {/* Left Side: Download & Resource Monitor (Seamlessly floats over video) */}
         <div className="flex-1 min-w-0 pr-4">
           {isPreparingOrDownloading ? (
-            <div className="space-y-2 p-3.5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl animate-fadeIn">
+            <div className="space-y-2 p-3.5 rounded-xl bg-[#0c121e]/95 border border-white/[0.06] shadow-2xl animate-fadeIn">
               {/* Status Header */}
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 truncate max-w-[65%]">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
-                  <span className="font-bold text-amber-300 uppercase tracking-wider text-[11px] shrink-0">
+                  <span className="font-bold text-amber-300 uppercase tracking-wider text-[11px] shrink-0 font-riot">
                     {launchProgress.stage || 'Chuẩn bị'}:
                   </span>
                   <span className="text-slate-200 truncate text-xs font-mono">
@@ -268,7 +268,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               </div>
 
               {/* Progress Bar with Amber/Gold Glow */}
-              <div className="w-full h-2.5 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/10">
+              <div className="w-full h-2.5 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/[0.06]">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 transition-all duration-200 shadow-[0_0_14px_rgba(245,158,11,0.7)]"
                   style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
@@ -278,12 +278,12 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           ) : (
             <div className="text-xs text-slate-300 font-medium truncate flex items-center gap-3 drop-shadow-md">
               {isRunning ? (
-                <span className="text-emerald-400 flex items-center gap-2 font-mono font-bold bg-black/50 px-4 py-2 rounded-2xl border border-emerald-500/30 backdrop-blur-md shadow-xl">
+                <span className="text-emerald-400 flex items-center gap-2 font-mono font-bold bg-[#061e14] px-4 py-2 rounded-xl border border-emerald-500/40 shadow-xl">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                   Tiến trình Minecraft đang hoạt động
                 </span>
               ) : (
-                <div className="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-2xl border border-white/10 backdrop-blur-md shadow-lg text-slate-300">
+                <div className="flex items-center gap-2 bg-[#0c121e]/90 px-4 py-2 rounded-xl border border-white/[0.06] shadow-lg text-slate-300">
                   <span className="font-bold text-white">{selectedInstance?.name}</span>
                   <span className="text-slate-500">•</span>
                   <span className="text-amber-300 font-mono">MC {selectedInstance?.gameVersion}</span>
@@ -297,13 +297,13 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
         {/* Right Side: Profile Selector + BIG Riot Play Button */}
         <div className="flex items-center gap-3 shrink-0">
-          {/* Profile Dropdown (Sleek 52px pill) */}
+          {/* Profile Dropdown (Sleek 52px Riot style selector) */}
           <div className="relative w-56 sm:w-64">
             <select
               value={selectedInstanceId}
               onChange={(e) => onSelectInstance(e.target.value)}
               disabled={isRunning || isPreparingOrDownloading}
-              className="w-full h-[52px] appearance-none bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/15 rounded-2xl px-4 text-xs font-bold text-white pr-9 cursor-pointer disabled:opacity-60 transition shadow-xl"
+              className="w-full h-[52px] appearance-none bg-[#0c121e] hover:bg-[#141b2b] border border-white/[0.08] rounded-xl px-4 text-xs font-bold text-white pr-9 cursor-pointer disabled:opacity-60 transition shadow-xl"
             >
               {instances.map((inst) => (
                 <option key={inst.id} value={inst.id} className="bg-slate-900 text-white font-sans py-2">

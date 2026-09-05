@@ -32,12 +32,12 @@ export const ConsoleModal: React.FC<ConsoleModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-4xl h-[650px] glass-panel rounded-2xl border border-white/10 shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fadeIn">
+      <div className="w-full max-w-4xl h-[650px] glass-panel rounded-2xl border border-white/[0.06] shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-5 py-3 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
+        <div className="px-5 py-3 border-b border-white/[0.06] flex items-center justify-between bg-[#070b13]">
           <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-indigo-400" />
+            <Terminal className="w-4 h-4 text-amber-400" />
             <h3 className="text-sm font-mono font-bold text-white">Minecraft Game Console Logs</h3>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
               Live Stream

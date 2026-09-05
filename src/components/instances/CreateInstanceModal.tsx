@@ -111,12 +111,12 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
   const filteredVersions = versionList.filter((v) => showSnapshots || v.type === 'release');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-xl glass-panel rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fadeIn">
+      <div className="w-full max-w-xl glass-panel rounded-2xl border border-white/[0.06] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-slate-950/40">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-[#070b13]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600/30 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
               <Layers className="w-4 h-4" />
             </div>
             <div>
@@ -296,7 +296,7 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.06]">
             <button
               type="button"
               onClick={onClose}

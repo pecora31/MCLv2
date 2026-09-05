@@ -18,6 +18,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
+    setFormData(settings);
+  }, [settings]);
+
+  useEffect(() => {
     handleDetectJava();
   }, []);
 
@@ -43,14 +47,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
     setTimeout(() => setSavedSuccess(false), 2000);
   };
 
-  // Image Upload handler
+  // Image Upload handler: immediately set bgType to image
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/webp')) {
+    if (file && (file.type.startsWith('image/'))) {
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === 'string') {
-          const updated = { ...formData, customBgImage: reader.result };
+          const updated: LauncherSettings = {
+            ...formData,
+            bgType: 'image',
+            customBgImage: reader.result,
+          };
           setFormData(updated);
           onSaveSettings(updated);
         }
@@ -60,7 +68,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
   };
 
   const handleResetBg = () => {
-    const updated = { ...formData, customBgImage: undefined };
+    const updated: LauncherSettings = {
+      ...formData,
+      bgType: 'video',
+      customBgImage: undefined,
+    };
     setFormData(updated);
     onSaveSettings(updated);
   };
@@ -102,25 +114,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
             </div>
           </div>
 
-          {/* Style Selector: Glassmorphism vs Minimalist */}
+          {/* Style Selector: Riot Client vs Minimalist vs Glassmorphism */}
           <div>
             <label className="block text-xs text-slate-400 mb-2">{t.uiStyle}</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => {
-                  const updated = { ...formData, uiStyle: 'glass' as UiStyle };
+                  const updated = { ...formData, uiStyle: 'riot' as UiStyle };
                   setFormData(updated);
                   onSaveSettings(updated);
                 }}
                 className={`p-3 rounded-xl border text-left transition ${
-                  formData.uiStyle === 'glass'
-                    ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold'
+                  formData.uiStyle === 'riot' || !formData.uiStyle
+                    ? 'border-amber-500 bg-amber-500/10 text-white font-semibold shadow-sm'
                     : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
                 }`}
               >
-                <div className="text-xs font-bold text-slate-200">{t.styleGlass}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Hiệu ứng mờ, chiều sâu không gian</div>
+                <div className="text-xs font-bold text-amber-400">{t.styleRiot}</div>
+                <div className="text-[11px] text-slate-300 mt-0.5">Obsidian nhám, phong cách Riot Client</div>
               </button>
 
               <button
@@ -132,12 +144,29 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
                 }}
                 className={`p-3 rounded-xl border text-left transition ${
                   formData.uiStyle === 'minimal'
-                    ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold'
+                    ? 'border-amber-500 bg-amber-500/10 text-white font-semibold'
                     : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
                 }`}
               >
                 <div className="text-xs font-bold text-slate-200">{t.styleMinimal}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">Đường nét phẳng, tối giản, sắc nét</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...formData, uiStyle: 'glass' as UiStyle };
+                  setFormData(updated);
+                  onSaveSettings(updated);
+                }}
+                className={`p-3 rounded-xl border text-left transition ${
+                  formData.uiStyle === 'glass'
+                    ? 'border-amber-500 bg-amber-500/10 text-white font-semibold'
+                    : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
+                }`}
+              >
+                <div className="text-xs font-bold text-slate-200">{t.styleGlass}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Hiệu ứng mờ không gian</div>
               </button>
             </div>
           </div>
@@ -232,26 +261,102 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
             </div>
 
             {formData.bgType === 'image' && (
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-1 animate-fadeIn">
-                {/* File upload button */}
-                <label className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition shrink-0">
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>{t.bgUpload}</span>
-                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageUpload} className="hidden" />
-                </label>
+              <div className="space-y-3 pt-1 animate-fadeIn">
+                {/* Upload & URL Input */}
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <label className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition shrink-0 shadow-sm">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{t.bgUpload}</span>
+                    <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageUpload} className="hidden" />
+                  </label>
 
-                {/* URL input */}
-                <input
-                  type="text"
-                  value={formData.customBgImage || ''}
-                  onChange={(e) => {
-                    const updated = { ...formData, customBgImage: e.target.value || undefined };
-                    setFormData(updated);
-                    onSaveSettings(updated);
-                  }}
-                  placeholder={t.bgUrlPlaceholder}
-                  className="w-full glass-input px-3 py-2 rounded-xl text-xs text-white"
-                />
+                  <input
+                    type="text"
+                    value={formData.customBgImage || ''}
+                    onChange={(e) => {
+                      const updated: LauncherSettings = {
+                        ...formData,
+                        bgType: 'image',
+                        customBgImage: e.target.value || undefined,
+                      };
+                      setFormData(updated);
+                      onSaveSettings(updated);
+                    }}
+                    placeholder={t.bgUrlPlaceholder}
+                    className="w-full glass-input px-3 py-2 rounded-xl text-xs text-white"
+                  />
+                </div>
+
+                {/* Preset Wallpapers for Quick Selection */}
+                <div>
+                  <div className="text-[11px] font-semibold text-slate-400 mb-2">Hình nền mẫu gợi ý:</div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      {
+                        name: 'Hoàng Hôn Shaders',
+                        url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920&auto=format&fit=crop',
+                      },
+                      {
+                        name: 'Rừng Khám Phá',
+                        url: 'https://images.unsplash.com/photo-1511497584788-87676104235f?q=80&w=1920&auto=format&fit=crop',
+                      },
+                      {
+                        name: 'Không Gian Cyber',
+                        url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop',
+                      },
+                    ].map((preset) => {
+                      const isSelected = formData.customBgImage === preset.url;
+                      return (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => {
+                            const updated: LauncherSettings = {
+                              ...formData,
+                              bgType: 'image',
+                              customBgImage: preset.url,
+                            };
+                            setFormData(updated);
+                            onSaveSettings(updated);
+                          }}
+                          className={`p-2 rounded-xl border text-left flex items-center gap-2 transition ${
+                            isSelected
+                              ? 'border-amber-500 bg-amber-500/20 text-white shadow-sm'
+                              : 'border-white/5 bg-black/40 text-slate-400 hover:border-white/20'
+                          }`}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-lg bg-cover bg-center shrink-0 border border-white/10"
+                            style={{ backgroundImage: `url(${preset.url})` }}
+                          />
+                          <span className="text-[11px] font-medium truncate">{preset.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Active Image Preview */}
+                {formData.customBgImage && (
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/50 border border-white/5">
+                    <img
+                      src={formData.customBgImage}
+                      alt="Preview"
+                      className="w-14 h-9 object-cover rounded-lg border border-white/10"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold text-slate-200">Ảnh đang áp dụng</div>
+                      <div className="text-[10px] text-emerald-400 font-mono">Đã kích hoạt làm nền chính</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleResetBg}
+                      className="text-xs text-red-400 hover:text-red-300 px-2 py-1"
+                    >
+                      Gỡ ảnh
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

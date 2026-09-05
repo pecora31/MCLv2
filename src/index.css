@@ -2,56 +2,56 @@
 
 @layer base {
   :root {
-    --bg-primary: #0a0d14;
-    --bg-secondary: #101524;
-    --bg-card: rgba(18, 24, 38, 0.7);
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --accent-color: #6366f1;
-    --accent-hover: #4f46e5;
-    --accent-glow: rgba(99, 102, 241, 0.4);
-    --accent-subtle: rgba(99, 102, 241, 0.15);
-  }
-
-  /* Color Palettes */
-  .palette-indigo {
-    --accent-color: #6366f1;
-    --accent-hover: #4f46e5;
-    --accent-glow: rgba(99, 102, 241, 0.4);
-    --accent-subtle: rgba(99, 102, 241, 0.15);
-  }
-
-  .palette-emerald {
-    --accent-color: #10b981;
-    --accent-hover: #059669;
-    --accent-glow: rgba(16, 185, 129, 0.4);
-    --accent-subtle: rgba(16, 185, 129, 0.15);
-  }
-
-  .palette-amber {
+    --bg-primary: #080b11;
+    --bg-secondary: #0c101a;
+    --bg-card: #101624;
+    --border-subtle: rgba(255, 255, 255, 0.04);
     --accent-color: #f59e0b;
     --accent-hover: #d97706;
     --accent-glow: rgba(245, 158, 11, 0.4);
     --accent-subtle: rgba(245, 158, 11, 0.15);
   }
 
+  /* Color Palettes */
+  .palette-amber {
+    --accent-color: #f59e0b;
+    --accent-hover: #d97706;
+    --accent-glow: rgba(245, 158, 11, 0.45);
+    --accent-subtle: rgba(245, 158, 11, 0.15);
+  }
+
+  .palette-indigo {
+    --accent-color: #6366f1;
+    --accent-hover: #4f46e5;
+    --accent-glow: rgba(99, 102, 241, 0.45);
+    --accent-subtle: rgba(99, 102, 241, 0.15);
+  }
+
+  .palette-emerald {
+    --accent-color: #10b981;
+    --accent-hover: #059669;
+    --accent-glow: rgba(16, 185, 129, 0.45);
+    --accent-subtle: rgba(16, 185, 129, 0.15);
+  }
+
   .palette-rose {
     --accent-color: #f43f5e;
     --accent-hover: #e11d48;
-    --accent-glow: rgba(244, 63, 94, 0.4);
+    --accent-glow: rgba(244, 63, 94, 0.45);
     --accent-subtle: rgba(244, 63, 94, 0.15);
   }
 
   .palette-cyan {
     --accent-color: #06b6d4;
     --accent-hover: #0891b2;
-    --accent-glow: rgba(6, 182, 212, 0.4);
+    --accent-glow: rgba(6, 182, 212, 0.45);
     --accent-subtle: rgba(6, 182, 212, 0.15);
   }
 
   .palette-slate {
     --accent-color: #94a3b8;
     --accent-hover: #64748b;
-    --accent-glow: rgba(148, 163, 184, 0.3);
+    --accent-glow: rgba(148, 163, 184, 0.35);
     --accent-subtle: rgba(148, 163, 184, 0.15);
   }
 
@@ -59,16 +59,27 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    border-color: inherit;
   }
 
   body {
     background-color: var(--bg-primary);
     color: #f1f5f9;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Barlow', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     user-select: none;
     overflow: hidden;
     height: 100vh;
     width: 100vw;
+    border: none;
+    outline: none;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    border: none;
+    outline: none;
   }
 }
 
@@ -79,11 +90,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(10, 13, 20, 0.5);
+  background: #080b11;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: #1e293b;
   border-radius: 9999px;
 }
 
@@ -91,78 +102,96 @@
   background: var(--accent-color);
 }
 
-/* Style Variants: Glassmorphism vs Minimalist */
-.style-glass .glass-panel {
-  background: linear-gradient(135deg, rgba(18, 24, 40, 0.75) 0%, rgba(10, 14, 24, 0.85) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+/* Typography Utilities */
+.font-riot {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.05em;
 }
 
-.style-glass .glass-card {
-  background: rgba(18, 24, 40, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: all 0.2s ease;
+.font-cinzel {
+  font-family: 'Cinzel', serif;
 }
 
+/* Riot Client Matte Obsidian Panels (No Glassmorphism Milky Blur) */
+.glass-panel,
+.style-riot .glass-panel,
 .style-minimal .glass-panel {
-  background: #0f1422;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
 }
 
+.glass-card,
+.style-riot .glass-card,
 .style-minimal .glass-card {
-  background: #131a2b;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: border-color 0.15s ease;
+  background: #101624;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .glass-card:hover {
+  background: #141c2e;
   border-color: var(--accent-color);
   box-shadow: 0 4px 16px var(--accent-subtle);
 }
 
 .glass-card-active {
-  background: rgba(26, 34, 56, 0.9) !important;
+  background: #162035 !important;
   border-color: var(--accent-color) !important;
   box-shadow: 0 0 16px var(--accent-subtle);
 }
 
 .glass-input {
-  background: rgba(12, 16, 26, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: #f8fafc;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .glass-input:focus {
   border-color: var(--accent-color);
-  box-shadow: 0 0 10px var(--accent-subtle);
+  box-shadow: 0 0 12px var(--accent-subtle);
+}
+
+/* Optional Glassmorphism fallback only if explicitly chosen in settings */
+.style-glass .glass-panel {
+  background: rgba(14, 20, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.style-glass .glass-card {
+  background: rgba(18, 25, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* Dynamic Primary Button */
 .btn-primary {
   background: var(--accent-color);
-  color: white;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  color: #070a12;
+  font-weight: 700;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.15s ease;
   box-shadow: 0 2px 10px var(--accent-subtle);
 }
 
 .btn-primary:hover {
   background: var(--accent-hover);
-  box-shadow: 0 4px 16px var(--accent-glow);
+  box-shadow: 0 4px 18px var(--accent-glow);
 }
 
 /* Launch Button Variants */
 .btn-action-launch {
   background: var(--accent-color);
   box-shadow: 0 4px 18px var(--accent-glow);
-  color: white;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #070a12;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-action-launch:hover {
@@ -175,7 +204,7 @@
   background: #059669;
   color: white;
   box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-action-running:hover {
@@ -183,93 +212,97 @@
   box-shadow: 0 4px 18px rgba(220, 38, 38, 0.5) !important;
 }
 
-/* Riot-Style Play Button */
+/* Riot-Style Play Button (Signature Metallic Beveled Button) */
 .btn-riot-play {
   height: 52px;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-  color: #0f172a;
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 55%, #b45309 100%);
+  color: #050811;
   font-weight: 900;
-  font-family: 'Outfit', sans-serif;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 24px rgba(245, 158, 11, 0.45), 0 4px 12px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid rgba(254, 240, 138, 0.4);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid #fef08a;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 20px rgba(245, 158, 11, 0.4), 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-riot-play:hover {
-  background: linear-gradient(135deg, #fde047 0%, #fbbf24 50%, #f59e0b 100%);
-  box-shadow: 0 0 32px rgba(245, 158, 11, 0.7), 0 6px 16px rgba(0, 0, 0, 0.6);
-  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(180deg, #fef08a 0%, #fbbf24 55%, #d97706 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 0 32px rgba(245, 158, 11, 0.7), 0 6px 18px rgba(0, 0, 0, 0.7);
+  transform: translateY(-1px);
 }
 
 .btn-riot-play:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
+.palette-indigo .btn-riot-play {
+  background: linear-gradient(180deg, #a5b4fc 0%, #6366f1 55%, #3730a3 100%);
+  border-color: #c7d2fe;
+  color: #ffffff;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 20px rgba(99, 102, 241, 0.4), 0 4px 14px rgba(0, 0, 0, 0.6);
+}
+.palette-indigo .btn-riot-play:hover {
+  background: linear-gradient(180deg, #c7d2fe 0%, #818cf8 55%, #4338ca 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 0 32px rgba(99, 102, 241, 0.7);
 }
 
 .palette-emerald .btn-riot-play {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
-  border-color: rgba(167, 243, 208, 0.4);
-  box-shadow: 0 0 24px rgba(16, 185, 129, 0.45);
+  background: linear-gradient(180deg, #6ee7b7 0%, #10b981 55%, #065f46 100%);
+  border-color: #a7f3d0;
+  color: #032014;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 20px rgba(16, 185, 129, 0.4), 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 .palette-emerald .btn-riot-play:hover {
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%);
-  box-shadow: 0 0 32px rgba(16, 185, 129, 0.7);
+  background: linear-gradient(180deg, #a7f3d0 0%, #34d399 55%, #047857 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 0 32px rgba(16, 185, 129, 0.7);
 }
 
 .palette-rose .btn-riot-play {
-  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
-  border-color: rgba(254, 205, 211, 0.4);
-  box-shadow: 0 0 24px rgba(244, 63, 94, 0.45);
+  background: linear-gradient(180deg, #fda4af 0%, #f43f5e 55%, #9f1239 100%);
+  border-color: #fecdd3;
+  color: #ffffff;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 20px rgba(244, 63, 94, 0.4), 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 .palette-rose .btn-riot-play:hover {
-  background: linear-gradient(135deg, #fda4af 0%, #fb7185 50%, #f43f5e 100%);
-  box-shadow: 0 0 32px rgba(244, 63, 94, 0.7);
+  background: linear-gradient(180deg, #fecdd3 0%, #fb7185 55%, #be123c 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 0 32px rgba(244, 63, 94, 0.7);
 }
 
 .palette-cyan .btn-riot-play {
-  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 50%, #0891b2 100%);
-  border-color: rgba(165, 243, 252, 0.4);
-  box-shadow: 0 0 24px rgba(6, 182, 212, 0.45);
+  background: linear-gradient(180deg, #67e8f9 0%, #06b6d4 55%, #155e75 100%);
+  border-color: #a5f3fc;
+  color: #04252e;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 20px rgba(6, 182, 212, 0.4), 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 .palette-cyan .btn-riot-play:hover {
-  background: linear-gradient(135deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%);
-  box-shadow: 0 0 32px rgba(6, 182, 212, 0.7);
+  background: linear-gradient(180deg, #a5f3fc 0%, #22d3ee 55%, #0e7490 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 0 32px rgba(6, 182, 212, 0.7);
 }
 
 .btn-riot-running {
   height: 52px;
-  border-radius: 1rem;
-  background: #059669;
+  border-radius: 0.75rem;
+  background: #047857;
   color: #ffffff;
-  font-weight: 800;
-  font-family: 'Outfit', sans-serif;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid rgba(52, 211, 153, 0.4);
+  font-weight: 900;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid #34d399;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4), 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: all 0.15s ease;
 }
 
 .btn-riot-running:hover {
-  background: #dc2626 !important;
+  background: #b91c1c !important;
   color: #ffffff !important;
-  border-color: rgba(248, 113, 113, 0.5) !important;
+  border-color: #f87171 !important;
   box-shadow: 0 0 28px rgba(220, 38, 38, 0.6) !important;
-}
-
-/* Riot News / Media Preview Cards */
-.riot-preview-card {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-}
-.riot-preview-card:hover {
-  transform: translateY(-4px) scale(1.02);
-}
-.riot-preview-card:hover .riot-card-img {
-  transform: scale(1.08);
-}
-.riot-card-img {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Tauri window drag helper */
