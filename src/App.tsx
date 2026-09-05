@@ -13,6 +13,7 @@ import { ConsoleModal } from './components/common/ConsoleModal';
 import type { GameInstance, Account, LauncherSettings, LaunchProgress } from './types';
 import { invokeCommand, isTauri } from './services/api';
 import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 import type { Language } from './locales/i18n';
 
 const DEFAULT_INSTANCES: GameInstance[] = [
@@ -153,6 +154,24 @@ export const App: React.FC = () => {
       }
     }
   }, [settings.bgType, settings.customVideoUrl]);
+
+  // Apply 1600x900 Riot Client dimensions, disable shadow (white border) and center window
+  useEffect(() => {
+    if (isTauri()) {
+      const configureWindow = async () => {
+        try {
+          const win = getCurrentWindow();
+          await win.setShadow(false);
+          await win.setSize(new LogicalSize(1600, 900));
+          await win.setResizable(false);
+          await win.center();
+        } catch (err) {
+          console.warn('Error applying window settings:', err);
+        }
+      };
+      configureWindow();
+    }
+  }, []);
 
   // Load instances from backend if in Tauri
   useEffect(() => {
@@ -371,30 +390,30 @@ export const App: React.FC = () => {
         />
       </div>
 
-      {/* Main Foreground Container */}
-      <div className="relative z-10 flex flex-col h-full w-full bg-transparent overflow-hidden">
-        {/* Frameless TitleBar */}
-        <TitleBar
-          onOpenConsole={() => setIsConsoleOpen(true)}
-          isRunning={isRunning}
+      {/* Main Foreground Container: Full-Height Sidebar on Left, Canvas Column on Right */}
+      <div className="relative z-10 flex h-full w-full bg-transparent overflow-hidden">
+        {/* Full-Height Sidebar (matching Riot Client Image 5) */}
+        <Sidebar
+          currentTab={currentTab}
+          onTabChange={setCurrentTab}
+          account={account}
+          onUpdateUsername={handleUpdateUsername}
           language={language}
-          onToggleLanguage={handleToggleLanguage}
         />
 
-        {/* Main App Layout */}
-        <div className="flex flex-1 overflow-hidden relative">
-          {/* Wider Sidebar (80px) */}
-          <Sidebar
-            currentTab={currentTab}
-            onTabChange={setCurrentTab}
-            account={account}
-            onUpdateUsername={handleUpdateUsername}
+        {/* Right Canvas Column: TitleBar + Dynamic Content View */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
+          {/* Frameless TitleBar (only right side controls, no duplicate MC logo) */}
+          <TitleBar
+            onOpenConsole={() => setIsConsoleOpen(true)}
+            isRunning={isRunning}
             language={language}
+            onToggleLanguage={handleToggleLanguage}
           />
 
-          {/* Dynamic Content View */}
-          <main className="flex-1 flex overflow-hidden bg-transparent">
-            {currentTab === 'home' && (
+          {/* Dynamic Content View with Persistent Tab Panels for Instant, Smooth Transitions */}
+          <main className="flex-1 flex overflow-hidden bg-transparent relative">
+            <div className={`tab-panel ${currentTab === 'home' ? 'active' : ''}`}>
               <ServerHub
                 instances={instances}
                 selectedInstanceId={selectedInstanceId}
@@ -406,9 +425,9 @@ export const App: React.FC = () => {
                 isPreparing={isPreparing}
                 language={language}
               />
-            )}
+            </div>
 
-            {currentTab === 'instances' && (
+            <div className={`tab-panel ${currentTab === 'instances' ? 'active' : ''}`}>
               <InstanceList
                 instances={instances}
                 selectedInstanceId={selectedInstanceId}
@@ -421,19 +440,21 @@ export const App: React.FC = () => {
                 onOpenCreateModal={() => setIsCreateModalOpen(true)}
                 isRunning={isRunning}
               />
-            )}
+            </div>
 
-            {currentTab === 'mods' && <ModStore activeInstance={activeInstance} />}
+            <div className={`tab-panel ${currentTab === 'mods' ? 'active' : ''}`}>
+              <ModStore activeInstance={activeInstance} />
+            </div>
 
-            {currentTab === 'skin' && (
+            <div className={`tab-panel ${currentTab === 'skin' ? 'active' : ''}`}>
               <SkinStudio
                 account={account}
                 onUpdateSkin={handleUpdateSkin}
                 instances={instances}
               />
-            )}
+            </div>
 
-            {currentTab === 'profile' && (
+            <div className={`tab-panel ${currentTab === 'profile' ? 'active' : ''}`}>
               <ProfileView
                 account={account}
                 onUpdateAccount={setAccount}
@@ -441,15 +462,15 @@ export const App: React.FC = () => {
                 instances={instances}
                 language={language}
               />
-            )}
+            </div>
 
-            {currentTab === 'settings' && (
+            <div className={`tab-panel ${currentTab === 'settings' ? 'active' : ''}`}>
               <SettingsView
                 settings={settings}
                 onSaveSettings={setSettings}
                 language={language}
               />
-            )}
+            </div>
           </main>
         </div>
 

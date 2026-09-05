@@ -33,6 +33,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
   const [copied, setCopied] = useState(false);
   const [isPinging, setIsPinging] = useState(false);
   const [isHoveringStop, setIsHoveringStop] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const [serverStatus, setServerStatus] = useState<ServerStatus>({
     ip: selectedInstance?.serverIp || 'play.ourserver.mc',
@@ -76,30 +77,15 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
   return (
     <div className="flex-1 flex flex-col justify-between overflow-hidden relative select-none bg-transparent">
-      {/* Riot-Style Top Navigation Bar (Clean matte without glassmorphism) */}
-      <div className="px-8 pt-5 pb-3 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent z-10">
-        {/* Game Title on Left */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center font-black text-slate-950 text-sm shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-            MC
-          </div>
-          <div>
-            <div className="text-[11px] font-black uppercase tracking-widest text-amber-400 font-riot">
-              MCL CLIENT
-            </div>
-            <div className="text-xs font-bold text-white tracking-wide">
-              {serverStatus.motd?.replace(/§[0-9a-fk-or]/g, '') || 'Minecraft Server'}
-            </div>
-          </div>
-        </div>
-
-        {/* Center Capsule Tabs (Riot Style Clean Obsidian) */}
-        <div className="p-1 rounded-full bg-[#0c121e] border border-white/[0.06] flex items-center gap-1 shadow-md">
+      {/* Riot-Style Top Navigation Bar (Seamless, transparent, no dark gradient band) */}
+      <div className="px-8 pt-3 pb-2 flex items-center justify-between z-10 bg-transparent">
+        {/* Center Capsule Tabs */}
+        <div className="p-1 rounded-full bg-[#0c121e]/85 border border-white/[0.08] flex items-center gap-1 shadow-md">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-5 py-1.5 rounded-full text-xs font-bold font-riot transition-all ${
+            className={`px-5 py-1.5 rounded-full text-xs font-bold font-riot transition-colors ${
               activeTab === 'overview'
-                ? 'bg-amber-500/20 text-amber-300 shadow-sm border border-amber-500/40'
+                ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -107,9 +93,9 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('server')}
-            className={`px-5 py-1.5 rounded-full text-xs font-bold font-riot transition-all ${
+            className={`px-5 py-1.5 rounded-full text-xs font-bold font-riot transition-colors ${
               activeTab === 'server'
-                ? 'bg-amber-500/20 text-amber-300 shadow-sm border border-amber-500/40'
+                ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -119,7 +105,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
         {/* Right Status Pill */}
         <div className="flex items-center gap-2">
-          <div className="px-3.5 py-1.5 rounded-full bg-[#0c121e] border border-white/[0.06] flex items-center gap-2.5 text-xs shadow-md">
+          <div className="px-3.5 py-1.5 rounded-full bg-[#0c121e]/85 border border-white/[0.08] flex items-center gap-2.5 text-xs shadow-md">
             <span className={`w-2.5 h-2.5 rounded-full ${serverStatus.online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
             <span className="font-mono text-slate-200 font-semibold">{serverStatus.playersOnline}/{serverStatus.playersMax}</span>
             <span className="text-slate-600">•</span>
@@ -152,7 +138,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleCopyIp}
-                className="px-7 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(245,158,11,0.35)] hover:scale-105 active:scale-95 flex items-center gap-2 font-riot"
+                className="px-7 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-colors shadow-[0_4px_20px_rgba(245,158,11,0.35)] flex items-center gap-2 font-riot"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-950" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? t.copied : `${t.heroCta} (IP: ${serverStatus.ip})`}</span>
@@ -295,42 +281,53 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           )}
         </div>
 
-        {/* Right Side: Profile Selector + BIG Riot Play Button */}
-        <div className="flex items-center gap-3 shrink-0">
-          {/* Profile Dropdown (Sleek 52px Riot style selector) */}
-          <div className="relative w-56 sm:w-64">
-            <select
-              value={selectedInstanceId}
-              onChange={(e) => onSelectInstance(e.target.value)}
-              disabled={isRunning || isPreparingOrDownloading}
-              className="w-full h-[52px] appearance-none bg-[#0c121e] hover:bg-[#141b2b] border border-white/[0.08] rounded-xl px-4 text-xs font-bold text-white pr-9 cursor-pointer disabled:opacity-60 transition shadow-xl"
-            >
+        {/* Right Side: [ ▶ Chơi ] + [ ▼ ] Button Group (Matching Image 1) */}
+        <div className="relative flex items-center gap-2.5 shrink-0">
+          {/* Active Profile Dropdown Popover */}
+          {isProfileDropdownOpen && (
+            <div className="absolute right-0 bottom-16 w-80 rounded-2xl bg-[#0e131d] border border-white/10 shadow-2xl p-2 z-50 space-y-1">
+              <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider font-riot">
+                Chọn Profile Phiên Bản
+              </div>
               {instances.map((inst) => (
-                <option key={inst.id} value={inst.id} className="bg-slate-900 text-white font-sans py-2">
-                  {inst.name} ({inst.loader.toUpperCase()} {inst.gameVersion})
-                </option>
+                <button
+                  key={inst.id}
+                  onClick={() => {
+                    onSelectInstance(inst.id);
+                    setIsProfileDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                    inst.id === selectedInstanceId
+                      ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
+                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="truncate font-semibold">{inst.name}</span>
+                  <span className="text-[11px] text-slate-400 font-mono shrink-0 ml-2">
+                    {inst.loader.toUpperCase()} {inst.gameVersion}
+                  </span>
+                </button>
               ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+            </div>
+          )}
 
-          {/* BIG Riot Play Button [ ▶ Chơi ] */}
+          {/* BIG Riot Play Button: "▶ Chơi" (Image 1 Style) */}
           {isRunning ? (
             <button
               onClick={onStopGame}
               onMouseEnter={() => setIsHoveringStop(true)}
               onMouseLeave={() => setIsHoveringStop(false)}
-              className="btn-riot-running px-8 min-w-[170px] flex items-center justify-center gap-2.5 shadow-2xl"
+              className="btn-riot-running px-8 min-w-[180px]"
             >
               {isHoveringStop ? (
                 <>
                   <Square className="w-5 h-5 fill-current" />
-                  <span className="text-sm font-black">{t.btnStopGame}</span>
+                  <span>{t.btnStopGame}</span>
                 </>
               ) : (
                 <>
                   <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-                  <span className="text-sm font-black">{t.btnInGame}</span>
+                  <span>{t.btnInGame}</span>
                 </>
               )}
             </button>
@@ -338,25 +335,35 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             <button
               onClick={onLaunch}
               disabled={isPreparingOrDownloading}
-              className={`min-w-[170px] flex items-center justify-center gap-2.5 ${
+              className={`min-w-[180px] px-8 ${
                 isPreparingOrDownloading
-                  ? 'h-[52px] rounded-2xl bg-slate-900/80 text-amber-400/70 border border-amber-500/20 cursor-wait shadow-xl'
+                  ? 'h-[54px] rounded-2xl bg-slate-900/90 text-amber-400/80 border border-amber-500/20 cursor-wait flex items-center justify-center gap-2'
                   : 'btn-riot-play'
               }`}
             >
               {isPreparingOrDownloading ? (
                 <>
                   <RefreshCw className="w-5 h-5 animate-spin text-amber-400" />
-                  <span className="text-sm font-black tracking-wider">{t.btnLoading}</span>
+                  <span className="text-base font-bold">{t.btnLoading}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-5 h-5 fill-current" />
-                  <span className="text-base font-black tracking-wider">{t.btnLaunch}</span>
+                  <span>{language === 'vi' ? 'Chơi' : 'Play'}</span>
                 </>
               )}
             </button>
           )}
+
+          {/* Dropdown Button [ ▼ ] (Image 1 Style) */}
+          <button
+            onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+            disabled={isRunning || isPreparingOrDownloading}
+            title="Chọn phiên bản trò chơi"
+            className="btn-riot-dropdown"
+          >
+            <ChevronDown className={`w-5 h-5 transition-transform duration-150 ${isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''}`} />
+          </button>
         </div>
       </div>
     </div>

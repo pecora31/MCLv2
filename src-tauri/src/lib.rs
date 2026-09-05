@@ -6,6 +6,7 @@ mod models;
 mod server_ping;
 
 use models::{GameInstance, JavaInstallation, LocalMod, ServerStatus};
+use tauri::Manager;
 
 #[tauri::command]
 fn get_instances() -> Vec<GameInstance> {
@@ -80,6 +81,12 @@ pub fn run() {
                         .level(log::LevelFilter::Info)
                         .build(),
                 )?;
+            }
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_shadow(false);
+                let _ = window.set_size(tauri::LogicalSize::new(1600.0, 900.0));
+                let _ = window.set_resizable(false);
+                let _ = window.center();
             }
             Ok(())
         })

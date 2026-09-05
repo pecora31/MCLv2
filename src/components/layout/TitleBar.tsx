@@ -60,21 +60,12 @@ export const TitleBar: React.FC<TitleBarProps> = ({
   return (
     <header
       data-tauri-drag-region
-      className="titlebar-drag-region h-10 bg-transparent flex items-center justify-between px-4 select-none z-50 sticky top-0"
+      className="titlebar-drag-region h-11 bg-transparent flex items-center justify-between px-6 select-none z-50 shrink-0"
     >
-      {/* Brand & Status */}
-      <div className="flex items-center gap-2.5 titlebar-no-drag">
-        <div className="w-5 h-5 rounded-md bg-amber-500 flex items-center justify-center text-slate-950 font-black text-[10px] shadow-sm">
-          MC
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-['Outfit'] font-bold text-xs tracking-wider text-white">
-            MCL<span className="text-amber-400 font-mono text-[11px]">v2</span>
-          </span>
-        </div>
-
+      {/* Left side of canvas header: status only when in-game */}
+      <div className="flex items-center gap-2 titlebar-no-drag">
         {isRunning && (
-          <div className="ml-2 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px]">
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-mono">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>{t.inGame}</span>
           </div>
@@ -82,7 +73,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({
       </div>
 
       {/* Center Drag Area */}
-      <div data-tauri-drag-region className="flex-1 h-full flex items-center justify-center" />
+      <div data-tauri-drag-region className="flex-1 h-full" />
 
       {/* Right Controls */}
       <div className="flex items-center gap-1.5 titlebar-no-drag">

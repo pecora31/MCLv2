@@ -13,11 +13,12 @@
     "windows": [
       {
         "title": "MCLv2 - Minecraft Launcher",
-        "width": 1280,
-        "height": 720,
+        "width": 1600,
+        "height": 900,
         "resizable": false,
         "fullscreen": false,
-        "decorations": false
+        "decorations": false,
+        "shadow": false
       }
     ],
     "security": {
