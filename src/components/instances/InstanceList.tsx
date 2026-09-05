@@ -30,11 +30,11 @@ export const InstanceList: React.FC<InstanceListProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-2 tracking-wide">
             <Layers className="w-4 h-4" />
-            <span>Danh Sách Profile</span>
+            <span>Profile Manager</span>
           </div>
-          <h1 className="text-3xl font-extrabold font-riot text-white tracking-normal">Danh Sách Phiên Bản Game</h1>
+          <h1 className="text-3xl font-extrabold font-riot text-white tracking-normal">Game Profiles & Versions</h1>
           <p className="text-base text-slate-300 mt-1 tracking-wide">
-            Mỗi profile được lưu trữ tại thư mục riêng biệt, hoạt động độc lập.
+            Each profile is stored in an isolated directory with its own mods and configurations.
           </p>
         </div>
 
@@ -43,7 +43,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
           className="btn-primary py-3 px-6 rounded-2xl font-riot font-bold text-sm flex items-center gap-2 shadow-lg shrink-0 tracking-wide"
         >
           <Plus className="w-4 h-4" />
-          <span>Tạo Profile Mới</span>
+          <span>New Profile</span>
         </button>
       </div>
 
@@ -54,9 +54,9 @@ export const InstanceList: React.FC<InstanceListProps> = ({
             <Layers className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white font-riot">Chưa Có Phiên Bản Nào</h3>
+            <h3 className="text-xl font-bold text-white font-riot">No Profiles Found</h3>
             <p className="text-xs text-slate-400 mt-1.5 max-w-md leading-relaxed">
-              Bạn hiện chưa có profile game nào. Hãy tạo một profile mới để tải tài nguyên Minecraft và bắt đầu chơi!
+              You haven't created any profiles yet. Create your first profile to download Minecraft assets and begin playing!
             </p>
           </div>
           <button
@@ -64,7 +64,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
             className="btn-primary py-3 px-6 rounded-xl font-riot font-bold text-sm flex items-center gap-2 shadow-lg cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Tạo Profile Đầu Tiên</span>
+            <span>Create First Profile</span>
           </button>
         </div>
       ) : (
@@ -92,14 +92,14 @@ export const InstanceList: React.FC<InstanceListProps> = ({
                       <span className="font-semibold text-white">Minecraft {inst.gameVersion}</span>
                       <span className="text-slate-500">•</span>
                       <span className="capitalize text-amber-400 font-bold font-mono">
-                        {inst.loader === 'vanilla' ? 'Vanilla (Gốc)' : `${inst.loader.toUpperCase()} ${inst.loaderVersion || ''}`}
+                        {inst.loader === 'vanilla' ? 'Vanilla' : `${inst.loader.toUpperCase()} ${inst.loaderVersion || ''}`}
                       </span>
                     </div>
                   </div>
 
                   {isSelected && (
                     <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 font-riot tracking-wider">
-                      ĐANG CHỌN
+                      SELECTED
                     </span>
                   )}
                 </div>
@@ -107,7 +107,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
                 {/* Last played info */}
                 <div className="flex items-center gap-2 text-xs text-slate-400 tracking-wide">
                   <Clock className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Chơi gần nhất: {inst.lastPlayed || 'Chưa chơi'}</span>
+                  <span>Last played: {inst.lastPlayed || 'Never'}</span>
                 </div>
 
                 {/* Actions Footer */}
@@ -125,13 +125,13 @@ export const InstanceList: React.FC<InstanceListProps> = ({
                     }`}
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>CHƠI NGAY</span>
+                    <span>PLAY NOW</span>
                   </button>
 
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => onEditInstance(inst)}
-                      title="Chỉnh sửa Profile"
+                      title="Edit Profile"
                       className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -139,11 +139,11 @@ export const InstanceList: React.FC<InstanceListProps> = ({
 
                     <button
                       onClick={() => {
-                        if (confirm(`Bạn có chắc muốn xóa profile "${inst.name}"?`)) {
+                        if (confirm(`Are you sure you want to delete profile "${inst.name}"?`)) {
                           onDeleteInstance(inst.id);
                         }
                       }}
-                      title="Xóa Profile"
+                      title="Delete Profile"
                       className="p-2.5 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition"
                     >
                       <Trash2 className="w-4 h-4" />

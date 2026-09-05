@@ -172,8 +172,8 @@ export const translations = {
     tabOverview: 'Overview',
     tabServerInfo: 'Server Info',
     tabNews: 'Updates & Modpack',
-    heroTitle: 'MCLv2 Survival Server',
-    heroSub: 'Join your friends, explore new worlds with optimized modpacks and synchronized team skins.',
+    heroTitle: 'MCL Client',
+    heroSub: 'Next-generation Minecraft launcher with high-performance optimization, direct server connection, and unified profile management.',
     heroCta: 'Explore Now',
     card1Tag: 'DEV TEAM',
     card1Title: 'Survival & Exploration Season 2',
@@ -267,5 +267,5 @@ export const translations = {
 };
 
 export function getTranslation(lang: Language) {
-  return translations[lang] || translations.vi;
+  return translations[lang] || translations.en;
 }

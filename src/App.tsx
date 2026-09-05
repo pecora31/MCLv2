@@ -6,7 +6,6 @@ import { ServerHub } from './components/home/ServerHub';
 import { InstanceList } from './components/instances/InstanceList';
 import { CreateInstanceModal } from './components/instances/CreateInstanceModal';
 import { EditInstanceModal } from './components/instances/EditInstanceModal';
-import { ServerManagerModal } from './components/server/ServerManagerModal';
 import { SkinStudio } from './components/skin/SkinStudio';
 import { ModStore } from './components/mods/ModStore';
 import { SettingsView } from './components/settings/SettingsView';
@@ -39,7 +38,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, info: any) {
-    console.error('MCLv2 ErrorBoundary caught error:', error, info);
+    console.error('MCL ErrorBoundary caught error:', error, info);
   }
 
   render() {
@@ -50,9 +49,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-xl font-bold">
               ⚠️
             </div>
-            <h2 className="text-xl font-bold font-riot">Đã xảy ra sự cố giao diện</h2>
+            <h2 className="text-xl font-bold font-riot">Application Interface Error</h2>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Ứng dụng vừa ghi nhận lỗi: <span className="font-mono text-amber-300">{this.state.error?.message}</span>
+              Encountered issue: <span className="font-mono text-amber-300">{this.state.error?.message}</span>
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
@@ -62,7 +61,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 }}
                 className="btn-primary px-5 py-2.5 rounded-xl text-xs font-bold font-riot cursor-pointer"
               >
-                Tải lại ứng dụng
+                Reload App
               </button>
             </div>
           </div>
@@ -76,7 +75,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 const DEFAULT_INSTANCES: GameInstance[] = [
   {
     id: 'server-instance-01',
-    name: 'Máy Chủ Nhóm Bạn',
+    name: 'Community Server',
     gameVersion: '1.21.4',
     loader: 'fabric',
     loaderVersion: '0.16.10',
@@ -87,7 +86,7 @@ const DEFAULT_INSTANCES: GameInstance[] = [
     serverIp: 'play.ourserver.mc',
     serverPort: 25565,
     enableSkinInGame: true,
-    lastPlayed: 'Hôm nay, 21:30',
+    lastPlayed: 'Today, 21:30',
     totalPlayTime: 1420,
   },
   {
@@ -99,12 +98,12 @@ const DEFAULT_INSTANCES: GameInstance[] = [
     maxRam: 4096,
     icon: 'grass',
     enableSkinInGame: true,
-    lastPlayed: 'Hôm qua',
+    lastPlayed: 'Yesterday',
     totalPlayTime: 320,
   },
   {
     id: 'instance-forge-1201',
-    name: 'Sinh Tồn Forge 1.20.1',
+    name: 'Survival Forge 1.20.1',
     gameVersion: '1.20.1',
     loader: 'forge',
     loaderVersion: '47.3.0',
@@ -112,7 +111,7 @@ const DEFAULT_INSTANCES: GameInstance[] = [
     maxRam: 8192,
     icon: 'sword',
     enableSkinInGame: true,
-    lastPlayed: '3 ngày trước',
+    lastPlayed: '3 days ago',
     totalPlayTime: 2540,
   },
 ];
@@ -120,7 +119,7 @@ const DEFAULT_INSTANCES: GameInstance[] = [
 const DEFAULT_SERVERS: SavedServer[] = [
   {
     id: 'srv-01',
-    name: 'Máy Chủ Nhóm Bạn',
+    name: 'Friends Community Server',
     ip: 'play.ourserver.mc',
     port: 25565,
   },
@@ -146,7 +145,7 @@ const DEFAULT_SETTINGS: LauncherSettings = {
   defaultMinRam: 2048,
   defaultMaxRam: 4096,
   defaultJvmArgs: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200',
-  language: 'vi',
+  language: 'en',
   uiStyle: 'riot',
   colorPalette: 'amber',
   bgType: 'video',
@@ -155,7 +154,7 @@ const DEFAULT_SETTINGS: LauncherSettings = {
   enableDiscordRpc: true,
   serverHost: 'play.ourserver.mc',
   serverPort: 25565,
-  serverName: 'Máy Chủ Minecraft Nhóm Bạn',
+  serverName: 'Friends Community Server',
 };
 
 export const App: React.FC = () => {
@@ -177,7 +176,6 @@ export const App: React.FC = () => {
   const [directConnectServer, setDirectConnectServer] = useState<boolean>(() => {
     return localStorage.getItem('mcl_direct_connect') === 'true';
   });
-  const [isServerManagerOpen, setIsServerManagerOpen] = useState(false);
 
   const [account, setAccount] = useState<Account>(() => {
     const saved = localStorage.getItem('mcl_account');
@@ -189,13 +187,14 @@ export const App: React.FC = () => {
     return {
       ...DEFAULT_SETTINGS,
       ...parsed,
+      language: 'en',
       bgType: parsed.bgType || (parsed.customBgImage ? 'image' : 'video'),
     };
   });
 
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('mcl_lang') as Language;
-    return saved || settings.language || 'vi';
+    return saved || 'en';
   });
 
   // Modal states
@@ -305,7 +304,7 @@ export const App: React.FC = () => {
       jvmArgs: settings.defaultJvmArgs,
       icon: newInstData.icon || 'grass',
       enableSkinInGame: newInstData.enableSkinInGame ?? true,
-      lastPlayed: 'Mới tạo',
+      lastPlayed: 'Just created',
       totalPlayTime: 0,
     };
 
@@ -386,7 +385,7 @@ export const App: React.FC = () => {
       try {
         unlistenProgress = await listen<LaunchProgress>('download-progress', (event) => {
           setLaunchProgress(event.payload);
-          if (event.payload.stage === 'Lỗi') {
+          if (event.payload.stage === 'Lỗi' || event.payload.stage === 'Error') {
             setIsPreparing(false);
           }
         });
@@ -406,7 +405,7 @@ export const App: React.FC = () => {
           setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
           setConsoleLogs((prev) => [
             ...prev,
-            `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Tiến trình Minecraft đã đóng.`,
+            `[${new Date().toLocaleTimeString()}] [MCL/INFO] Minecraft process exited.`,
           ]);
         });
       } catch (err) {
@@ -444,18 +443,18 @@ export const App: React.FC = () => {
     setIsRunning(false);
     setIsPreparing(true);
     setConsoleLogs([
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Khởi động phiên bản: ${launchData.name} (Minecraft ${launchData.gameVersion})`,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Người chơi: ${account.username} (${account.type.toUpperCase()})`,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Cấp phát RAM: ${launchData.maxRam} MB`,
+      `[${new Date().toLocaleTimeString()}] [MCL/INFO] Launching profile: ${launchData.name} (Minecraft ${launchData.gameVersion})`,
+      `[${new Date().toLocaleTimeString()}] [MCL/INFO] Player: ${account.username} (${account.type.toUpperCase()})`,
+      `[${new Date().toLocaleTimeString()}] [MCL/INFO] Allocated RAM: ${launchData.maxRam} MB`,
       ...(directConnectServer && currentServer
-        ? [`[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Tự động vào thẳng Server: ${currentServer.name} (${currentServer.ip}:${currentServer.port})`]
+        ? [`[${new Date().toLocaleTimeString()}] [MCL/INFO] Direct connect configured: ${currentServer.name} (${currentServer.ip}:${currentServer.port})`]
         : []),
     ]);
 
     setLaunchProgress({
       stage: 'checking',
       percentage: 5,
-      currentFile: 'Đang kết nối Mojang CDN và kiểm tra dữ liệu...',
+      currentFile: 'Connecting to Mojang CDN and verifying assets...',
       downloadedBytes: 0,
       totalBytes: 0,
       speedBps: 0,
@@ -472,7 +471,7 @@ export const App: React.FC = () => {
         setIsPreparing(false);
         setConsoleLogs((prev) => [
           ...prev,
-          `[${new Date().toLocaleTimeString()}] [MCLv2/LỖI] ${err?.toString() || 'Khởi chạy thất bại'}`,
+          `[${new Date().toLocaleTimeString()}] [MCL/ERROR] ${err?.toString() || 'Launch failed'}`,
         ]);
         setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
         setIsRunning(false);
@@ -481,9 +480,9 @@ export const App: React.FC = () => {
       // Browser preview simulation
       setLaunchProgress({ stage: 'downloading', percentage: 35, currentFile: `client-${launchData.gameVersion}.jar`, downloadedBytes: 25000000, totalBytes: 42000000, speedBps: 8500000 });
       await new Promise((r) => setTimeout(r, 800));
-      setLaunchProgress({ stage: 'verifying', percentage: 70, currentFile: 'Xác thực mã băm SHA-1...', downloadedBytes: 42000000, totalBytes: 42000000, speedBps: 0 });
+      setLaunchProgress({ stage: 'verifying', percentage: 70, currentFile: 'Verifying SHA-1 hashes...', downloadedBytes: 42000000, totalBytes: 42000000, speedBps: 0 });
       await new Promise((r) => setTimeout(r, 700));
-      setLaunchProgress({ stage: 'running', percentage: 100, currentFile: 'Đang chạy', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
+      setLaunchProgress({ stage: 'running', percentage: 100, currentFile: 'Running', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
       setIsRunning(true);
       setIsPreparing(false);
     }
@@ -502,7 +501,7 @@ export const App: React.FC = () => {
     setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
     setConsoleLogs((prev) => [
       ...prev,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Đã gửi lệnh dừng tiến trình trò chơi.`,
+      `[${new Date().toLocaleTimeString()}] [MCL/INFO] Sent stop game command.`,
     ]);
   };
 
@@ -519,12 +518,12 @@ export const App: React.FC = () => {
     setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
     setConsoleLogs((prev) => [
       ...prev,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Đã gửi lệnh hủy tiến trình tải tài nguyên.`,
+      `[${new Date().toLocaleTimeString()}] [MCL/INFO] Download cancelled.`,
     ]);
   };
 
   const handleToggleLanguage = () => {
-    const next: Language = language === 'vi' ? 'en' : 'vi';
+    const next: Language = language === 'en' ? 'vi' : 'en';
     setLanguage(next);
     localStorage.setItem('mcl_lang', next);
     setSettings((s) => ({ ...s, language: next }));
@@ -569,7 +568,7 @@ export const App: React.FC = () => {
 
         {/* Outer App Frame: Vertical Sidebar + Main Canvas */}
         <div className="relative z-10 flex h-full w-full overflow-hidden">
-          {/* Riot-Style Vertical Left Sidebar */}
+          {/* Riot-Style Vertical Left Sidebar: ALWAYS rendered and interactive */}
           <Sidebar
             currentTab={currentTab}
             onTabChange={(tab) => {
@@ -584,8 +583,8 @@ export const App: React.FC = () => {
             language={language}
           />
 
-          {/* Right Main Content Area */}
-          <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
+          {/* Right Main Content Area: Hosts persistent Home canvas and overlays */}
+          <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent relative">
             {/* Frameless TitleBar */}
             <TitleBar
               onOpenConsole={() => setIsConsoleOpen(true)}
@@ -611,99 +610,102 @@ export const App: React.FC = () => {
                 savedServers={savedServers}
                 activeServerId={activeServerId}
                 onSelectActiveServer={setActiveServerId}
-                onOpenServerManager={() => setIsServerManagerOpen(true)}
+                onAddServer={handleAddServer}
+                onUpdateServer={handleUpdateServer}
+                onDeleteServer={handleDeleteServer}
                 directConnectServer={directConnectServer}
                 onToggleDirectConnectServer={setDirectConnectServer}
               />
             </main>
-          </div>
 
-          {/* Secondary Menus Rendered as Floating Overlay Popups over Home */}
-          {currentTab !== 'home' && (
-            <div
-              className="fixed inset-0 z-40 flex items-center justify-center p-6 sm:p-10 bg-black/75 backdrop-blur-sm animate-fadeIn"
-              onClick={() => setCurrentTab('home')}
-            >
+            {/* Secondary Menus Rendered as Floating Overlay Popups over Home ONLY in Right Area */}
+            {/* Sidebar on left remains 100% visible and interactive! Backdrop is subtle (bg-black/25) */}
+            {currentTab !== 'home' && (
               <div
-                className="w-full max-w-6xl h-[88vh] rounded-3xl bg-[#111111]/95 border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-scaleUp"
-                onClick={(e) => e.stopPropagation()}
+                className="absolute inset-0 z-40 flex items-center justify-center p-6 sm:p-8 bg-black/25 backdrop-blur-[2px] animate-fadeIn"
+                onClick={() => setCurrentTab('home')}
               >
-                {/* Overlay Window Header Bar */}
-                <div className="flex items-center justify-between px-8 py-3.5 border-b border-white/[0.08] bg-[#141414]/90 shrink-0">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
-                    <span className="text-xs font-bold font-riot text-slate-300 uppercase tracking-widest">
-                      {currentTab === 'instances' && 'Danh Sách Profile'}
-                      {currentTab === 'mods' && 'Cửa Hàng Modrinth'}
-                      {currentTab === 'skin' && 'Phòng Thiết Kế Skin'}
-                      {currentTab === 'profile' && 'Hồ Sơ Người Chơi'}
-                      {currentTab === 'settings' && 'Cài Đặt Hệ Thống'}
-                    </span>
+                <div
+                  className="w-full max-w-6xl h-[92vh] rounded-3xl bg-[#111111]/92 border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col overflow-hidden animate-scaleUp"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Overlay Window Header Bar */}
+                  <div className="flex items-center justify-between px-8 py-3.5 border-b border-white/[0.08] bg-[#141414]/90 shrink-0">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-amber-400" />
+                      <span className="text-xs font-bold font-riot text-slate-300 uppercase tracking-widest">
+                        {currentTab === 'instances' && 'Instance Profiles'}
+                        {currentTab === 'mods' && 'Mods & Shaders'}
+                        {currentTab === 'skin' && '3D Skin Studio'}
+                        {currentTab === 'profile' && 'Player Profile'}
+                        {currentTab === 'settings' && 'Settings'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setCurrentTab('home')}
+                      title="Close Window (Return to Home)"
+                      className="w-8 h-8 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setCurrentTab('home')}
-                    title="Đóng cửa sổ (Quay lại trang chủ)"
-                    className="w-8 h-8 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
 
-                {/* Overlay Window Body Content */}
-                <div className="flex-1 flex overflow-hidden">
-                  {currentTab === 'instances' && (
-                    <InstanceList
-                      instances={instances}
-                      selectedInstanceId={selectedInstanceId}
-                      onSelectInstance={setSelectedInstanceId}
-                      onLaunchInstance={(id) => {
-                        setSelectedInstanceId(id);
-                        setCurrentTab('home');
-                        handleLaunch();
-                      }}
-                      onEditInstance={handleEditInstance}
-                      onDeleteInstance={handleDeleteInstance}
-                      onOpenCreateModal={() => setIsCreateModalOpen(true)}
-                      isRunning={isRunning}
-                    />
-                  )}
+                  {/* Overlay Window Body Content */}
+                  <div className="flex-1 flex overflow-hidden">
+                    {currentTab === 'instances' && (
+                      <InstanceList
+                        instances={instances}
+                        selectedInstanceId={selectedInstanceId}
+                        onSelectInstance={setSelectedInstanceId}
+                        onLaunchInstance={(id) => {
+                          setSelectedInstanceId(id);
+                          setCurrentTab('home');
+                          handleLaunch();
+                        }}
+                        onEditInstance={handleEditInstance}
+                        onDeleteInstance={handleDeleteInstance}
+                        onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                        isRunning={isRunning}
+                      />
+                    )}
 
-                  {currentTab === 'mods' && (
-                    <ModStore
-                      activeInstance={activeInstance}
-                      onOpenCreateModal={() => setIsCreateModalOpen(true)}
-                    />
-                  )}
+                    {currentTab === 'mods' && (
+                      <ModStore
+                        activeInstance={activeInstance}
+                        onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                      />
+                    )}
 
-                  {currentTab === 'skin' && (
-                    <SkinStudio
-                      account={account}
-                      onUpdateSkin={handleUpdateSkin}
-                      instances={instances}
-                    />
-                  )}
+                    {currentTab === 'skin' && (
+                      <SkinStudio
+                        account={account}
+                        onUpdateSkin={handleUpdateSkin}
+                        instances={instances}
+                      />
+                    )}
 
-                  {currentTab === 'profile' && (
-                    <ProfileView
-                      account={account}
-                      onUpdateAccount={setAccount}
-                      onNavigateSkin={() => setCurrentTab('skin')}
-                      instances={instances}
-                      language={language}
-                    />
-                  )}
+                    {currentTab === 'profile' && (
+                      <ProfileView
+                        account={account}
+                        onUpdateAccount={setAccount}
+                        onNavigateSkin={() => setCurrentTab('skin')}
+                        instances={instances}
+                        language={language}
+                      />
+                    )}
 
-                  {currentTab === 'settings' && (
-                    <SettingsView
-                      settings={settings}
-                      onSaveSettings={setSettings}
-                      language={language}
-                    />
-                  )}
+                    {currentTab === 'settings' && (
+                      <SettingsView
+                        settings={settings}
+                        onSaveSettings={setSettings}
+                        language={language}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Sub Modals */}
           <CreateInstanceModal
@@ -717,17 +719,6 @@ export const App: React.FC = () => {
             onClose={() => setIsEditModalOpen(false)}
             instance={editingInstance}
             onSave={handleSaveEditedInstance}
-          />
-
-          <ServerManagerModal
-            isOpen={isServerManagerOpen}
-            onClose={() => setIsServerManagerOpen(false)}
-            servers={savedServers}
-            activeServerId={activeServerId}
-            onSelectActiveServer={setActiveServerId}
-            onAddServer={handleAddServer}
-            onUpdateServer={handleUpdateServer}
-            onDeleteServer={handleDeleteServer}
           />
 
           <ConsoleModal

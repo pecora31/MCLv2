@@ -56,7 +56,7 @@ export const EditInstanceModal: React.FC<EditInstanceModalProps> = ({
               <Sliders className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white font-riot">Chỉnh Sửa Profile</h2>
+              <h2 className="text-base font-bold text-white font-riot">Edit Profile</h2>
               <p className="text-xs text-slate-400">
                 {instance.loader.toUpperCase()} • Minecraft {instance.gameVersion}
               </p>
@@ -75,13 +75,13 @@ export const EditInstanceModal: React.FC<EditInstanceModalProps> = ({
           {/* Profile Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Tên Profile
+              Profile Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nhập tên phiên bản..."
+              placeholder="Enter profile name..."
               required
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-sm text-white focus:outline-none focus:border-amber-400"
             />
@@ -92,17 +92,17 @@ export const EditInstanceModal: React.FC<EditInstanceModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-amber-400" />
-                <span>Cấp Phát Bộ Nhớ RAM</span>
+                <span>Memory (RAM) Allocation</span>
               </label>
               <span className="text-xs font-mono font-bold text-amber-400">
-                {(maxRam / 1024).toFixed(1)} GB (Tối đa)
+                {(maxRam / 1024).toFixed(1)} GB (Max)
               </span>
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between text-[11px] text-slate-400">
-                <span>RAM Tối đa: {maxRam} MB</span>
-                <span>(Khuyên dùng: 4096 - 8192 MB)</span>
+                <span>Maximum RAM: {maxRam} MB</span>
+                <span>(Recommended: 4096 - 8192 MB)</span>
               </div>
               <input
                 type="range"
@@ -125,7 +125,7 @@ export const EditInstanceModal: React.FC<EditInstanceModalProps> = ({
           {/* JVM Arguments */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Tham Số JVM Tùy Biến (Tùy chọn)
+              Custom JVM Arguments (Optional)
             </label>
             <input
               type="text"
@@ -141,8 +141,8 @@ export const EditInstanceModal: React.FC<EditInstanceModalProps> = ({
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <div>
-                <span className="text-xs font-semibold text-slate-200 block">Đồng bộ Skin Đồng Đội</span>
-                <span className="text-[11px] text-slate-400">Tự động nạp skin tùy biến trong game</span>
+                <span className="text-xs font-semibold text-slate-200 block">In-Game Team Skin Support</span>
+                <span className="text-[11px] text-slate-400">Automatically sync custom player skins in-game</span>
               </div>
             </div>
             <input
@@ -160,14 +160,14 @@ export const EditInstanceModal: React.FC<EditInstanceModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition"
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="submit"
               className="btn-primary px-5 py-2.5 rounded-xl text-xs font-bold font-riot flex items-center gap-2 shadow-lg"
             >
               <Save className="w-4 h-4" />
-              <span>Lưu Thay Đổi</span>
+              <span>Save Changes</span>
             </button>
           </div>
         </form>

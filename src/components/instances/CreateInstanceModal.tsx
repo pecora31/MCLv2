@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Layers, Sparkles, Check, ChevronDown, ShieldCheck, AlertCircle } from 'lucide-react';
+import { X, Layers, Sparkles, ChevronDown, ShieldCheck, AlertCircle } from 'lucide-react';
 import type { ModLoader, GameInstance, VersionItem } from '../../types';
 import { fetchMojangVersions, fetchFabricVersions, fetchQuiltVersions } from '../../services/api';
 
@@ -21,13 +21,11 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
   const [versionList, setVersionList] = useState<VersionItem[]>([]);
   const [loaderVersions, setLoaderVersions] = useState<string[]>([]);
   const [showSnapshots, setShowSnapshots] = useState(false);
-  const [loadingVersions, setLoadingVersions] = useState(false);
 
   // Load Mojang versions
   useEffect(() => {
     if (!isOpen) return;
     const loadVersions = async () => {
-      setLoadingVersions(true);
       try {
         const data = await fetchMojangVersions();
         setVersionList(data.versions);
@@ -37,8 +35,6 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
         }
       } catch (err) {
         console.error('Failed to fetch versions:', err);
-      } finally {
-        setLoadingVersions(false);
       }
     };
     loadVersions();
@@ -78,17 +74,15 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
     setName(`Minecraft ${gameVersion} ${newLoader !== 'vanilla' ? `(${newLoader.toUpperCase()})` : ''}`.trim());
   };
 
-  // Determine recommended Java version
   const getRecommendedJava = () => {
     const parts = gameVersion.split('.').map(Number);
-    const major = parts[0];
     const minor = parts[1] || 0;
     const patch = parts[2] || 0;
 
-    if (minor >= 21 || (minor === 20 && patch >= 5)) return 'Java 21 LTS (Khuyên dùng)';
-    if (minor >= 18) return 'Java 17 LTS (Khuyên dùng)';
+    if (minor >= 21 || (minor === 20 && patch >= 5)) return 'Java 21 LTS (Recommended)';
+    if (minor >= 18) return 'Java 17 LTS (Recommended)';
     if (minor === 17) return 'Java 16';
-    return 'Java 8 (Khuyên dùng)';
+    return 'Java 8 (Recommended)';
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,17 +105,17 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
   const filteredVersions = versionList.filter((v) => showSnapshots || v.type === 'release');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fadeIn">
-      <div className="w-full max-w-xl glass-panel rounded-2xl border border-white/[0.06] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-xl bg-[#121212] rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-[#070b13]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-[#161616]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold font-riot text-white">Tạo Profile / Phiên Bản Mới</h2>
-              <p className="text-[11px] text-slate-400">Tùy chọn phiên bản game, mod loader và cấu hình RAM</p>
+              <h2 className="text-base font-bold font-riot text-white">Create New Profile</h2>
+              <p className="text-xs text-slate-400">Configure Minecraft version, mod loader, and RAM</p>
             </div>
           </div>
           <button
@@ -137,15 +131,15 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
           {/* Instance Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Tên Profile (Instance)
+              Profile Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="VD: Server Bạn Bè (1.21.4 Fabric)"
+              placeholder="e.g. Friends Survival (1.21.4 Fabric)"
               required
-              className="w-full glass-input px-3.5 py-2 rounded-xl text-sm text-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-sm text-white focus:outline-none focus:border-amber-400"
             />
           </div>
 
@@ -153,16 +147,16 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Phiên Bản Minecraft
+                Minecraft Version
               </label>
               <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={showSnapshots}
                   onChange={(e) => setShowSnapshots(e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0"
+                  className="rounded border-slate-700 bg-slate-900 text-amber-400 focus:ring-0"
                 />
-                <span>Hiện Snapshot / Thử nghiệm</span>
+                <span>Show Snapshots</span>
               </label>
             </div>
 
@@ -170,21 +164,21 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
               <select
                 value={gameVersion}
                 onChange={(e) => handleVersionChange(e.target.value)}
-                className="w-full appearance-none glass-input px-3.5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer pr-8"
+                className="w-full appearance-none px-3.5 py-2.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-sm font-medium text-white cursor-pointer pr-8 focus:outline-none focus:border-amber-400"
               >
                 {filteredVersions.length > 0 ? (
                   filteredVersions.map((v) => (
                     <option key={v.id} value={v.id} className="bg-slate-900 text-white">
-                      Minecraft {v.id} {v.type === 'release' ? '(Chính thức)' : `(${v.type})`}
+                      Minecraft {v.id} {v.type === 'release' ? '(Release)' : `(${v.type})`}
                     </option>
                   ))
                 ) : (
                   <>
-                    <option value="1.21.4" className="bg-slate-900">Minecraft 1.21.4 (Chính thức)</option>
-                    <option value="1.21.1" className="bg-slate-900">Minecraft 1.21.1 (Chính thức)</option>
-                    <option value="1.20.1" className="bg-slate-900">Minecraft 1.20.1 (Chính thức)</option>
-                    <option value="1.19.4" className="bg-slate-900">Minecraft 1.19.4 (Chính thức)</option>
-                    <option value="1.16.5" className="bg-slate-900">Minecraft 1.16.5 (Chính thức)</option>
+                    <option value="1.21.4" className="bg-slate-900">Minecraft 1.21.4 (Release)</option>
+                    <option value="1.21.1" className="bg-slate-900">Minecraft 1.21.1 (Release)</option>
+                    <option value="1.20.1" className="bg-slate-900">Minecraft 1.20.1 (Release)</option>
+                    <option value="1.19.4" className="bg-slate-900">Minecraft 1.19.4 (Release)</option>
+                    <option value="1.16.5" className="bg-slate-900">Minecraft 1.16.5 (Release)</option>
                   </>
                 )}
               </select>
@@ -195,16 +189,16 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
           {/* Mod Loader Selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-              Chọn Mod Loader
+              Mod Loader
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {(
                 [
-                  { id: 'fabric', label: 'Fabric', desc: 'Mượt, nhẹ' },
-                  { id: 'forge', label: 'Forge', desc: 'Nhiều mod' },
-                  { id: 'neoforge', label: 'NeoForge', desc: 'Hiện đại' },
-                  { id: 'quilt', label: 'Quilt', desc: 'Kế thừa' },
-                  { id: 'vanilla', label: 'Vanilla', desc: 'Gốc' },
+                  { id: 'fabric', label: 'Fabric', desc: 'Fast, light' },
+                  { id: 'forge', label: 'Forge', desc: 'Classic' },
+                  { id: 'neoforge', label: 'NeoForge', desc: 'Modern' },
+                  { id: 'quilt', label: 'Quilt', desc: 'Modular' },
+                  { id: 'vanilla', label: 'Vanilla', desc: 'Clean' },
                 ] as const
               ).map((item) => {
                 const isSelected = loader === item.id;
@@ -215,7 +209,7 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
                     onClick={() => handleLoaderChange(item.id)}
                     className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 ${
                       isSelected
-                        ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-md'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-md font-bold'
                         : 'bg-white/[0.02] border-white/5 text-slate-400 hover:border-white/10 hover:text-slate-200'
                     }`}
                   >
@@ -231,12 +225,12 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
           {loader !== 'vanilla' && (
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Phiên Bản {loader.toUpperCase()} Loader
+                {loader.toUpperCase()} Loader Version
               </label>
               <select
                 value={loaderVersion}
                 onChange={(e) => setLoaderVersion(e.target.value)}
-                className="w-full appearance-none glass-input px-3.5 py-2 rounded-xl text-xs text-white cursor-pointer"
+                className="w-full appearance-none px-3.5 py-2.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white cursor-pointer focus:outline-none focus:border-amber-400"
               >
                 {loaderVersions.map((ver) => (
                   <option key={ver} value={ver} className="bg-slate-900 text-white">
@@ -248,10 +242,10 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
           )}
 
           {/* RAM Allocation Slider */}
-          <div>
-            <div className="flex items-center justify-between text-xs font-semibold mb-2">
-              <span className="text-slate-300 uppercase tracking-wider">Cấp Phát RAM Tối Đa:</span>
-              <span className="text-indigo-400 font-mono text-sm">{maxRam / 1024} GB RAM</span>
+          <div className="space-y-2 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="flex items-center justify-between text-xs font-semibold mb-1">
+              <span className="text-slate-300 uppercase tracking-wider">Allocated RAM:</span>
+              <span className="text-amber-400 font-mono text-sm">{(maxRam / 1024).toFixed(1)} GB RAM</span>
             </div>
             <input
               type="range"
@@ -260,24 +254,24 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
               step="1024"
               value={maxRam}
               onChange={(e) => setMaxRam(Number(e.target.value))}
-              className="w-full accent-indigo-500 cursor-pointer"
+              className="w-full accent-amber-400 cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
               <span>2 GB</span>
-              <span>4 GB (Tiêu chuẩn)</span>
-              <span>8 GB (Nhiều mod)</span>
+              <span>4 GB (Standard)</span>
+              <span>8 GB (Modded)</span>
               <span>16 GB</span>
             </div>
           </div>
 
           {/* In-Game Skin Feature Toggle */}
-          <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <div>
-                <div className="text-xs font-bold text-white">Tự động nạp Skin Đồng Đội (In-game)</div>
+                <div className="text-xs font-bold text-white">In-game Team Skin Sync</div>
                 <div className="text-[11px] text-slate-400">
-                  Tự động tải CustomSkinLoader để bạn bè nhìn thấy skin của nhau
+                  Automatically configure CustomSkinLoader so friends can see each other's custom skins
                 </div>
               </div>
             </div>
@@ -285,14 +279,14 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
               type="checkbox"
               checked={enableSkinInGame}
               onChange={(e) => setEnableSkinInGame(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0 cursor-pointer"
+              className="w-4 h-4 accent-amber-400 rounded cursor-pointer"
             />
           </div>
 
-          {/* Java Recommendation Pill */}
+          {/* Java Recommendation */}
           <div className="flex items-center gap-2 text-[11px] text-slate-400 px-1">
             <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-            <span>Tự động gán: <strong className="text-slate-200">{getRecommendedJava()}</strong></span>
+            <span>Assigned runtime: <strong className="text-slate-200">{getRecommendedJava()}</strong></span>
           </div>
 
           {/* Footer Buttons */}
@@ -302,14 +296,14 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition"
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary px-6 py-2 rounded-xl text-xs font-bold flex items-center gap-2"
+              className="btn-primary px-6 py-2 rounded-xl text-xs font-bold font-riot flex items-center gap-2"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Tạo Profile</span>
+              <span>Create Profile</span>
             </button>
           </div>
         </form>
