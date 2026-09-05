@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Cpu, HardDrive, Server, Shield, Sparkles, Folder, RefreshCw, Check } from 'lucide-react';
-import type { LauncherSettings, JavaInstallation } from '../../types';
+import { Settings, Cpu, HardDrive, Server, RefreshCw, Check, Palette, Image as ImageIcon, Sparkles, Upload } from 'lucide-react';
+import type { LauncherSettings, JavaInstallation, UiStyle, ColorPalette } from '../../types';
 import { invokeCommand } from '../../services/api';
+import { getTranslation, type Language } from '../../locales/i18n';
 
 interface SettingsViewProps {
   settings: LauncherSettings;
   onSaveSettings: (settings: LauncherSettings) => void;
+  language: Language;
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSettings }) => {
+export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSettings, language }) => {
+  const t = getTranslation(language);
   const [formData, setFormData] = useState<LauncherSettings>(settings);
   const [javaList, setJavaList] = useState<JavaInstallation[]>([]);
   const [detectingJava, setDetectingJava] = useState(false);
@@ -27,7 +30,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
         setFormData((prev) => ({ ...prev, defaultJavaPath: list[0].path }));
       }
     } catch {
-      // Mock fallback
+      // fallback
     } finally {
       setDetectingJava(false);
     }
@@ -37,42 +40,211 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
     e.preventDefault();
     onSaveSettings(formData);
     setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2500);
+    setTimeout(() => setSavedSuccess(false), 2000);
   };
+
+  // Image Upload handler
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/webp')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          const updated = { ...formData, customBgImage: reader.result };
+          setFormData(updated);
+          onSaveSettings(updated);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResetBg = () => {
+    const updated = { ...formData, customBgImage: undefined };
+    setFormData(updated);
+    onSaveSettings(updated);
+  };
+
+  const palettes: { id: ColorPalette; name: string; color: string }[] = [
+    { id: 'indigo', name: t.paletteIndigo, color: '#6366f1' },
+    { id: 'emerald', name: t.paletteEmerald, color: '#10b981' },
+    { id: 'amber', name: t.paletteAmber, color: '#f59e0b' },
+    { id: 'rose', name: t.paletteRose, color: '#f43f5e' },
+    { id: 'cyan', name: t.paletteCyan, color: '#06b6d4' },
+    { id: 'slate', name: t.paletteSlate, color: '#94a3b8' },
+  ];
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto p-6 space-y-6">
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-2">
-            <Settings className="w-3.5 h-3.5" />
-            <span>Cấu Hình Nâng Cao</span>
-          </div>
-          <h1 className="text-2xl font-bold font-['Outfit'] text-white">Cài Đặt Hệ Thống</h1>
-          <p className="text-sm text-slate-400">
-            Tối ưu hóa Java, phân bổ bộ nhớ RAM và cấu hình máy chủ cho launcher.
-          </p>
+          <h1 className="text-xl font-bold font-['Outfit'] text-white">{t.settingsTitle}</h1>
+          <p className="text-xs text-slate-400">{t.settingsSub}</p>
         </div>
 
         <button
           onClick={handleSave}
-          className="btn-primary py-2.5 px-6 rounded-xl font-['Outfit'] font-bold text-sm flex items-center gap-2 shadow-lg"
+          className="btn-primary py-2 px-5 rounded-xl font-['Outfit'] font-semibold text-xs flex items-center gap-1.5 shadow-md"
         >
-          {savedSuccess ? <Check className="w-4 h-4 text-emerald-400" /> : <Sparkles className="w-4 h-4" />}
-          <span>{savedSuccess ? 'Đã Lưu!' : 'Lưu Thay Đổi'}</span>
+          {savedSuccess ? <Check className="w-4 h-4 text-emerald-300" /> : <Check className="w-4 h-4" />}
+          <span>{savedSuccess ? t.saved : t.btnSave}</span>
         </button>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6 max-w-4xl">
-        {/* Java Configuration */}
+      <form onSubmit={handleSave} className="space-y-5 max-w-3xl">
+        {/* 1. Theme & Interface Style */}
         <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+          <div className="flex items-center gap-2.5">
+            <Palette className="w-4 h-4 text-indigo-400" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">{t.uiSection}</h3>
+            </div>
+          </div>
+
+          {/* Style Selector: Glassmorphism vs Minimalist */}
+          <div>
+            <label className="block text-xs text-slate-400 mb-2">{t.uiStyle}</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...formData, uiStyle: 'glass' as UiStyle };
+                  setFormData(updated);
+                  onSaveSettings(updated);
+                }}
+                className={`p-3 rounded-xl border text-left transition ${
+                  formData.uiStyle === 'glass'
+                    ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold'
+                    : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
+                }`}
+              >
+                <div className="text-xs font-bold text-slate-200">{t.styleGlass}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Hiệu ứng mờ, chiều sâu không gian</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...formData, uiStyle: 'minimal' as UiStyle };
+                  setFormData(updated);
+                  onSaveSettings(updated);
+                }}
+                className={`p-3 rounded-xl border text-left transition ${
+                  formData.uiStyle === 'minimal'
+                    ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold'
+                    : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
+                }`}
+              >
+                <div className="text-xs font-bold text-slate-200">{t.styleMinimal}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Đường nét phẳng, tối giản, sắc nét</div>
+              </button>
+            </div>
+          </div>
+
+          {/* Color Palettes */}
+          <div>
+            <label className="block text-xs text-slate-400 mb-2">{t.colorPalette}</label>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {palettes.map((p) => {
+                const isSelected = formData.colorPalette === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      const updated = { ...formData, colorPalette: p.id };
+                      setFormData(updated);
+                      onSaveSettings(updated);
+                    }}
+                    className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 transition ${
+                      isSelected
+                        ? 'border-white/40 bg-white/10 shadow-sm'
+                        : 'border-white/5 bg-black/20 hover:border-white/20'
+                    }`}
+                  >
+                    <span className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: p.color }} />
+                    <span className="text-[11px] font-medium text-slate-300 truncate w-full text-center">{p.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Custom Background Image */}
+          <div className="pt-2 border-t border-white/5 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />
+                <span>{t.bgCustom}</span>
+              </label>
+
+              {formData.customBgImage && (
+                <button
+                  type="button"
+                  onClick={handleResetBg}
+                  className="text-[11px] text-indigo-400 hover:underline"
+                >
+                  {t.bgReset}
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              {/* File upload button */}
+              <label className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition shrink-0">
+                <Upload className="w-3.5 h-3.5" />
+                <span>{t.bgUpload}</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageUpload} className="hidden" />
+              </label>
+
+              {/* URL input */}
+              <input
+                type="text"
+                value={formData.customBgImage || ''}
+                onChange={(e) => {
+                  const updated = { ...formData, customBgImage: e.target.value || undefined };
+                  setFormData(updated);
+                  onSaveSettings(updated);
+                }}
+                placeholder={t.bgUrlPlaceholder}
+                className="w-full glass-input px-3 py-2 rounded-xl text-xs text-white"
+              />
+            </div>
+
+            {/* Overlay Darkness Slider */}
+            {formData.customBgImage && (
+              <div className="pt-2">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                  <span>{t.bgOpacity}:</span>
+                  <span className="font-mono text-slate-200">{Math.round((formData.bgOpacity || 0.6) * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="0.9"
+                  step="0.05"
+                  value={formData.bgOpacity || 0.6}
+                  onChange={(e) => {
+                    const updated = { ...formData, bgOpacity: parseFloat(e.target.value) };
+                    setFormData(updated);
+                    onSaveSettings(updated);
+                  }}
+                  className="w-full accent-indigo-500 cursor-pointer"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 2. Java Runtime */}
+        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <Cpu className="w-5 h-5 text-indigo-400" />
+              <Cpu className="w-4 h-4 text-indigo-400" />
               <div>
-                <h3 className="text-sm font-semibold text-white">Bộ Cài Đặt Java Runtime</h3>
-                <p className="text-xs text-slate-400">Tự động nhận diện các phiên bản Java trên máy tính</p>
+                <h3 className="text-sm font-semibold text-white">{t.javaSection}</h3>
+                <p className="text-[11px] text-slate-400">{t.javaDesc}</p>
               </div>
             </div>
 
@@ -83,40 +255,38 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
               className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-slate-300 flex items-center gap-1.5 transition"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${detectingJava ? 'animate-spin' : ''}`} />
-              <span>Quét Lại Java</span>
+              <span>{t.btnRescan}</span>
             </button>
           </div>
 
-          <div className="space-y-2">
-            <select
-              value={formData.defaultJavaPath || ''}
-              onChange={(e) => setFormData({ ...formData, defaultJavaPath: e.target.value })}
-              className="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white cursor-pointer"
-            >
-              {javaList.map((j) => (
-                <option key={j.path} value={j.path} className="bg-slate-900 text-white font-sans">
-                  {j.versionString} - {j.path}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={formData.defaultJavaPath || ''}
+            onChange={(e) => setFormData({ ...formData, defaultJavaPath: e.target.value })}
+            className="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white cursor-pointer"
+          >
+            {javaList.map((j) => (
+              <option key={j.path} value={j.path} className="bg-slate-900 text-white font-sans">
+                {j.versionString} - {j.path}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* RAM Allocation */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+        {/* 3. Memory Allocation */}
+        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-3">
           <div className="flex items-center gap-2.5">
-            <HardDrive className="w-5 h-5 text-indigo-400" />
+            <HardDrive className="w-4 h-4 text-indigo-400" />
             <div>
-              <h3 className="text-sm font-semibold text-white">Bộ Nhớ RAM Mặc Định</h3>
-              <p className="text-xs text-slate-400">Phân bổ RAM cho các profile mới tạo</p>
+              <h3 className="text-sm font-semibold text-white">{t.ramSection}</h3>
+              <p className="text-[11px] text-slate-400">{t.ramDesc}</p>
             </div>
           </div>
 
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2 pt-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-semibold">RAM Cấp Phát:</span>
+              <span className="text-slate-400">RAM:</span>
               <span className="text-indigo-400 font-mono font-bold text-sm">
-                {formData.defaultMaxRam / 1024} GB RAM
+                {formData.defaultMaxRam / 1024} GB
               </span>
             </div>
             <input
@@ -128,38 +298,31 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
               onChange={(e) => setFormData({ ...formData, defaultMaxRam: Number(e.target.value) })}
               className="w-full accent-indigo-500 cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-              <span>2 GB (Vanilla)</span>
-              <span>4 GB (Fabric nhẹ)</span>
-              <span>8 GB (Forge / Shaders)</span>
-              <span>16 GB (Heavy Modpack)</span>
-            </div>
           </div>
         </div>
 
-        {/* Default Server IP & Port */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+        {/* 4. Default Server Host */}
+        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-3">
           <div className="flex items-center gap-2.5">
-            <Server className="w-5 h-5 text-indigo-400" />
+            <Server className="w-4 h-4 text-indigo-400" />
             <div>
-              <h3 className="text-sm font-semibold text-white">Máy Chủ Mặc Định Của Nhóm</h3>
-              <p className="text-xs text-slate-400">Địa chỉ IP server hiển thị ở màn hình chính</p>
+              <h3 className="text-sm font-semibold text-white">{t.serverSection}</h3>
+              <p className="text-[11px] text-slate-400">{t.serverDesc}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1">Địa chỉ IP Server</label>
+              <label className="block text-[11px] text-slate-400 mb-1">IP Host</label>
               <input
                 type="text"
                 value={formData.serverHost}
                 onChange={(e) => setFormData({ ...formData, serverHost: e.target.value })}
-                placeholder="play.example.mc hoặc 127.0.0.1"
                 className="w-full glass-input px-3.5 py-2 rounded-xl text-xs text-white font-mono"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Port</label>
+              <label className="block text-[11px] text-slate-400 mb-1">Port</label>
               <input
                 type="number"
                 value={formData.serverPort}
@@ -170,17 +333,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
           </div>
         </div>
 
-        {/* JVM Flags */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-3">
-          <h3 className="text-sm font-semibold text-white">Tối Ưu Hoá JVM Arguments (Aikar's Flags)</h3>
-          <p className="text-xs text-slate-400">
-            Các tham số tối ưu bộ thu gom rác (Garbage Collector) giúp game giảm giật lag và drop FPS:
-          </p>
+        {/* 5. JVM Flags */}
+        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+          <h3 className="text-sm font-semibold text-white">{t.jvmSection}</h3>
+          <p className="text-[11px] text-slate-400">{t.jvmDesc}</p>
           <textarea
             rows={2}
             value={formData.defaultJvmArgs}
             onChange={(e) => setFormData({ ...formData, defaultJvmArgs: e.target.value })}
-            className="w-full glass-input p-3 rounded-xl text-xs font-mono text-slate-300 resize-none"
+            className="w-full glass-input p-2.5 rounded-xl text-xs font-mono text-slate-300 resize-none"
           />
         </div>
       </form>

@@ -12,6 +12,7 @@ import { ConsoleModal } from './components/common/ConsoleModal';
 import type { GameInstance, Account, LauncherSettings, LaunchProgress } from './types';
 import { invokeCommand, isTauri } from './services/api';
 import { listen } from '@tauri-apps/api/event';
+import type { Language } from './locales/i18n';
 
 const DEFAULT_INSTANCES: GameInstance[] = [
   {
@@ -32,7 +33,7 @@ const DEFAULT_INSTANCES: GameInstance[] = [
   },
   {
     id: 'instance-vanilla-latest',
-    name: 'Vanilla 1.21.4 (Gốc)',
+    name: 'Vanilla 1.21.4',
     gameVersion: '1.21.4',
     loader: 'vanilla',
     minRam: 2048,
@@ -71,7 +72,10 @@ const DEFAULT_SETTINGS: LauncherSettings = {
   defaultMinRam: 2048,
   defaultMaxRam: 4096,
   defaultJvmArgs: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200',
-  theme: 'dark-cyber',
+  language: 'vi',
+  uiStyle: 'glass',
+  colorPalette: 'indigo',
+  bgOpacity: 0.6,
   closeOnLaunch: false,
   enableDiscordRpc: true,
   serverHost: 'play.ourserver.mc',
@@ -93,6 +97,11 @@ export const App: React.FC = () => {
   const [settings, setSettings] = useState<LauncherSettings>(() => {
     const saved = localStorage.getItem('mcl_settings');
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+  });
+
+  const [language, setLanguage] = useState<Language>(() => {
+    const saved = localStorage.getItem('mcl_lang') as Language;
+    return saved || settings.language || 'vi';
   });
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -174,11 +183,12 @@ export const App: React.FC = () => {
     setAccount((prev) => ({ ...prev, skinUrl, skinModel: model }));
   };
 
-  // Listen to Tauri native download progress and game log stream
+  // Listen to Tauri native download progress, game log stream, and game exit
   useEffect(() => {
     if (!isTauri()) return;
     let unlistenProgress: (() => void) | undefined;
     let unlistenLogs: (() => void) | undefined;
+    let unlistenExit: (() => void) | undefined;
 
     const setupListeners = async () => {
       try {
@@ -190,6 +200,15 @@ export const App: React.FC = () => {
           setConsoleLogs((prev) => [...prev, event.payload]);
           setIsRunning(true);
         });
+
+        unlistenExit = await listen('game-exit', () => {
+          setIsRunning(false);
+          setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
+          setConsoleLogs((prev) => [
+            ...prev,
+            `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Tiến trình Minecraft đã đóng.`,
+          ]);
+        });
       } catch (err) {
         console.warn('Tauri event listener setup:', err);
       }
@@ -200,6 +219,7 @@ export const App: React.FC = () => {
     return () => {
       unlistenProgress?.();
       unlistenLogs?.();
+      unlistenExit?.();
     };
   }, []);
 
@@ -230,14 +250,6 @@ export const App: React.FC = () => {
           instanceId: targetInstance.id,
           username: account.username,
         });
-        setLaunchProgress({
-          stage: 'running',
-          percentage: 100,
-          currentFile: 'Đã khởi chạy game thành công!',
-          downloadedBytes: 0,
-          totalBytes: 0,
-          speedBps: 0,
-        });
       } catch (err: any) {
         setConsoleLogs((prev) => [
           ...prev,
@@ -257,34 +269,80 @@ export const App: React.FC = () => {
     }
   };
 
+  // Stop Game Handler
+  const handleStopGame = async () => {
+    if (isTauri()) {
+      try {
+        await invokeCommand('kill_game');
+      } catch (err) {
+        console.warn('Kill game error:', err);
+      }
+    }
+    setIsRunning(false);
+    setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
+    setConsoleLogs((prev) => [
+      ...prev,
+      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Đã gửi lệnh dừng tiến trình trò chơi.`,
+    ]);
+  };
+
+  const handleToggleLanguage = () => {
+    const next: Language = language === 'vi' ? 'en' : 'vi';
+    setLanguage(next);
+    localStorage.setItem('mcl_lang', next);
+    setSettings((s) => ({ ...s, language: next }));
+  };
+
   const activeInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#07090f] text-slate-100 overflow-hidden font-sans select-none">
+    <div
+      className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-[#07090f] text-slate-100 style-${settings.uiStyle || 'glass'} palette-${settings.colorPalette || 'indigo'}`}
+    >
+      {/* Custom Background Image Layer */}
+      {settings.customBgImage && (
+        <div
+          className="absolute inset-0 bg-cover bg-center pointer-events-none -z-10 transition-all duration-300"
+          style={{ backgroundImage: `url(${settings.customBgImage})` }}
+        >
+          <div
+            className="absolute inset-0 bg-[#07090f]"
+            style={{ opacity: settings.bgOpacity ?? 0.6 }}
+          />
+        </div>
+      )}
+
       {/* Frameless TitleBar */}
-      <TitleBar onOpenConsole={() => setIsConsoleOpen(true)} isRunning={isRunning} />
+      <TitleBar
+        onOpenConsole={() => setIsConsoleOpen(true)}
+        isRunning={isRunning}
+        language={language}
+        onToggleLanguage={handleToggleLanguage}
+      />
 
       {/* Main App Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Compact Icon-Only Sidebar */}
         <Sidebar
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           account={account}
           onUpdateUsername={handleUpdateUsername}
+          language={language}
         />
 
         {/* Dynamic Content View */}
-        <main className="flex-1 flex overflow-hidden bg-gradient-to-br from-[#0c101c]/80 via-[#090d18]/90 to-[#070912]">
+        <main className="flex-1 flex overflow-hidden bg-transparent">
           {currentTab === 'home' && (
             <ServerHub
               instances={instances}
               selectedInstanceId={selectedInstanceId}
               onSelectInstance={setSelectedInstanceId}
               onLaunch={handleLaunch}
-              onOpenCreateModal={() => setIsCreateModalOpen(true)}
+              onStopGame={handleStopGame}
               launchProgress={launchProgress}
               isRunning={isRunning}
+              language={language}
             />
           )}
 
@@ -314,7 +372,11 @@ export const App: React.FC = () => {
           )}
 
           {currentTab === 'settings' && (
-            <SettingsView settings={settings} onSaveSettings={setSettings} />
+            <SettingsView
+              settings={settings}
+              onSaveSettings={setSettings}
+              language={language}
+            />
           )}
         </main>
       </div>

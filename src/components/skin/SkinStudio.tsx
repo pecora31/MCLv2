@@ -147,13 +147,13 @@ export const SkinStudio: React.FC<SkinStudioProps> = ({ account, onUpdateSkin, i
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-2">
             <Shirt className="w-3.5 h-3.5" />
-            <span>3D Skin Studio & Đồng Bộ Nhóm</span>
+            <span>Skin Studio 3D</span>
           </div>
           <h1 className="text-2xl font-bold font-['Outfit'] text-white">
-            Tuỳ Chỉnh & Xem Trước Skin 3D
+            Xem Trước & Cài Đặt Skin
           </h1>
           <p className="text-sm text-slate-400">
-            Tự do xoay, chuyển động và lưu skin. Tính năng tự động hiển thị skin của nhau trong server kể cả khi không có nick bản quyền!
+            Xem trước mô hình 3D và lưu skin. Tự động đồng bộ skin khi tham gia server nhóm.
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export const SkinStudio: React.FC<SkinStudioProps> = ({ account, onUpdateSkin, i
           className="btn-primary py-2.5 px-6 rounded-xl font-['Outfit'] font-bold text-sm flex items-center gap-2 shadow-lg shrink-0"
         >
           <Sparkles className="w-4 h-4" />
-          <span>Áp Dụng Cho Game</span>
+          <span>Lưu Skin</span>
         </button>
       </div>
 

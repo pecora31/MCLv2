@@ -28,11 +28,11 @@ export const InstanceList: React.FC<InstanceListProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-2">
             <Layers className="w-3.5 h-3.5" />
-            <span>Quản Lý Profile & Bản Game</span>
+            <span>Danh Sách Profile</span>
           </div>
           <h1 className="text-2xl font-bold font-['Outfit'] text-white">Danh Sách Phiên Bản Game</h1>
           <p className="text-sm text-slate-400">
-            Mỗi profile được cách ly thư mục hoàn toàn, không lo xung đột mod hoặc file save.
+            Mỗi profile được lưu trữ tại thư mục riêng biệt, hoạt động độc lập.
           </p>
         </div>
 

@@ -1,6 +1,7 @@
-import React from 'react';
-import { Home, Layers, Package, Shirt, Settings, User, Check, Edit2, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { Home, Layers, Package, Shirt, Settings, User, Check, Edit2 } from 'lucide-react';
 import type { Account } from '../../types';
+import { getTranslation, type Language } from '../../locales/i18n';
 
 export type NavigationTab = 'home' | 'instances' | 'mods' | 'skin' | 'settings';
 
@@ -9,6 +10,7 @@ interface SidebarProps {
   onTabChange: (tab: NavigationTab) => void;
   account: Account;
   onUpdateUsername: (newName: string) => void;
+  language: Language;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -16,16 +18,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onTabChange,
   account,
   onUpdateUsername,
+  language,
 }) => {
-  const [isEditingUser, setIsEditingUser] = React.useState(false);
-  const [tempUsername, setTempUsername] = React.useState(account.username);
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [tempUsername, setTempUsername] = useState(account.username);
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const [showAccountTooltip, setShowAccountTooltip] = useState(false);
+
+  const t = getTranslation(language);
 
   const navItems = [
-    { id: 'home', label: 'Trang Chủ & Server', icon: Home, badge: 'Live' },
-    { id: 'instances', label: 'Quản Lý Phiên Bản', icon: Layers },
-    { id: 'mods', label: 'Kho Mod & Shader', icon: Package },
-    { id: 'skin', label: '3D Skin Studio', icon: Shirt, badge: 'Skin Mod' },
-    { id: 'settings', label: 'Cài Đặt Hệ Thống', icon: Settings },
+    { id: 'home', label: t.navHome, icon: Home },
+    { id: 'instances', label: t.navInstances, icon: Layers },
+    { id: 'mods', label: t.navMods, icon: Package },
+    { id: 'skin', label: t.navSkin, icon: Shirt },
+    { id: 'settings', label: t.navSettings, icon: Settings },
   ];
 
   const handleSaveUsername = () => {
@@ -36,109 +43,85 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-64 bg-[#0a0d16] border-r border-white/5 flex flex-col justify-between select-none">
-      {/* Navigation Links */}
-      <div className="p-3 space-y-1">
-        <div className="px-3 py-2 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-          Menu Điều Hướng
-        </div>
-
+    <aside className="w-16 bg-[#080b13] border-r border-white/5 flex flex-col justify-between items-center py-3 select-none z-30">
+      {/* Navigation Icons */}
+      <div className="space-y-3 flex flex-col items-center w-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
           return (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id as NavigationTab)}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                isActive
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.15)] font-semibold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={`w-4 h-4 transition-colors ${
-                    isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'
-                  }`}
-                />
-                <span>{item.label}</span>
-              </div>
-              {item.badge && (
-                <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    item.badge === 'Live'
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                  }`}
-                >
-                  {item.badge}
-                </span>
+            <div key={item.id} className="relative group flex items-center justify-center w-full px-2">
+              <button
+                onClick={() => onTabChange(item.id as NavigationTab)}
+                onMouseEnter={() => setHoveredTab(item.id)}
+                onMouseLeave={() => setHoveredTab(null)}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                  isActive
+                    ? 'bg-indigo-600/25 text-indigo-400 border border-indigo-500/40 shadow-[0_0_12px_rgba(99,102,241,0.2)]'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-105' : 'group-hover:scale-105'}`} />
+              </button>
+
+              {/* Floating Tooltip */}
+              {hoveredTab === item.id && (
+                <div className="absolute left-16 px-2.5 py-1.5 rounded-lg bg-slate-900/95 border border-white/10 text-xs font-medium text-white shadow-xl whitespace-nowrap z-50 pointer-events-none animate-fadeIn">
+                  {item.label}
+                </div>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
 
       {/* Account Info at Bottom */}
-      <div className="p-3 border-t border-white/5 bg-[#0e121d]/80">
-        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-white/5 flex items-center gap-3">
-          {/* Avatar / Skin Head */}
-          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
-            {account.skinUrl ? (
-              <img
-                src={account.skinUrl}
-                alt={account.username}
-                className="w-full h-full object-cover rendering-pixelated"
-              />
-            ) : (
-              <User className="w-5 h-5 text-indigo-400" />
-            )}
-            <span className="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-950" />
-          </div>
+      <div className="relative flex flex-col items-center px-2">
+        <button
+          onClick={() => setIsEditingUser(!isEditingUser)}
+          onMouseEnter={() => setShowAccountTooltip(true)}
+          onMouseLeave={() => setShowAccountTooltip(false)}
+          className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-900 border border-white/10 hover:border-indigo-500/50 flex items-center justify-center transition"
+        >
+          {account.skinUrl ? (
+            <img
+              src={account.skinUrl}
+              alt={account.username}
+              className="w-full h-full object-cover rendering-pixelated"
+            />
+          ) : (
+            <User className="w-5 h-5 text-indigo-400" />
+          )}
+          <span className="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-950" />
+        </button>
 
-          {/* Account Details */}
-          <div className="flex-1 min-w-0">
-            {isEditingUser ? (
-              <div className="flex items-center gap-1">
-                <input
-                  type="text"
-                  value={tempUsername}
-                  onChange={(e) => setTempUsername(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveUsername()}
-                  autoFocus
-                  className="w-full bg-black/40 border border-indigo-500/60 rounded px-1.5 py-0.5 text-xs text-white outline-none"
-                />
-                <button
-                  onClick={handleSaveUsername}
-                  className="p-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 transition"
-                >
-                  <Check className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <div className="truncate">
-                  <div className="text-xs font-semibold text-slate-200 truncate flex items-center gap-1">
-                    <span>{account.username}</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                    <span className="capitalize">{account.type}</span>
-                    <span>•</span>
-                    <span className="text-emerald-400">Sẵn sàng</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsEditingUser(true)}
-                  title="Đổi tên nhân vật"
-                  className="p-1 rounded text-slate-500 hover:text-indigo-400 hover:bg-white/5 transition"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </div>
-            )}
+        {/* Floating Account Details or Edit Form */}
+        {isEditingUser ? (
+          <div className="absolute left-16 bottom-0 p-3 rounded-xl bg-slate-900/95 border border-white/10 text-xs text-white shadow-2xl z-50 w-52 space-y-2">
+            <div className="font-semibold text-slate-300">{t.changeName}</div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={tempUsername}
+                onChange={(e) => setTempUsername(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveUsername()}
+                autoFocus
+                className="w-full glass-input px-2 py-1 rounded text-xs text-white"
+              />
+              <button
+                onClick={handleSaveUsername}
+                className="p-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 transition"
+              >
+                <Check className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-        </div>
+        ) : showAccountTooltip ? (
+          <div className="absolute left-16 bottom-0 px-3 py-2 rounded-xl bg-slate-900/95 border border-white/10 text-xs text-white shadow-xl whitespace-nowrap z-50 pointer-events-none">
+            <div className="font-bold text-slate-200">{account.username}</div>
+            <div className="text-[10px] text-slate-400">{account.type.toUpperCase()} • {t.ready}</div>
+          </div>
+        ) : null}
       </div>
     </aside>
   );

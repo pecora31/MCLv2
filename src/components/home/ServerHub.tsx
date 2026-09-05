@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Wifi, Users, Server, Copy, Check, Sparkles, RefreshCw, Cpu, HardDrive, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Play, Wifi, Users, Server, Copy, Check, RefreshCw, Square, ChevronDown, ShieldCheck } from 'lucide-react';
 import type { GameInstance, ServerStatus, LaunchProgress } from '../../types';
 import { pingServer } from '../../services/api';
+import { getTranslation, type Language } from '../../locales/i18n';
 
 interface ServerHubProps {
   instances: GameInstance[];
   selectedInstanceId: string;
   onSelectInstance: (id: string) => void;
   onLaunch: () => void;
-  onOpenCreateModal: () => void;
+  onStopGame: () => void;
   launchProgress: LaunchProgress;
   isRunning: boolean;
+  language: Language;
 }
 
 export const ServerHub: React.FC<ServerHubProps> = ({
@@ -18,31 +20,35 @@ export const ServerHub: React.FC<ServerHubProps> = ({
   selectedInstanceId,
   onSelectInstance,
   onLaunch,
-  onOpenCreateModal,
+  onStopGame,
   launchProgress,
   isRunning,
+  language,
 }) => {
+  const t = getTranslation(language);
   const selectedInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
   const [copied, setCopied] = useState(false);
   const [isPinging, setIsPinging] = useState(false);
+  const [isHoveringStop, setIsHoveringStop] = useState(false);
+
   const [serverStatus, setServerStatus] = useState<ServerStatus>({
-    ip: 'play.ourserver.mc',
-    port: 25565,
+    ip: selectedInstance?.serverIp || 'play.ourserver.mc',
+    port: selectedInstance?.serverPort || 25565,
     online: true,
-    playersOnline: 5,
+    playersOnline: 4,
     playersMax: 20,
     version: 'Fabric 1.21.4',
-    motd: '§6Máy Chủ Bạn Bè §f- §aSinh Tồn & Voice Chat §f| §eOnline 24/7',
-    pingMs: 22,
+    motd: 'Máy Chủ Minecraft Nhóm Bạn',
+    pingMs: 24,
   });
 
   const handleRefreshPing = async () => {
     setIsPinging(true);
     try {
-      const status = await pingServer(selectedInstance?.serverIp || 'play.ourserver.mc');
+      const status = await pingServer(selectedInstance?.serverIp || 'play.ourserver.mc', selectedInstance?.serverPort || 25565);
       setServerStatus(status);
     } catch {
-      // Keep previous
+      // Keep existing status
     } finally {
       setIsPinging(false);
     }
@@ -50,9 +56,9 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
   useEffect(() => {
     handleRefreshPing();
-    const interval = setInterval(handleRefreshPing, 30000); // Poll every 30s
+    const interval = setInterval(handleRefreshPing, 30000);
     return () => clearInterval(interval);
-  }, [selectedInstance?.serverIp]);
+  }, [selectedInstance?.serverIp, selectedInstance?.serverPort]);
 
   const handleCopyIp = () => {
     navigator.clipboard.writeText(`${serverStatus.ip}:${serverStatus.port}`);
@@ -60,121 +66,26 @@ export const ServerHub: React.FC<ServerHubProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Only show download progress when actively preparing/downloading (not idle, not running)
+  const isDownloading =
+    launchProgress.stage !== 'idle' &&
+    launchProgress.stage !== 'running' &&
+    !isRunning;
+
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto p-6 space-y-6">
-      {/* Hero Banner Section */}
-      <div className="relative rounded-2xl overflow-hidden glass-panel p-6 border border-white/10 shadow-2xl">
-        {/* Background ambient glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Máy Chủ Minecraft Nhóm Bạn</span>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold font-['Outfit'] tracking-tight text-white">
-              Sẵn Sàng Chinh Phục Thế Giới Mới
-            </h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Launcher được tối ưu hóa riêng cho nhóm bạn: Tự động đồng bộ modpack, tích hợp Skin 3D trong game, khởi động cực nhanh và siêu mượt.
-            </p>
-          </div>
-
-          {/* Quick Connect & Launch Box */}
-          <div className="flex flex-col items-end gap-3 min-w-[260px]">
-            {/* Instance Selector Dropdown */}
-            <div className="w-full">
-              <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">
-                Cấu Hình Đang Chọn
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedInstanceId}
-                  onChange={(e) => onSelectInstance(e.target.value)}
-                  className="w-full appearance-none glass-input px-3.5 py-2.5 rounded-xl text-sm font-medium text-white pr-8 cursor-pointer"
-                >
-                  {instances.map((inst) => (
-                    <option key={inst.id} value={inst.id} className="bg-slate-900 text-white">
-                      {inst.name} ({inst.loader.toUpperCase()} {inst.gameVersion})
-                    </option>
-                  ))}
-                </select>
-                <ChevronRight className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none rotate-90" />
-              </div>
-            </div>
-
-            {/* Launch Button */}
-            <button
-              onClick={onLaunch}
-              disabled={isRunning || launchProgress.stage !== 'idle'}
-              className={`w-full py-4 px-6 rounded-xl font-['Outfit'] font-bold text-lg flex items-center justify-center gap-3 transition-all ${
-                isRunning
-                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
-                  : 'btn-launch text-white pulse-launch'
-              }`}
-            >
-              <Play className={`w-5 h-5 fill-current ${launchProgress.stage !== 'idle' ? 'animate-spin' : ''}`} />
-              <span>
-                {isRunning
-                  ? 'Đang Chơi...'
-                  : launchProgress.stage !== 'idle'
-                  ? 'Đang Khởi Chạy...'
-                  : 'CHƠI NGAY'}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Launch Progress Overlay */}
-        {launchProgress.stage !== 'idle' && (
-          <div className="mt-5 pt-4 border-t border-white/10 space-y-2.5 animate-fadeIn">
-            <div className="flex items-center justify-between text-xs text-slate-300">
-              <div className="flex items-center gap-2 truncate max-w-[65%]">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping shrink-0" />
-                <span className="font-semibold text-indigo-300 capitalize shrink-0">{launchProgress.stage}:</span>
-                <span className="text-slate-400 truncate text-[11px] font-mono">{launchProgress.currentFile}</span>
-              </div>
-
-              <div className="flex items-center gap-3 shrink-0">
-                {launchProgress.speedBps > 0 && (
-                  <span className="text-[11px] text-emerald-400 font-mono font-medium">
-                    {(launchProgress.speedBps / (1024 * 1024)).toFixed(2)} MB/s
-                  </span>
-                )}
-                {launchProgress.totalBytes > 0 && (
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(1)} / {(launchProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB
-                  </span>
-                )}
-                <span className="font-mono font-bold text-white text-xs bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30">
-                  {launchProgress.percentage}%
-                </span>
-              </div>
-            </div>
-            <div className="w-full h-2.5 rounded-full bg-slate-950 overflow-hidden p-0.5 border border-white/10 shadow-inner">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 transition-all duration-200"
-                style={{ width: `${Math.max(4, launchProgress.percentage)}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Grid: Server Live Status + Instance Specs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Server Live Status Card (2 cols) */}
-        <div className="md:col-span-2 glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+    <div className="flex-1 flex flex-col justify-between overflow-hidden relative">
+      {/* Top / Main Body Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        {/* Server Status Box */}
+        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
                 <Server className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">Trạng Thái Server</h3>
-                <p className="text-[11px] text-slate-400">Cập nhật tự động thời gian thực</p>
+                <h2 className="text-sm font-semibold text-white">{t.serverHeader}</h2>
+                <p className="text-xs text-slate-400">{t.serverSub}</p>
               </div>
             </div>
 
@@ -187,14 +98,14 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                 }`}
               >
                 <span className={`w-2 h-2 rounded-full ${serverStatus.online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
-                {serverStatus.online ? 'Hoạt Động' : 'Ngoại Tuyến'}
+                {serverStatus.online ? t.online : t.offline}
               </span>
 
               <button
                 onClick={handleRefreshPing}
                 disabled={isPinging}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition"
-                title="Làm mới ping"
+                title="Refresh"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isPinging ? 'animate-spin' : ''}`} />
               </button>
@@ -202,18 +113,18 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           </div>
 
           {/* MOTD box */}
-          <div className="p-3 rounded-xl bg-[#090d16] border border-white/5 font-mono text-xs text-slate-300">
-            {serverStatus.motd?.replace(/§[0-9a-fk-or]/g, '') || 'Máy Chủ Bạn Bè - Sẵn sàng chiến game!'}
+          <div className="p-3 rounded-xl bg-black/30 border border-white/5 font-mono text-xs text-slate-300">
+            {serverStatus.motd?.replace(/§[0-9a-fk-or]/g, '') || 'Máy Chủ Minecraft Nhóm Bạn'}
           </div>
 
-          {/* Metrics row */}
-          <div className="grid grid-cols-3 gap-3 pt-1">
+          {/* Server Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
               <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
                 <Users className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Người Chơi</span>
+                <span>{t.players}</span>
               </div>
-              <div className="text-lg font-bold text-white">
+              <div className="text-base font-bold text-white font-mono">
                 {serverStatus.playersOnline} <span className="text-xs text-slate-400 font-normal">/ {serverStatus.playersMax}</span>
               </div>
             </div>
@@ -221,15 +132,15 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
               <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
                 <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Độ Trễ (Ping)</span>
+                <span>{t.latency}</span>
               </div>
-              <div className="text-lg font-bold text-emerald-400">
-                {serverStatus.pingMs} <span className="text-xs font-normal">ms</span>
+              <div className="text-base font-bold text-emerald-400 font-mono">
+                {serverStatus.pingMs ?? '--'} <span className="text-xs font-normal">ms</span>
               </div>
             </div>
 
             <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
-              <div className="text-slate-400 text-xs">Địa Chỉ IP</div>
+              <div className="text-slate-400 text-xs">{t.serverIp}</div>
               <button
                 onClick={handleCopyIp}
                 className="flex items-center justify-between text-xs font-mono text-indigo-300 hover:text-indigo-200 transition"
@@ -241,52 +152,137 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           </div>
         </div>
 
-        {/* Selected Instance Summary Card (1 col) */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white">Thông Số Profile</h3>
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                {selectedInstance?.loader}
+        {/* Selected Profile Specs Summary */}
+        <div className="glass-panel rounded-2xl p-4 border border-white/5 flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="text-xs text-slate-400">{t.profileConfig}:</div>
+            <div className="text-sm font-bold text-white flex items-center gap-2">
+              <span>{selectedInstance?.name}</span>
+              <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 uppercase">
+                {selectedInstance?.loader} {selectedInstance?.gameVersion}
               </span>
-            </div>
-
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between text-slate-300 pb-2 border-b border-white/5">
-                <span className="text-slate-400">Phiên bản MC:</span>
-                <span className="font-semibold text-white">{selectedInstance?.gameVersion}</span>
-              </div>
-
-              <div className="flex items-center justify-between text-slate-300 pb-2 border-b border-white/5">
-                <span className="text-slate-400">Mod Loader:</span>
-                <span className="font-semibold text-indigo-400">
-                  {selectedInstance?.loader.toUpperCase()} {selectedInstance?.loaderVersion || ''}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between text-slate-300 pb-2 border-b border-white/5">
-                <span className="text-slate-400">RAM Cấp phát:</span>
-                <span className="font-semibold text-white">
-                  {(selectedInstance?.maxRam || 4096) / 1024} GB
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between text-slate-300">
-                <span className="text-slate-400">Skin Đồng Đội:</span>
-                <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Đã Bật
-                </span>
-              </div>
             </div>
           </div>
 
-          <button
-            onClick={onOpenCreateModal}
-            className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-semibold transition"
-          >
-            + Tạo Thêm Profile Khác
-          </button>
+          <div className="flex items-center gap-4 text-xs text-slate-400">
+            <div>
+              RAM: <strong className="text-slate-200 font-mono">{(selectedInstance?.maxRam || 4096) / 1024} GB</strong>
+            </div>
+            {selectedInstance?.enableSkinInGame && (
+              <div className="flex items-center gap-1 text-emerald-400">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Skin: {t.enabled}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Action Bar (Cụm điều khiển dưới góc phải & Giám sát tải bên trái) */}
+      <div className="bg-[#090d16]/95 border-t border-white/10 p-4 px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 z-20 backdrop-blur-md">
+        {/* Left Side: Download & Resource Monitor (Hidden when completed) */}
+        <div className="flex-1 min-w-0 pr-4">
+          {isDownloading ? (
+            <div className="space-y-1.5 animate-fadeIn">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 truncate max-w-[70%]">
+                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping shrink-0" />
+                  <span className="font-semibold text-indigo-300 capitalize shrink-0">{launchProgress.stage}:</span>
+                  <span className="text-slate-400 truncate text-[11px] font-mono">{launchProgress.currentFile}</span>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  {launchProgress.speedBps > 0 && (
+                    <span className="text-[11px] text-emerald-400 font-mono font-medium">
+                      {(launchProgress.speedBps / (1024 * 1024)).toFixed(2)} MB/s
+                    </span>
+                  )}
+                  {launchProgress.totalBytes > 0 && (
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(1)} / {(launchProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB
+                    </span>
+                  )}
+                  <span className="font-mono font-bold text-white text-xs bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30">
+                    {launchProgress.percentage}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden p-0.5 border border-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 transition-all duration-150"
+                  style={{ width: `${Math.max(4, launchProgress.percentage)}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500 font-medium truncate">
+              {isRunning ? (
+                <span className="text-emerald-400 flex items-center gap-1.5 font-mono">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  Minecraft process active
+                </span>
+              ) : (
+                <span>MCLv2 Ready</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right Side: Profile Selector + Launch/Stop Button */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Profile Dropdown */}
+          <div className="relative w-52 sm:w-64">
+            <select
+              value={selectedInstanceId}
+              onChange={(e) => onSelectInstance(e.target.value)}
+              disabled={isRunning || isDownloading}
+              className="w-full appearance-none glass-input px-3 py-2.5 rounded-xl text-xs font-semibold text-white pr-8 cursor-pointer disabled:opacity-60"
+            >
+              {instances.map((inst) => (
+                <option key={inst.id} value={inst.id} className="bg-slate-900 text-white font-sans">
+                  {inst.name} ({inst.loader.toUpperCase()} {inst.gameVersion})
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Launch / Stop Button */}
+          {isRunning ? (
+            <button
+              onClick={onStopGame}
+              onMouseEnter={() => setIsHoveringStop(true)}
+              onMouseLeave={() => setIsHoveringStop(false)}
+              className="py-2.5 px-6 rounded-xl font-['Outfit'] font-bold text-sm flex items-center justify-center gap-2 transition-all btn-action-running w-36"
+            >
+              {isHoveringStop ? (
+                <>
+                  <Square className="w-4 h-4 fill-current" />
+                  <span>{t.btnStopGame}</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                  <span>{t.btnInGame}</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={onLaunch}
+              disabled={isDownloading}
+              className={`py-2.5 px-7 rounded-xl font-['Outfit'] font-bold text-sm flex items-center justify-center gap-2 transition-all w-36 ${
+                isDownloading
+                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
+                  : 'btn-action-launch'
+              }`}
+            >
+              <Play className={`w-4 h-4 fill-current ${isDownloading ? 'animate-spin' : ''}`} />
+              <span>{isDownloading ? t.btnLoading : t.btnLaunch}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

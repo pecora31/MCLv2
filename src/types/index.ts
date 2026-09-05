@@ -96,12 +96,19 @@ export interface JavaInstallation {
   is64Bit: boolean;
 }
 
+export type UiStyle = 'glass' | 'minimal';
+export type ColorPalette = 'indigo' | 'emerald' | 'amber' | 'rose' | 'cyan' | 'slate';
+
 export interface LauncherSettings {
   defaultJavaPath?: string;
   defaultMinRam: number;
   defaultMaxRam: number;
   defaultJvmArgs: string;
-  theme: 'dark-cyber' | 'glass-purple' | 'midnight-emerald';
+  language: 'vi' | 'en';
+  uiStyle: UiStyle;
+  colorPalette: ColorPalette;
+  customBgImage?: string;
+  bgOpacity: number;
   closeOnLaunch: boolean;
   enableDiscordRpc: boolean;
   serverHost: string;

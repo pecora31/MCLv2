@@ -309,7 +309,7 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
               className="btn-primary px-6 py-2 rounded-xl text-xs font-bold flex items-center gap-2"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Tạo Profile Ngay</span>
+              <span>Tạo Profile</span>
             </button>
           </div>
         </form>

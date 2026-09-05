@@ -65,6 +65,11 @@ async fn launch_instance(
     }
 }
 
+#[tauri::command]
+fn kill_game() -> Result<bool, String> {
+    minecraft_core::launcher::kill_current_game()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -84,7 +89,8 @@ pub fn run() {
             detect_java,
             ping_minecraft_server,
             get_local_mods,
-            launch_instance
+            launch_instance,
+            kill_game
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

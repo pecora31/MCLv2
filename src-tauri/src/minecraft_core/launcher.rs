@@ -8,7 +8,10 @@ use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::atomic::{AtomicU32, Ordering};
 use tauri::{AppHandle, Emitter};
+
+static CURRENT_GAME_PID: AtomicU32 = AtomicU32::new(0);
 
 pub async fn prepare_and_launch(
     app_handle: &AppHandle,
@@ -283,13 +286,15 @@ pub async fn prepare_and_launch(
     cmd.stderr(Stdio::piped());
 
     let mut child = cmd.spawn().map_err(|e| format!("Không thể khởi chạy Java ({}): {}", java_bin, e))?;
+    let pid = child.id();
+    CURRENT_GAME_PID.store(pid, Ordering::SeqCst);
 
     let _ = app_handle.emit(
         "mc-log",
         format!(
-            "[{}] [MCLv2/INFO] Đã khởi chạy tiến trình Minecraft (PID: {:?})!",
+            "[{}] [MCLv2/INFO] Đã khởi chạy tiến trình Minecraft (PID: {})!",
             chrono::Local::now().format("%H:%M:%S"),
-            child.id()
+            pid
         ),
     );
 
@@ -314,7 +319,47 @@ pub async fn prepare_and_launch(
         });
     }
 
+    // Watch for game exit to notify frontend immediately
+    let app_exit = app_handle.clone();
+    std::thread::spawn(move || {
+        let status = child.wait();
+        CURRENT_GAME_PID.store(0, Ordering::SeqCst);
+
+        let _ = app_exit.emit(
+            "mc-log",
+            format!(
+                "[{}] [MCLv2/INFO] Tiến trình Minecraft đã thoát (Exit status: {:?})",
+                chrono::Local::now().format("%H:%M:%S"),
+                status
+            ),
+        );
+        let _ = app_exit.emit("game-exit", ());
+    });
+
     Ok(())
+}
+
+pub fn kill_current_game() -> Result<bool, String> {
+    let pid = CURRENT_GAME_PID.load(Ordering::SeqCst);
+    if pid == 0 {
+        return Ok(false);
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        let _ = Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &pid.to_string()])
+            .output();
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = Command::new("kill")
+            .args(["-9", &pid.to_string()])
+            .output();
+    }
+
+    CURRENT_GAME_PID.store(0, Ordering::SeqCst);
+    Ok(true)
 }
 
 fn get_library_path_from_name(name: &str) -> PathBuf {
