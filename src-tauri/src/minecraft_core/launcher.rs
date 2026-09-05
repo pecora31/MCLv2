@@ -1,5 +1,5 @@
 use super::assets::download_assets;
-use super::downloader::{download_files_concurrently, DownloadTask};
+use super::downloader::{download_files_concurrently, DownloadProgressPayload, DownloadTask};
 use super::fabric::{get_fabric_meta, parse_maven_coord};
 use super::version::{get_version_details, is_library_allowed_on_windows};
 use crate::instance_manager::{get_instance_dir, get_launcher_dir, setup_in_game_skin_support};
@@ -43,6 +43,17 @@ pub async fn prepare_and_launch(
     let _ = app_handle.emit(
         "mc-log",
         format!("[{}] [MCLv2] Đang tải danh mục phiên bản từ Mojang CDN...", chrono::Local::now().format("%H:%M:%S")),
+    );
+    let _ = app_handle.emit(
+        "download-progress",
+        DownloadProgressPayload {
+            stage: "Kiểm tra phiên bản".to_string(),
+            percentage: 15,
+            current_file: format!("Mojang Version Manifest ({})", instance.game_version),
+            downloaded_bytes: 0,
+            total_bytes: 0,
+            speed_bps: 0,
+        },
     );
     let version_details = get_version_details(&common_dir, &instance.game_version).await?;
 
@@ -232,6 +243,17 @@ pub async fn prepare_and_launch(
             java_bin
         ),
     );
+    let _ = app_handle.emit(
+        "download-progress",
+        DownloadProgressPayload {
+            stage: "Khởi động JVM".to_string(),
+            percentage: 95,
+            current_file: "Đang khởi tạo máy ảo Java và nạp Minecraft...".to_string(),
+            downloaded_bytes: 0,
+            total_bytes: 0,
+            speed_bps: 0,
+        },
+    );
 
     let mut cmd = Command::new(&java_bin);
 
@@ -288,6 +310,8 @@ pub async fn prepare_and_launch(
     let mut child = cmd.spawn().map_err(|e| format!("Không thể khởi chạy Java ({}): {}", java_bin, e))?;
     let pid = child.id();
     CURRENT_GAME_PID.store(pid, Ordering::SeqCst);
+
+    let _ = app_handle.emit("game-started", pid);
 
     let _ = app_handle.emit(
         "mc-log",

@@ -107,6 +107,7 @@ export const App: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
   const [launchProgress, setLaunchProgress] = useState<LaunchProgress>({
     stage: 'idle',
@@ -183,11 +184,12 @@ export const App: React.FC = () => {
     setAccount((prev) => ({ ...prev, skinUrl, skinModel: model }));
   };
 
-  // Listen to Tauri native download progress, game log stream, and game exit
+  // Listen to Tauri native download progress, game log stream, game start, and game exit
   useEffect(() => {
     if (!isTauri()) return;
     let unlistenProgress: (() => void) | undefined;
     let unlistenLogs: (() => void) | undefined;
+    let unlistenStarted: (() => void) | undefined;
     let unlistenExit: (() => void) | undefined;
 
     const setupListeners = async () => {
@@ -198,11 +200,16 @@ export const App: React.FC = () => {
 
         unlistenLogs = await listen<string>('mc-log', (event) => {
           setConsoleLogs((prev) => [...prev, event.payload]);
+        });
+
+        unlistenStarted = await listen<number>('game-started', () => {
           setIsRunning(true);
+          setIsPreparing(false);
         });
 
         unlistenExit = await listen('game-exit', () => {
           setIsRunning(false);
+          setIsPreparing(false);
           setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
           setConsoleLogs((prev) => [
             ...prev,
@@ -219,6 +226,7 @@ export const App: React.FC = () => {
     return () => {
       unlistenProgress?.();
       unlistenLogs?.();
+      unlistenStarted?.();
       unlistenExit?.();
     };
   }, []);
@@ -229,6 +237,7 @@ export const App: React.FC = () => {
     if (!targetInstance) return;
 
     setIsRunning(false);
+    setIsPreparing(true);
     setConsoleLogs([
       `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Khởi động phiên bản: ${targetInstance.name} (Minecraft ${targetInstance.gameVersion})`,
       `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Người chơi: ${account.username} (${account.type.toUpperCase()})`,
@@ -342,6 +351,7 @@ export const App: React.FC = () => {
               onStopGame={handleStopGame}
               launchProgress={launchProgress}
               isRunning={isRunning}
+              isPreparing={isPreparing}
               language={language}
             />
           )}

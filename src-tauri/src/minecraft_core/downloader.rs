@@ -60,7 +60,7 @@ pub async fn download_files_concurrently(
             "download-progress",
             DownloadProgressPayload {
                 stage: stage_name.to_string(),
-                percentage: 100,
+                percentage: 85,
                 current_file: "Tất cả tệp đã có sẵn trong bộ nhớ đệm".to_string(),
                 downloaded_bytes: 0,
                 total_bytes: 0,

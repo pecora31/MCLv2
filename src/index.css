@@ -183,6 +183,95 @@
   box-shadow: 0 4px 18px rgba(220, 38, 38, 0.5) !important;
 }
 
+/* Riot-Style Play Button */
+.btn-riot-play {
+  height: 52px;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  color: #0f172a;
+  font-weight: 900;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.45), 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(254, 240, 138, 0.4);
+}
+
+.btn-riot-play:hover {
+  background: linear-gradient(135deg, #fde047 0%, #fbbf24 50%, #f59e0b 100%);
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.7), 0 6px 16px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-riot-play:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.palette-emerald .btn-riot-play {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+  border-color: rgba(167, 243, 208, 0.4);
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.45);
+}
+.palette-emerald .btn-riot-play:hover {
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%);
+  box-shadow: 0 0 32px rgba(16, 185, 129, 0.7);
+}
+
+.palette-rose .btn-riot-play {
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+  border-color: rgba(254, 205, 211, 0.4);
+  box-shadow: 0 0 24px rgba(244, 63, 94, 0.45);
+}
+.palette-rose .btn-riot-play:hover {
+  background: linear-gradient(135deg, #fda4af 0%, #fb7185 50%, #f43f5e 100%);
+  box-shadow: 0 0 32px rgba(244, 63, 94, 0.7);
+}
+
+.palette-cyan .btn-riot-play {
+  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 50%, #0891b2 100%);
+  border-color: rgba(165, 243, 252, 0.4);
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.45);
+}
+.palette-cyan .btn-riot-play:hover {
+  background: linear-gradient(135deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%);
+  box-shadow: 0 0 32px rgba(6, 182, 212, 0.7);
+}
+
+.btn-riot-running {
+  height: 52px;
+  border-radius: 1rem;
+  background: #059669;
+  color: #ffffff;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.btn-riot-running:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: rgba(248, 113, 113, 0.5) !important;
+  box-shadow: 0 0 28px rgba(220, 38, 38, 0.6) !important;
+}
+
+/* Riot News / Media Preview Cards */
+.riot-preview-card {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.riot-preview-card:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+.riot-preview-card:hover .riot-card-img {
+  transform: scale(1.08);
+}
+.riot-card-img {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Tauri window drag helper */
 .titlebar-drag-region {
   -webkit-app-region: drag;
