@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     MINECRAFT_AVATAR_ICONS[0];
 
   return (
-    <aside className="w-20 bg-[#0a0a0a]/92 backdrop-blur-md flex flex-col justify-between items-center py-5 select-none z-50 shrink-0 h-full border-r border-white/[0.05]">
+    <aside className="w-20 bg-[#121318]/70 backdrop-blur-xl flex flex-col justify-between items-center py-5 select-none z-50 shrink-0 h-full border-r border-white/[0.08] shadow-[4px_0_24px_rgba(0,0,0,0.35)]">
       {/* Top MCL Logo - Subdued (chìm), Unclickable */}
       <div className="w-full flex items-center justify-center pt-1 select-none pointer-events-none">
         <img
@@ -78,14 +78,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Account Avatar at Bottom -> Opens Full Profile Page */}
+      {/* Account Avatar at Bottom -> Opens Full Profile Page (Circular, No Online Dot) */}
       <div className="relative group flex flex-col items-center px-2 pb-1 w-full">
+        {/* Left Edge Active Indicator Bar for Profile */}
+        {currentTab === 'profile' && (
+          <span className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]" />
+        )}
+
         <button
           onClick={() => onTabChange('profile')}
-          className={`relative w-12 h-12 rounded-xl overflow-hidden bg-[#171717] border transition-colors duration-100 flex items-center justify-center outline-none ${
+          className={`relative w-12 h-12 rounded-full overflow-hidden bg-[#171717]/80 border transition-all duration-150 flex items-center justify-center outline-none ${
             currentTab === 'profile'
-              ? 'border-amber-400 ring-2 ring-amber-400/40'
-              : 'border-white/10 hover:border-amber-400/60'
+              ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+              : 'border-white/10 hover:border-amber-400/60 hover:scale-105'
           }`}
         >
           {account.avatarCustom ? (
@@ -107,9 +112,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <User className="w-6 h-6 text-amber-400" />
           )}
-
-          {/* Active online status dot */}
-          <span className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
         </button>
 
         {/* Pure CSS Tooltip for profile */}

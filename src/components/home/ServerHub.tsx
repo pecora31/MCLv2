@@ -299,7 +299,10 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                       className="btn-riot-play w-[220px] h-[64px] rounded-2xl flex items-center justify-center gap-3 text-xl font-bold shadow-xl shrink-0"
                     >
                       {selectedInstance ? (
-                        <span className="tracking-wider text-2xl font-black">PLAY</span>
+                        <>
+                          <Play className="w-5 h-5 fill-current" />
+                          <span className="tracking-wider text-2xl font-black">PLAY</span>
+                        </>
                       ) : (
                         <>
                           <Plus className="w-5 h-5" />
