@@ -83,10 +83,34 @@ pub fn run() {
                 )?;
             }
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.set_shadow(false);
+                let _ = window.set_shadow(true);
                 let _ = window.set_size(tauri::LogicalSize::new(1600.0, 900.0));
                 let _ = window.set_resizable(false);
                 let _ = window.center();
+
+                #[cfg(target_os = "windows")]
+                if let Ok(hwnd) = window.hwnd() {
+                    use std::ffi::c_void;
+                    #[link(name = "dwmapi")]
+                    extern "system" {
+                        fn DwmSetWindowAttribute(
+                            hwnd: isize,
+                            dwAttribute: u32,
+                            pvAttribute: *const c_void,
+                            cbAttribute: u32,
+                        ) -> i32;
+                    }
+                    // DWMWA_BORDER_COLOR = 34. Color in 0x00BBGGRR -> dark neutral gray 0x00222222
+                    let border_color: u32 = 0x00222222;
+                    unsafe {
+                        let _ = DwmSetWindowAttribute(
+                            hwnd.0 as isize,
+                            34,
+                            &border_color as *const _ as *const c_void,
+                            std::mem::size_of::<u32>() as u32,
+                        );
+                    }
+                }
             }
             Ok(())
         })

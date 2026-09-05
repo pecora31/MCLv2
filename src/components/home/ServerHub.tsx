@@ -134,21 +134,150 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               {t.heroSub}
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-3.5 pt-3">
-              <button
-                onClick={handleCopyIp}
-                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider transition-colors shadow-[0_4px_20px_rgba(245,158,11,0.35)] flex items-center gap-2.5"
-              >
-                {copied ? <Check className="w-4 h-4 text-emerald-950" /> : <Copy className="w-4 h-4" />}
-                <span>{copied ? t.copied : `${t.heroCta} (IP: ${serverStatus.ip})`}</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('server')}
-                className="px-7 py-3.5 rounded-2xl bg-[#141414] hover:bg-[#1f1f1f] text-white font-bold text-sm border border-white/[0.08] transition-colors shadow-lg tracking-wider uppercase"
-              >
-                {t.tabServerInfo}
-              </button>
+            {/* Ergonomic Primary Action Zone: [ ▶ Chơi ] [ ▼ ] + Concise Profile Pill + Compact Progress */}
+            <div className="space-y-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3.5">
+                {/* Play Button Group */}
+                <div className="relative flex items-center gap-2.5 shrink-0">
+                  {/* Active Profile Dropdown Popover */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute left-0 bottom-full mb-3 w-80 rounded-2xl bg-[#141414] border border-white/10 shadow-2xl p-2 z-50 space-y-1">
+                      <div className="px-3.5 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider font-riot">
+                        Chọn Profile Phiên Bản
+                      </div>
+                      {instances.map((inst) => (
+                        <button
+                          key={inst.id}
+                          onClick={() => {
+                            onSelectInstance(inst.id);
+                            setIsProfileDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center justify-between transition-colors ${
+                            inst.id === selectedInstanceId
+                              ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
+                              : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <span className="truncate font-semibold">{inst.name}</span>
+                          <span className="text-xs text-slate-400 font-mono shrink-0 ml-2">
+                            {inst.loader.toUpperCase()} {inst.gameVersion}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* BIG Riot Play Button: "▶ Chơi" (Image 1 Style) */}
+                  {isRunning ? (
+                    <button
+                      onClick={onStopGame}
+                      onMouseEnter={() => setIsHoveringStop(true)}
+                      onMouseLeave={() => setIsHoveringStop(false)}
+                      className="btn-riot-running"
+                    >
+                      {isHoveringStop ? (
+                        <>
+                          <Square className="w-6 h-6 fill-current" />
+                          <span>{t.btnStopGame}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
+                          <span>{t.btnInGame}</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={onLaunch}
+                      disabled={isPreparingOrDownloading}
+                      className={`${
+                        isPreparingOrDownloading
+                          ? 'h-[60px] min-w-[210px] px-10 rounded-3xl bg-[#141414] text-amber-400/80 border border-amber-500/30 cursor-wait flex items-center justify-center gap-3'
+                          : 'btn-riot-play'
+                      }`}
+                    >
+                      {isPreparingOrDownloading ? (
+                        <>
+                          <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
+                          <span className="text-lg font-bold">{t.btnLoading}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-6 h-6 fill-current" />
+                          <span className="text-xl font-bold font-riot tracking-wide">{language === 'vi' ? 'Chơi' : 'Play'}</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {/* Dropdown Button [ ▼ ] (Image 1 Style) */}
+                  <button
+                    onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+                    disabled={isRunning || isPreparingOrDownloading}
+                    title="Chọn phiên bản trò chơi"
+                    className="btn-riot-dropdown"
+                  >
+                    <ChevronDown className={`w-6 h-6 transition-transform duration-150 ${isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Concise Profile Info Pill */}
+                <button
+                  onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+                  title="Bấm để đổi phiên bản profile"
+                  className="px-4 py-3 rounded-2xl bg-[#141414]/90 hover:bg-[#1a1a1a] border border-white/[0.08] hover:border-white/20 transition-colors shadow-lg flex items-center gap-2.5 text-slate-300 cursor-pointer"
+                >
+                  <span className="font-bold text-white text-sm tracking-wide">{selectedInstance?.name}</span>
+                  <span className="text-slate-600">•</span>
+                  <span className="text-amber-300 font-mono text-xs font-semibold">MC {selectedInstance?.gameVersion}</span>
+                  <span className="text-slate-600">•</span>
+                  <span className="font-mono text-slate-400 text-xs">{(selectedInstance?.maxRam || 4096) / 1024} GB</span>
+                </button>
+
+                {/* Secondary Button: Server Info */}
+                <button
+                  onClick={() => setActiveTab('server')}
+                  className="px-6 py-3 rounded-2xl bg-[#141414]/80 hover:bg-[#1c1c1c] text-white font-bold text-sm border border-white/[0.08] transition-colors shadow-lg tracking-wider uppercase"
+                >
+                  {t.tabServerInfo}
+                </button>
+              </div>
+
+              {/* Compact Progress Bar directly underneath Play button */}
+              {isPreparingOrDownloading && (
+                <div className="w-[330px] space-y-2 p-3 rounded-2xl bg-[#141414]/95 border border-amber-500/30 shadow-2xl animate-fadeIn">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      {launchProgress.speedBps > 0 ? (
+                        <span className="text-emerald-400 font-bold">
+                          {(launchProgress.speedBps / (1024 * 1024)).toFixed(1)} MB/s
+                        </span>
+                      ) : (
+                        <span className="text-amber-300 font-semibold">{launchProgress.stage || 'Chuẩn bị'}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {launchProgress.totalBytes > 0 && (
+                        <span className="text-slate-400">
+                          {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(0)}/{(launchProgress.totalBytes / (1024 * 1024)).toFixed(0)} MB
+                        </span>
+                      )}
+                      <span className="font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded text-[11px] border border-amber-500/40">
+                        {Math.max(5, launchProgress.percentage)}%
+                      </span>
+                    </div>
+                  </div>
+                  {/* Amber Gold Progress Bar */}
+                  <div className="w-full h-2 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/[0.08]">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#d8a951] to-amber-400 transition-all duration-200 shadow-[0_0_10px_rgba(216,169,81,0.6)]"
+                      style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -218,153 +347,26 @@ export const ServerHub: React.FC<ServerHubProps> = ({
         )}
       </div>
 
-      {/* Riot-Style Bottom Action Bar (Seamless without dividing border lines, anchored baseline) */}
-      <div className="bg-gradient-to-t from-black/95 via-black/60 to-transparent pb-10 pt-10 px-12 flex items-end justify-between gap-6 z-20">
-        {/* Left Side: Download & Resource Monitor (Anchored to bottom baseline, never pushes right buttons) */}
-        <div className="flex-1 min-w-0 pr-6 flex flex-col justify-end">
-          {isPreparingOrDownloading ? (
-            <div className="space-y-2.5 p-4 rounded-2xl bg-[#121212]/95 border border-white/[0.08] shadow-2xl animate-fadeIn">
-              {/* Status Header */}
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2.5 truncate max-w-[65%]">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
-                  <span className="font-bold text-amber-300 uppercase tracking-wider text-xs shrink-0 font-riot">
-                    {launchProgress.stage || 'Chuẩn bị'}:
-                  </span>
-                  <span className="text-slate-200 truncate text-xs font-mono">
-                    {launchProgress.currentFile || 'Đang kết nối và kiểm tra tệp tin...'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                  {launchProgress.speedBps > 0 && (
-                    <span className="text-xs text-emerald-400 font-mono font-bold">
-                      {(launchProgress.speedBps / (1024 * 1024)).toFixed(2)} MB/s
-                    </span>
-                  )}
-                  {launchProgress.totalBytes > 0 && (
-                    <span className="text-xs text-slate-400 font-mono">
-                      {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(1)} / {(launchProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB
-                    </span>
-                  )}
-                  <span className="font-mono font-bold text-amber-300 text-xs bg-amber-500/20 px-3 py-1 rounded-md border border-amber-500/40">
-                    {Math.max(5, launchProgress.percentage)}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Bar with Amber/Gold Glow */}
-              <div className="w-full h-3 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/[0.08]">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 transition-all duration-200 shadow-[0_0_14px_rgba(245,158,11,0.7)]"
-                  style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="text-sm text-slate-300 font-medium truncate flex items-center gap-3 drop-shadow-md">
-              {isRunning ? (
-                <span className="text-emerald-400 flex items-center gap-2.5 font-mono font-bold bg-[#081810] px-5 py-3 rounded-2xl border border-emerald-500/40 shadow-xl">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Tiến trình Minecraft đang hoạt động
-                </span>
-              ) : (
-                <div className="flex items-center gap-3 bg-[#121212]/90 px-5 py-3 rounded-2xl border border-white/[0.08] shadow-lg text-slate-300">
-                  <span className="font-bold text-white tracking-wide text-sm">{selectedInstance?.name}</span>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-amber-300 font-mono text-sm font-semibold">MC {selectedInstance?.gameVersion}</span>
-                  <span className="text-slate-600">•</span>
-                  <span className="font-mono text-slate-300 text-sm">{(selectedInstance?.maxRam || 4096) / 1024} GB RAM</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Right Side: [ ▶ Chơi ] + [ ▼ ] Button Group (Locked baseline, never moves) */}
-        <div className="relative flex items-center gap-3 shrink-0 h-[60px]">
-          {/* Active Profile Dropdown Popover */}
-          {isProfileDropdownOpen && (
-            <div className="absolute right-0 bottom-20 w-84 rounded-2xl bg-[#141414] border border-white/10 shadow-2xl p-2 z-50 space-y-1">
-              <div className="px-3.5 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider font-riot">
-                Chọn Profile Phiên Bản
-              </div>
-              {instances.map((inst) => (
-                <button
-                  key={inst.id}
-                  onClick={() => {
-                    onSelectInstance(inst.id);
-                    setIsProfileDropdownOpen(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center justify-between transition-colors ${
-                    inst.id === selectedInstanceId
-                      ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
-                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <span className="truncate font-semibold">{inst.name}</span>
-                  <span className="text-xs text-slate-400 font-mono shrink-0 ml-2">
-                    {inst.loader.toUpperCase()} {inst.gameVersion}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* BIG Riot Play Button: "▶ Chơi" (Image 1 Style) */}
-          {isRunning ? (
-            <button
-              onClick={onStopGame}
-              onMouseEnter={() => setIsHoveringStop(true)}
-              onMouseLeave={() => setIsHoveringStop(false)}
-              className="btn-riot-running"
-            >
-              {isHoveringStop ? (
-                <>
-                  <Square className="w-6 h-6 fill-current" />
-                  <span>{t.btnStopGame}</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-                  <span>{t.btnInGame}</span>
-                </>
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={onLaunch}
-              disabled={isPreparingOrDownloading}
-              className={`${
-                isPreparingOrDownloading
-                  ? 'h-[60px] min-w-[210px] px-10 rounded-3xl bg-[#141414] text-amber-400/80 border border-amber-500/30 cursor-wait flex items-center justify-center gap-3'
-                  : 'btn-riot-play'
-              }`}
-            >
-              {isPreparingOrDownloading ? (
-                <>
-                  <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
-                  <span className="text-lg font-bold">{t.btnLoading}</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-6 h-6 fill-current" />
-                  <span className="text-xl font-bold font-riot tracking-wide">{language === 'vi' ? 'Chơi' : 'Play'}</span>
-                </>
-              )}
-            </button>
-          )}
-
-          {/* Dropdown Button [ ▼ ] (Image 1 Style) */}
+      {/* Clean Bottom Footer: Server IP & Status */}
+      <div className="bg-gradient-to-t from-black/95 via-black/50 to-transparent pb-6 pt-6 px-12 flex items-center justify-between z-20">
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-            disabled={isRunning || isPreparingOrDownloading}
-            title="Chọn phiên bản trò chơi"
-            className="btn-riot-dropdown"
+            onClick={handleCopyIp}
+            className="px-4 py-2 rounded-xl bg-[#141414]/90 hover:bg-[#1f1f1f] text-slate-300 hover:text-amber-300 text-xs font-mono border border-white/[0.06] transition-colors flex items-center gap-2 shadow-md"
+            title="Bấm để sao chép địa chỉ máy chủ"
           >
-            <ChevronDown className={`w-6 h-6 transition-transform duration-150 ${isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''}`} />
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-amber-400" />}
+            <span>IP: {serverStatus.ip}</span>
+            {copied && <span className="text-emerald-400 font-bold ml-1">({t.copied})</span>}
           </button>
         </div>
+
+        {isRunning && (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081810] border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold shadow-lg">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Minecraft đang hoạt động</span>
+          </div>
+        )}
       </div>
     </div>
   );

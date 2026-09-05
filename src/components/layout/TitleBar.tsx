@@ -60,7 +60,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({
   return (
     <header
       data-tauri-drag-region
-      className="titlebar-drag-region h-12 bg-transparent flex items-center justify-between px-7 select-none z-50 shrink-0"
+      className="titlebar-drag-region h-11 bg-transparent flex items-center justify-between pl-6 pr-2 select-none z-50 shrink-0"
     >
       {/* Left side of canvas header: status only when in-game */}
       <div className="flex items-center gap-2 titlebar-no-drag">
@@ -76,14 +76,14 @@ export const TitleBar: React.FC<TitleBarProps> = ({
       <div data-tauri-drag-region className="flex-1 h-full" />
 
       {/* Right Controls */}
-      <div className="flex items-center gap-2 titlebar-no-drag">
+      <div className="flex items-center gap-1.5 titlebar-no-drag">
         {/* Language Switcher */}
         <button
           onClick={onToggleLanguage}
           title={language === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
-          className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1.5 transition tracking-wider"
+          className="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1.5 transition tracking-wider"
         >
-          <Languages className="w-4 h-4 text-amber-400" />
+          <Languages className="w-3.5 h-3.5 text-amber-400" />
           <span>{language.toUpperCase()}</span>
         </button>
 
@@ -92,19 +92,19 @@ export const TitleBar: React.FC<TitleBarProps> = ({
           <button
             onClick={onOpenConsole}
             title={t.viewLogs}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/10 flex items-center gap-1.5 transition tracking-wide"
+            className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/10 flex items-center gap-1.5 transition tracking-wide"
           >
-            <Terminal className="w-4 h-4 text-amber-400" />
+            <Terminal className="w-3.5 h-3.5 text-amber-400" />
             <span>{t.viewLogs}</span>
           </button>
         )}
 
         <div className="w-px h-3.5 bg-white/10 mx-1" />
 
-        {/* Window controls: Minimize and Close only (Fixed resolution like Riot Client) */}
+        {/* Window controls: Minimize and Close placed close to the top-right corner */}
         <button
           onClick={handleMinimize}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+          className="w-10 h-8 flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition"
           title={t.minimize}
         >
           <Minus className="w-4 h-4" />
@@ -112,7 +112,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({
 
         <button
           onClick={handleClose}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-red-600 transition"
+          className="w-10 h-8 flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-[#e81123] transition"
           title={t.close}
         >
           <X className="w-4 h-4" />

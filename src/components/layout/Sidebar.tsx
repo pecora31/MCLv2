@@ -45,15 +45,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Vertically Centered Navigation Menu Cluster */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 w-full px-2">
+      <div className="flex-1 flex flex-col items-center justify-center gap-7 w-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
           return (
             <div key={item.id} className="relative group flex items-center justify-center w-full">
-              {/* Left Edge Active Indicator Bar (stuck to sidebar's outer left edge) */}
+              {/* Left Edge Active Indicator Bar (strictly anchored to outer edge x=0) */}
               {isActive && (
-                <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+                <span className="absolute left-0 top-1.5 bottom-1.5 w-1.5 rounded-r bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]" />
               )}
 
               <button
