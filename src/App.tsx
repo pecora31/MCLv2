@@ -16,6 +16,60 @@ import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 import type { Language } from './locales/i18n';
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: any) {
+    console.error('MCLv2 ErrorBoundary caught error:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-screen w-screen bg-[#0a0a0a] text-white p-8 select-none">
+          <div className="max-w-md w-full minimal-panel p-8 rounded-2xl border border-white/10 text-center space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-xl font-bold">
+              ⚠️
+            </div>
+            <h2 className="text-xl font-bold font-riot">Đã xảy ra sự cố giao diện</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Ứng dụng vừa ghi nhận lỗi: <span className="font-mono text-amber-300">{this.state.error?.message}</span>
+            </p>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false });
+                  window.location.reload();
+                }}
+                className="btn-primary px-5 py-2.5 rounded-xl text-xs font-bold font-riot cursor-pointer"
+              >
+                Tải lại ứng dụng
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const DEFAULT_INSTANCES: GameInstance[] = [
   {
     id: 'server-instance-01',
@@ -161,7 +215,7 @@ export const App: React.FC = () => {
       const configureWindow = async () => {
         try {
           const win = getCurrentWindow();
-          await win.setShadow(true);
+          await win.setShadow(false);
           await win.setSize(new LogicalSize(1600, 900));
           await win.setResizable(false);
           await win.center();
@@ -211,11 +265,13 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteInstance = (id: string) => {
-    setInstances((prev) => prev.filter((i) => i.id !== id));
-    if (selectedInstanceId === id) {
-      const remaining = instances.filter((i) => i.id !== id);
-      if (remaining.length > 0) setSelectedInstanceId(remaining[0].id);
-    }
+    setInstances((prev) => {
+      const remaining = prev.filter((i) => i.id !== id);
+      if (selectedInstanceId === id) {
+        setSelectedInstanceId(remaining[0]?.id || '');
+      }
+      return remaining;
+    });
   };
 
   const handleUpdateUsername = (newName: string) => {
@@ -276,7 +332,10 @@ export const App: React.FC = () => {
   // Launch Engine Handler
   const handleLaunch = async () => {
     const targetInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
-    if (!targetInstance) return;
+    if (!targetInstance) {
+      setIsCreateModalOpen(true);
+      return;
+    }
 
     setIsRunning(false);
     setIsPreparing(true);
@@ -347,152 +406,149 @@ export const App: React.FC = () => {
   const activeInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
 
   return (
-    <div
-      className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-[#0a0a0a] text-slate-100 style-riot palette-${settings.colorPalette || 'amber'} window-shell`}
-    >
-      {/* Dynamic Background Media: Looping Video or Custom Image - ONLY shown on Home tab */}
+    <ErrorBoundary>
       <div
-        className={`absolute inset-0 overflow-hidden pointer-events-none z-0 transition-opacity duration-300 ${
-          currentTab === 'home' ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-[#0a0a0a] text-slate-100 style-riot palette-${settings.colorPalette || 'amber'} window-shell`}
       >
-        {/* Atmospheric fallback gradient */}
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
-
-        {settings.bgType === 'image' && settings.customBgImage ? (
-          <img
-            src={settings.customBgImage}
-            alt="Launcher Background"
-            className="w-full h-full object-cover select-none relative z-1"
-            onError={() => {
-              console.warn('Background image failed to load, falling back to video');
-              setSettings((s) => ({ ...s, bgType: 'video' }));
-            }}
-          />
-        ) : (
-          <video
-            ref={videoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="w-full h-full object-cover select-none relative z-1"
-            src={settings.customVideoUrl || '/background.mp4'}
-          >
-            <source src={settings.customVideoUrl || '/background.mp4'} type="video/mp4" />
-          </video>
-        )}
-        {/* Darkness overlay (vignette) */}
+        {/* Dynamic Background Media: Looping Video or Custom Image - ONLY shown on Home tab */}
         <div
-          className="absolute inset-0 bg-[#0a0a0a] z-2"
-          style={{
-            opacity: typeof settings.bgOpacity === 'number'
-              ? Math.min(Math.max(settings.bgOpacity, 0.1), 0.85)
-              : 0.45,
-          }}
-        />
-      </div>
+          className={`absolute inset-0 overflow-hidden pointer-events-none z-0 transition-opacity duration-300 ${
+            currentTab === 'home' ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {/* Atmospheric fallback gradient */}
+          <div className="absolute inset-0 bg-[#0a0a0a]" />
 
-      {/* Main Foreground Container: Full-Height Sidebar on Left, Canvas Column on Right */}
-      <div className="relative z-10 flex h-full w-full bg-transparent overflow-hidden">
-        {/* Full-Height Sidebar (matching Riot Client Image 5) */}
-        <Sidebar
-          currentTab={currentTab}
-          onTabChange={setCurrentTab}
-          account={account}
-          onUpdateUsername={handleUpdateUsername}
-          language={language}
-        />
+          {settings.bgType === 'image' && settings.customBgImage ? (
+            <img
+              src={settings.customBgImage}
+              alt="Launcher Background"
+              className="w-full h-full object-cover select-none relative z-1"
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              src={settings.customVideoUrl || '/cinematic_bg.mp4'}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover select-none relative z-1"
+            />
+          )}
 
-        {/* Right Canvas Column: TitleBar + Dynamic Content View */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
-          {/* Frameless TitleBar (only right side controls, no duplicate MC logo) */}
-          <TitleBar
-            onOpenConsole={() => setIsConsoleOpen(true)}
-            isRunning={isRunning}
-            language={language}
-            onToggleLanguage={handleToggleLanguage}
+          {/* Contrast & Tint Overlays */}
+          <div
+            className="absolute inset-0 bg-black z-2 pointer-events-none transition-opacity duration-300"
+            style={{ opacity: settings.bgOpacity ?? 0.55 }}
           />
-
-          {/* Dynamic Content View with Persistent Tab Panels for Instant, Smooth Transitions */}
-          <main className="flex-1 flex overflow-hidden bg-transparent relative">
-            <div className={`tab-panel ${currentTab === 'home' ? 'active' : ''}`}>
-              <ServerHub
-                instances={instances}
-                selectedInstanceId={selectedInstanceId}
-                onSelectInstance={setSelectedInstanceId}
-                onLaunch={handleLaunch}
-                onStopGame={handleStopGame}
-                launchProgress={launchProgress}
-                isRunning={isRunning}
-                isPreparing={isPreparing}
-                language={language}
-              />
-            </div>
-
-            <div className={`tab-panel ${currentTab === 'instances' ? 'active' : ''}`}>
-              <InstanceList
-                instances={instances}
-                selectedInstanceId={selectedInstanceId}
-                onSelectInstance={setSelectedInstanceId}
-                onLaunchInstance={(id) => {
-                  setSelectedInstanceId(id);
-                  handleLaunch();
-                }}
-                onDeleteInstance={handleDeleteInstance}
-                onOpenCreateModal={() => setIsCreateModalOpen(true)}
-                isRunning={isRunning}
-              />
-            </div>
-
-            <div className={`tab-panel ${currentTab === 'mods' ? 'active' : ''}`}>
-              <ModStore activeInstance={activeInstance} />
-            </div>
-
-            <div className={`tab-panel ${currentTab === 'skin' ? 'active' : ''}`}>
-              <SkinStudio
-                account={account}
-                onUpdateSkin={handleUpdateSkin}
-                instances={instances}
-              />
-            </div>
-
-            <div className={`tab-panel ${currentTab === 'profile' ? 'active' : ''}`}>
-              <ProfileView
-                account={account}
-                onUpdateAccount={setAccount}
-                onNavigateSkin={() => setCurrentTab('skin')}
-                instances={instances}
-                language={language}
-              />
-            </div>
-
-            <div className={`tab-panel ${currentTab === 'settings' ? 'active' : ''}`}>
-              <SettingsView
-                settings={settings}
-                onSaveSettings={setSettings}
-                language={language}
-              />
-            </div>
-          </main>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-3 pointer-events-none" />
         </div>
 
-        {/* Modals */}
-        <CreateInstanceModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          onCreate={handleCreateInstance}
-        />
+        {/* Outer App Frame: Vertical Sidebar + Main Canvas */}
+        <div className="relative z-10 flex h-full w-full overflow-hidden">
+          {/* Riot-Style Vertical Left Sidebar */}
+          <Sidebar
+            currentTab={currentTab}
+            onTabChange={setCurrentTab}
+            account={account}
+            onUpdateUsername={handleUpdateUsername}
+            language={language}
+          />
 
-        <ConsoleModal
-          isOpen={isConsoleOpen}
-          onClose={() => setIsConsoleOpen(false)}
-          logs={consoleLogs}
-          onClearLogs={() => setConsoleLogs([])}
-        />
+          {/* Right Main Content Area */}
+          <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
+            {/* Frameless TitleBar (only right side controls, no duplicate MC logo) */}
+            <TitleBar
+              onOpenConsole={() => setIsConsoleOpen(true)}
+              isRunning={isRunning}
+              language={language}
+              onToggleLanguage={handleToggleLanguage}
+            />
+
+            {/* Dynamic Content View with Persistent Tab Panels for Instant, Smooth Transitions */}
+            <main className="flex-1 flex overflow-hidden bg-transparent relative">
+              <div className={`tab-panel ${currentTab === 'home' ? 'active' : ''}`}>
+                <ServerHub
+                  instances={instances}
+                  selectedInstanceId={selectedInstanceId}
+                  onSelectInstance={setSelectedInstanceId}
+                  onLaunch={handleLaunch}
+                  onStopGame={handleStopGame}
+                  launchProgress={launchProgress}
+                  isRunning={isRunning}
+                  isPreparing={isPreparing}
+                  language={language}
+                  onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                />
+              </div>
+
+              <div className={`tab-panel ${currentTab === 'instances' ? 'active' : ''}`}>
+                <InstanceList
+                  instances={instances}
+                  selectedInstanceId={selectedInstanceId}
+                  onSelectInstance={setSelectedInstanceId}
+                  onLaunchInstance={(id) => {
+                    setSelectedInstanceId(id);
+                    handleLaunch();
+                  }}
+                  onDeleteInstance={handleDeleteInstance}
+                  onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                  isRunning={isRunning}
+                />
+              </div>
+
+              <div className={`tab-panel ${currentTab === 'mods' ? 'active' : ''}`}>
+                <ModStore
+                  activeInstance={activeInstance}
+                  onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                />
+              </div>
+
+              <div className={`tab-panel ${currentTab === 'skin' ? 'active' : ''}`}>
+                <SkinStudio
+                  account={account}
+                  onUpdateSkin={handleUpdateSkin}
+                  instances={instances}
+                />
+              </div>
+
+              <div className={`tab-panel ${currentTab === 'profile' ? 'active' : ''}`}>
+                <ProfileView
+                  account={account}
+                  onUpdateAccount={setAccount}
+                  onNavigateSkin={() => setCurrentTab('skin')}
+                  instances={instances}
+                  language={language}
+                />
+              </div>
+
+              <div className={`tab-panel ${currentTab === 'settings' ? 'active' : ''}`}>
+                <SettingsView
+                  settings={settings}
+                  onSaveSettings={setSettings}
+                  language={language}
+                />
+              </div>
+            </main>
+          </div>
+
+          {/* Modals */}
+          <CreateInstanceModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onCreate={handleCreateInstance}
+          />
+
+          <ConsoleModal
+            isOpen={isConsoleOpen}
+            onClose={() => setIsConsoleOpen(false)}
+            logs={consoleLogs}
+            onClearLogs={() => setConsoleLogs([])}
+          />
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

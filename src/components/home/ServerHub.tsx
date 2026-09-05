@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Wifi, Users, Server, Copy, Check, RefreshCw, Square, ChevronDown, ShieldCheck, Sparkles } from 'lucide-react';
+import { Play, Wifi, Users, Server, Copy, Check, RefreshCw, Square, ChevronDown, ShieldCheck, Sparkles, Plus } from 'lucide-react';
 import type { GameInstance, ServerStatus, LaunchProgress } from '../../types';
 import { pingServer } from '../../services/api';
 import { getTranslation, type Language } from '../../locales/i18n';
@@ -14,6 +14,7 @@ interface ServerHubProps {
   isRunning: boolean;
   isPreparing?: boolean;
   language: Language;
+  onOpenCreateModal?: () => void;
 }
 
 export const ServerHub: React.FC<ServerHubProps> = ({
@@ -26,6 +27,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
   isRunning,
   isPreparing = false,
   language,
+  onOpenCreateModal,
 }) => {
   const t = getTranslation(language);
   const selectedInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
@@ -160,7 +162,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                     </button>
                   ) : (
                     <button
-                      onClick={onLaunch}
+                      onClick={selectedInstance ? onLaunch : onOpenCreateModal}
                       disabled={isPreparingOrDownloading}
                       className={`${
                         isPreparingOrDownloading
@@ -173,10 +175,15 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                           <RefreshCw className="w-5 h-5 animate-spin text-amber-400" />
                           <span className="text-base font-bold">{t.btnLoading}</span>
                         </>
-                      ) : (
+                      ) : selectedInstance ? (
                         <>
                           <Play className="w-5 h-5 fill-current" />
                           <span className="tracking-wide">{language === 'vi' ? 'Chơi' : 'Play'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-5 h-5" />
+                          <span className="tracking-wide">{language === 'vi' ? 'Tạo Profile' : 'New Profile'}</span>
                         </>
                       )}
                     </button>
@@ -221,27 +228,33 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                 {/* 2. Profile Info Pill with Integrated Dropdown Arrow */}
                 <div className="relative">
                   <button
-                    onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+                    onClick={selectedInstance ? () => setIsProfileDropdownOpen((prev) => !prev) : onOpenCreateModal}
                     disabled={isRunning || isPreparingOrDownloading}
-                    title="Bấm để chọn phiên bản"
+                    title={selectedInstance ? "Bấm để chọn phiên bản" : "Bấm để tạo phiên bản mới"}
                     className={`h-[56px] px-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border transition-colors shadow-lg flex items-center gap-3 text-slate-200 cursor-pointer ${
                       isProfileDropdownOpen ? 'border-amber-400/50 bg-[#1c1c1c]' : 'border-white/[0.08] hover:border-white/20'
                     }`}
                   >
                     <div className="flex flex-col text-left">
                       <span className="font-bold text-white text-sm tracking-wide leading-tight truncate max-w-[170px]">
-                        {selectedInstance?.name}
+                        {selectedInstance?.name || (language === 'vi' ? 'Chưa có Profile' : 'No Profiles')}
                       </span>
                       <span className="text-amber-400 text-xs font-semibold leading-tight">
-                        {selectedInstance?.loader ? selectedInstance.loader.charAt(0).toUpperCase() + selectedInstance.loader.slice(1) : 'Vanilla'} {selectedInstance?.gameVersion}
+                        {selectedInstance
+                          ? `${selectedInstance.loader ? selectedInstance.loader.charAt(0).toUpperCase() + selectedInstance.loader.slice(1) : 'Vanilla'} ${selectedInstance.gameVersion}`
+                          : (language === 'vi' ? 'Bấm để tạo mới' : 'Click to create')}
                       </span>
                     </div>
                     <div className="w-px h-6 bg-white/10 mx-0.5" />
-                    <ChevronDown
-                      className={`w-5 h-5 text-slate-400 transition-transform duration-150 ${
-                        isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''
-                      }`}
-                    />
+                    {selectedInstance ? (
+                      <ChevronDown
+                        className={`w-5 h-5 text-slate-400 transition-transform duration-150 ${
+                          isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''
+                        }`}
+                      />
+                    ) : (
+                      <Plus className="w-5 h-5 text-amber-400" />
+                    )}
                   </button>
 
                   {/* Active Profile Dropdown Popover */}

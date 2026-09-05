@@ -4,10 +4,11 @@ import type { GameInstance, ModrinthMod, LocalMod } from '../../types';
 import { searchModrinthMods, invokeCommand } from '../../services/api';
 
 interface ModStoreProps {
-  activeInstance: GameInstance;
+  activeInstance?: GameInstance;
+  onOpenCreateModal?: () => void;
 }
 
-export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
+export const ModStore: React.FC<ModStoreProps> = ({ activeInstance, onOpenCreateModal }) => {
   const [activeSubTab, setActiveSubTab] = useState<'store' | 'installed'>('store');
   const [searchQuery, setSearchQuery] = useState('');
   const [mods, setMods] = useState<ModrinthMod[]>([]);
@@ -20,6 +21,7 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
 
   // Load Modrinth mods
   const handleSearch = async (query = searchQuery) => {
+    if (!activeInstance) return;
     setLoading(true);
     try {
       const data = await searchModrinthMods(query, activeInstance.gameVersion, activeInstance.loader);
@@ -32,11 +34,13 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
   };
 
   useEffect(() => {
+    if (!activeInstance) return;
     handleSearch('');
     loadInstalledMods();
-  }, [activeInstance.id, activeInstance.gameVersion, activeInstance.loader]);
+  }, [activeInstance?.id, activeInstance?.gameVersion, activeInstance?.loader]);
 
   const loadInstalledMods = async () => {
+    if (!activeInstance) return;
     try {
       const list = await invokeCommand<LocalMod[]>('get_local_mods', { instanceId: activeInstance.id });
       setInstalledMods(list || []);
@@ -46,6 +50,7 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
   };
 
   const handleInstallMod = async (mod: ModrinthMod) => {
+    if (!activeInstance) return;
     setInstallingId(mod.project_id);
     try {
       // Install mod via Tauri backend
@@ -78,6 +83,30 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
   const handleDeleteMod = (fileName: string) => {
     setInstalledMods((prev) => prev.filter((m) => m.fileName !== fileName));
   };
+
+  if (!activeInstance) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+          <Package className="w-8 h-8" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-white font-riot">Chưa Chọn Phiên Bản Nào</h2>
+          <p className="text-xs text-slate-400 mt-1 max-w-md">
+            Hiện chưa có profile nào khả dụng để quản lý mods. Hãy tạo một profile mới để bắt đầu.
+          </p>
+        </div>
+        {onOpenCreateModal && (
+          <button
+            onClick={onOpenCreateModal}
+            className="btn-primary py-2.5 px-6 rounded-xl font-riot font-bold text-xs flex items-center gap-2 shadow-lg"
+          >
+            Tạo Profile Mới
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto p-6 space-y-6">
