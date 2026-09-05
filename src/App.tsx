@@ -215,7 +215,6 @@ export const App: React.FC = () => {
       const configureWindow = async () => {
         try {
           const win = getCurrentWindow();
-          await win.setShadow(false);
           await win.setSize(new LogicalSize(1600, 900));
           await win.setResizable(false);
           await win.center();
