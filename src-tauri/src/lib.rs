@@ -1,6 +1,7 @@
 mod instance_manager;
 mod java_detector;
 mod launcher_engine;
+mod minecraft_core;
 mod models;
 mod server_ping;
 
@@ -32,10 +33,15 @@ fn get_local_mods(instance_id: String) -> Vec<LocalMod> {
 }
 
 #[tauri::command]
-async fn launch_instance(instance_id: String, username: String) -> Result<String, String> {
+async fn launch_instance(
+    app: tauri::AppHandle,
+    instance_id: String,
+    username: String,
+) -> Result<String, String> {
     let instances = instance_manager::load_instances();
     if let Some(inst) = instances.into_iter().find(|i| i.id == instance_id) {
-        launcher_engine::launch_game(&inst, &username).await
+        minecraft_core::launcher::prepare_and_launch(&app, &inst, &username).await?;
+        Ok(format!("Đã khởi chạy thành công Minecraft {}!", inst.game_version))
     } else {
         Err(format!("Không tìm thấy profile với ID: {}", instance_id))
     }

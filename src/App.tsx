@@ -173,6 +173,36 @@ export const App: React.FC = () => {
     setAccount((prev) => ({ ...prev, skinUrl, skinModel: model }));
   };
 
+  // Listen to Tauri native download progress and game log stream
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlistenProgress: (() => void) | undefined;
+    let unlistenLogs: (() => void) | undefined;
+
+    const setupListeners = async () => {
+      try {
+        const { listen } = await import('@tauri-apps/api/event');
+        unlistenProgress = await listen<LaunchProgress>('download-progress', (event) => {
+          setLaunchProgress(event.payload);
+        });
+
+        unlistenLogs = await listen<string>('mc-log', (event) => {
+          setConsoleLogs((prev) => [...prev, event.payload]);
+          setIsRunning(true);
+        });
+      } catch (err) {
+        console.warn('Tauri event listener setup:', err);
+      }
+    };
+
+    setupListeners();
+
+    return () => {
+      unlistenProgress?.();
+      unlistenLogs?.();
+    };
+  }, []);
+
   // Launch Engine Handler
   const handleLaunch = async () => {
     const targetInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
@@ -180,57 +210,51 @@ export const App: React.FC = () => {
 
     setIsRunning(false);
     setConsoleLogs([
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Đang chuẩn bị phiên bản: ${targetInstance.name} (MC ${targetInstance.gameVersion})`,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Người chơi: ${account.username} (${account.type.toUpperCase()} Auth)`,
+      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Khởi động phiên bản: ${targetInstance.name} (Minecraft ${targetInstance.gameVersion})`,
+      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Người chơi: ${account.username} (${account.type.toUpperCase()})`,
       `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Cấp phát RAM: ${targetInstance.maxRam} MB`,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Tính năng CustomSkinLoader: ${targetInstance.enableSkinInGame ? 'BẬT (Tự động tải skin đồng đội)' : 'TẮT'}`,
     ]);
 
-    // Simulating launch progress stages with realistic logs
-    setLaunchProgress({ stage: 'checking', percentage: 10, currentFile: 'version_manifest_v2.json', downloadedBytes: 0, totalBytes: 100, speedBps: 0 });
-    await new Promise((r) => setTimeout(r, 600));
+    setLaunchProgress({
+      stage: 'checking',
+      percentage: 5,
+      currentFile: 'Đang kết nối Mojang CDN và kiểm tra dữ liệu...',
+      downloadedBytes: 0,
+      totalBytes: 0,
+      speedBps: 0,
+    });
 
-    setConsoleLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Đang xác thực tệp libraries & assets với Mojang CDN...`]);
-    setLaunchProgress({ stage: 'downloading', percentage: 35, currentFile: `client-${targetInstance.gameVersion}.jar`, downloadedBytes: 25000000, totalBytes: 42000000, speedBps: 8500000 });
-    await new Promise((r) => setTimeout(r, 800));
-
-    setLaunchProgress({ stage: 'verifying', percentage: 70, currentFile: 'Xác thực mã băm SHA-1...', downloadedBytes: 42000000, totalBytes: 42000000, speedBps: 0 });
-    setConsoleLogs((prev) => [
-      ...prev,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Nạp Mod Loader: ${targetInstance.loader.toUpperCase()} ${targetInstance.loaderVersion || ''}`,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] Cấu hình CustomSkinLoader: Nạp skin cho người chơi "${account.username}"`,
-    ]);
-    await new Promise((r) => setTimeout(r, 700));
-
-    setLaunchProgress({ stage: 'launching', percentage: 95, currentFile: 'Khởi động Java Virtual Machine...', downloadedBytes: 42000000, totalBytes: 42000000, speedBps: 0 });
-    setConsoleLogs((prev) => [
-      ...prev,
-      `[${new Date().toLocaleTimeString()}] [MCLv2/INFO] JVM Args: -Xms${targetInstance.minRam}M -Xmx${targetInstance.maxRam}M ${targetInstance.jvmArgs || ''}`,
-      `[${new Date().toLocaleTimeString()}] [Minecraft/INFO] [RenderThread]: Setting user: ${account.username}`,
-      `[${new Date().toLocaleTimeString()}] [Minecraft/INFO] [RenderThread]: Backend library: LWJGL version 3.3.3-snapshot`,
-      `[${new Date().toLocaleTimeString()}] [CustomSkinLoader/INFO]: Successfully initialized! Skin provider loaded.`,
-    ]);
-    await new Promise((r) => setTimeout(r, 500));
-
-    setLaunchProgress({ stage: 'running', percentage: 100, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
-    setIsRunning(true);
-
-    // Call native Tauri launch command if available
     if (isTauri()) {
       try {
         await invokeCommand('launch_instance', {
           instanceId: targetInstance.id,
           username: account.username,
         });
-      } catch (err) {
-        console.warn('Native launch fallback:', err);
+        setLaunchProgress({
+          stage: 'running',
+          percentage: 100,
+          currentFile: 'Đã khởi chạy game thành công!',
+          downloadedBytes: 0,
+          totalBytes: 0,
+          speedBps: 0,
+        });
+      } catch (err: any) {
+        setConsoleLogs((prev) => [
+          ...prev,
+          `[${new Date().toLocaleTimeString()}] [MCLv2/LỖI] ${err?.toString() || 'Khởi chạy thất bại'}`,
+        ]);
+        setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
+        setIsRunning(false);
       }
+    } else {
+      // Browser preview simulation
+      setLaunchProgress({ stage: 'downloading', percentage: 35, currentFile: `client-${targetInstance.gameVersion}.jar`, downloadedBytes: 25000000, totalBytes: 42000000, speedBps: 8500000 });
+      await new Promise((r) => setTimeout(r, 800));
+      setLaunchProgress({ stage: 'verifying', percentage: 70, currentFile: 'Xác thực mã băm SHA-1...', downloadedBytes: 42000000, totalBytes: 42000000, speedBps: 0 });
+      await new Promise((r) => setTimeout(r, 700));
+      setLaunchProgress({ stage: 'running', percentage: 100, currentFile: 'Đang chạy', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
+      setIsRunning(true);
     }
-
-    // Reset progress after launch
-    setTimeout(() => {
-      setLaunchProgress({ stage: 'idle', percentage: 0, currentFile: '', downloadedBytes: 0, totalBytes: 0, speedBps: 0 });
-    }, 1500);
   };
 
   const activeInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
