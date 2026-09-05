@@ -13,5 +13,17 @@ export default defineConfig({
       ignored: ['**/src-tauri/**'],
     },
   },
+  optimizeDeps: {
+    include: [
+      '@tauri-apps/api',
+      '@tauri-apps/api/core',
+      '@tauri-apps/api/event',
+      '@tauri-apps/api/window',
+      'skinview3d',
+      'lucide-react',
+      'clsx',
+      'tailwind-merge',
+    ],
+  },
 })
 

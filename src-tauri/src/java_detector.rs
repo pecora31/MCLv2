@@ -16,6 +16,7 @@ pub fn detect_installed_javas() -> Vec<JavaInstallation> {
     let program_files_x86 = std::env::var("ProgramFiles(x86)").unwrap_or_else(|_| "C:\\Program Files (x86)".to_string());
 
     let candidates = vec![
+        PathBuf::from(&program_files).join("Common Files").join("Oracle").join("Java").join("javapath"),
         PathBuf::from(&program_files).join("Java"),
         PathBuf::from(&program_files).join("Eclipse Adoptium"),
         PathBuf::from(&program_files).join("Microsoft"),
@@ -23,6 +24,29 @@ pub fn detect_installed_javas() -> Vec<JavaInstallation> {
         PathBuf::from(&program_files).join("Zulu"),
         PathBuf::from(&program_files_x86).join("Java"),
     ];
+
+    // Query where.exe javaw
+    if let Ok(output) = std::process::Command::new("where.exe").arg("javaw").output() {
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                let trimmed = line.trim();
+                if !trimmed.is_empty() && Path::new(trimmed).exists() {
+                    let path_buf = PathBuf::from(trimmed);
+                    let p_str = path_buf.to_string_lossy().to_string();
+                    if !visited_paths.contains(&p_str) {
+                        visited_paths.insert(p_str.clone());
+                        results.push(JavaInstallation {
+                            path: p_str,
+                            major_version: 21,
+                            version_string: "Oracle Java 21 LTS (System)".to_string(),
+                            is_64_bit: true,
+                        });
+                    }
+                }
+            }
+        }
+    }
 
     for base_dir in candidates {
         if base_dir.exists() && base_dir.is_dir() {
@@ -105,4 +129,32 @@ fn parse_version_from_dir_or_exec(folder: &str, _exe_path: &Path) -> (u32, Strin
     }
 
     (21, format!("Java ({})", folder))
+}
+
+pub fn find_system_javaw() -> String {
+    let program_files = std::env::var("ProgramFiles").unwrap_or_else(|_| "C:\\Program Files".to_string());
+    let oracle_javapath = PathBuf::from(&program_files)
+        .join("Common Files")
+        .join("Oracle")
+        .join("Java")
+        .join("javapath")
+        .join("javaw.exe");
+
+    if oracle_javapath.exists() {
+        return oracle_javapath.to_string_lossy().to_string();
+    }
+
+    if let Ok(output) = std::process::Command::new("where.exe").arg("javaw").output() {
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            if let Some(first_line) = stdout.lines().next() {
+                let p = first_line.trim();
+                if !p.is_empty() && Path::new(p).exists() {
+                    return p.to_string();
+                }
+            }
+        }
+    }
+
+    "javaw.exe".to_string()
 }

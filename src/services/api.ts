@@ -1,4 +1,5 @@
 import type { VersionItem, ModrinthMod, ServerStatus } from '../types';
+import { invoke } from '@tauri-apps/api/core';
 
 // Check if running inside Tauri environment
 export const isTauri = () => {
@@ -9,7 +10,6 @@ export const isTauri = () => {
 export async function invokeCommand<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   if (isTauri()) {
     try {
-      const { invoke } = await import('@tauri-apps/api/core');
       return await invoke<T>(cmd, args);
     } catch (err) {
       console.warn(`[Tauri Invoke Error] ${cmd}:`, err);

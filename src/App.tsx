@@ -11,6 +11,7 @@ import { SettingsView } from './components/settings/SettingsView';
 import { ConsoleModal } from './components/common/ConsoleModal';
 import type { GameInstance, Account, LauncherSettings, LaunchProgress } from './types';
 import { invokeCommand, isTauri } from './services/api';
+import { listen } from '@tauri-apps/api/event';
 
 const DEFAULT_INSTANCES: GameInstance[] = [
   {
@@ -181,7 +182,6 @@ export const App: React.FC = () => {
 
     const setupListeners = async () => {
       try {
-        const { listen } = await import('@tauri-apps/api/event');
         unlistenProgress = await listen<LaunchProgress>('download-progress', (event) => {
           setLaunchProgress(event.payload);
         });

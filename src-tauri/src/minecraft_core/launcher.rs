@@ -211,10 +211,15 @@ pub async fn prepare_and_launch(
     extract_natives_from_libraries(&libraries_dir, &natives_dir);
 
     // 8. Execute Java
-    let java_bin = instance
-        .java_path
-        .clone()
-        .unwrap_or_else(|| "javaw.exe".to_string());
+    let java_bin = if let Some(custom_path) = &instance.java_path {
+        if !custom_path.is_empty() && Path::new(custom_path).exists() {
+            custom_path.clone()
+        } else {
+            crate::java_detector::find_system_javaw()
+        }
+    } else {
+        crate::java_detector::find_system_javaw()
+    };
 
     let _ = app_handle.emit(
         "mc-log",

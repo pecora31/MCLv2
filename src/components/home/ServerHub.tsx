@@ -129,23 +129,34 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
         {/* Launch Progress Overlay */}
         {launchProgress.stage !== 'idle' && (
-          <div className="mt-5 pt-4 border-t border-white/10 space-y-2">
+          <div className="mt-5 pt-4 border-t border-white/10 space-y-2.5 animate-fadeIn">
             <div className="flex items-center justify-between text-xs text-slate-300">
-              <span className="font-medium capitalize text-indigo-400">
-                {launchProgress.stage === 'downloading'
-                  ? `Đang tải: ${launchProgress.currentFile}`
-                  : launchProgress.stage === 'verifying'
-                  ? 'Đang kiểm tra mã SHA-1 tập tin...'
-                  : launchProgress.stage === 'launching'
-                  ? 'Đang khởi động JVM Minecraft...'
-                  : 'Đang chuẩn bị...'}
-              </span>
-              <span className="font-mono font-bold text-white">{launchProgress.percentage}%</span>
+              <div className="flex items-center gap-2 truncate max-w-[65%]">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping shrink-0" />
+                <span className="font-semibold text-indigo-300 capitalize shrink-0">{launchProgress.stage}:</span>
+                <span className="text-slate-400 truncate text-[11px] font-mono">{launchProgress.currentFile}</span>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                {launchProgress.speedBps > 0 && (
+                  <span className="text-[11px] text-emerald-400 font-mono font-medium">
+                    {(launchProgress.speedBps / (1024 * 1024)).toFixed(2)} MB/s
+                  </span>
+                )}
+                {launchProgress.totalBytes > 0 && (
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(1)} / {(launchProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB
+                  </span>
+                )}
+                <span className="font-mono font-bold text-white text-xs bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30">
+                  {launchProgress.percentage}%
+                </span>
+              </div>
             </div>
-            <div className="w-full h-2 rounded-full bg-slate-900 overflow-hidden p-0.5 border border-white/10">
+            <div className="w-full h-2.5 rounded-full bg-slate-950 overflow-hidden p-0.5 border border-white/10 shadow-inner">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 transition-all duration-300"
-                style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 transition-all duration-200"
+                style={{ width: `${Math.max(4, launchProgress.percentage)}%` }}
               />
             </div>
           </div>

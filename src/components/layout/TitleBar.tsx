@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Minus, Square, X, ShieldAlert, Wifi, Sparkles } from 'lucide-react';
+import { Minus, Square, X, ShieldAlert, Sparkles } from 'lucide-react';
 import { isTauri } from '../../services/api';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 interface TitleBarProps {
   onOpenConsole?: () => void;
@@ -14,7 +15,6 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenConsole, isRunning = f
     if (!isTauri()) return;
     const checkMaximized = async () => {
       try {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window');
         const win = getCurrentWindow();
         setIsMaximized(await win.isMaximized());
         win.onResized(async () => {
@@ -29,20 +29,23 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenConsole, isRunning = f
 
   const handleMinimize = async () => {
     if (!isTauri()) return;
-    const { getCurrentWindow } = await import('@tauri-apps/api/window');
-    getCurrentWindow().minimize();
+    try {
+      await getCurrentWindow().minimize();
+    } catch {}
   };
 
   const handleToggleMaximize = async () => {
     if (!isTauri()) return;
-    const { getCurrentWindow } = await import('@tauri-apps/api/window');
-    getCurrentWindow().toggleMaximize();
+    try {
+      await getCurrentWindow().toggleMaximize();
+    } catch {}
   };
 
   const handleClose = async () => {
     if (!isTauri()) return;
-    const { getCurrentWindow } = await import('@tauri-apps/api/window');
-    getCurrentWindow().close();
+    try {
+      await getCurrentWindow().close();
+    } catch {}
   };
 
   return (

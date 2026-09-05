@@ -38,10 +38,28 @@ async fn launch_instance(
     instance_id: String,
     username: String,
 ) -> Result<String, String> {
+    use tauri::Emitter;
     let instances = instance_manager::load_instances();
     if let Some(inst) = instances.into_iter().find(|i| i.id == instance_id) {
-        minecraft_core::launcher::prepare_and_launch(&app, &inst, &username).await?;
-        Ok(format!("Đã khởi chạy thành công Minecraft {}!", inst.game_version))
+        let app_handle = app.clone();
+        tokio::spawn(async move {
+            if let Err(e) = minecraft_core::launcher::prepare_and_launch(&app_handle, &inst, &username).await {
+                log::error!("Lỗi khởi chạy game: {}", e);
+                let _ = app_handle.emit("mc-log", format!("[MCLv2/ERROR] {}", e));
+                let _ = app_handle.emit(
+                    "download-progress",
+                    minecraft_core::downloader::DownloadProgressPayload {
+                        stage: "Lỗi".to_string(),
+                        percentage: 0,
+                        current_file: e,
+                        downloaded_bytes: 0,
+                        total_bytes: 0,
+                        speed_bps: 0,
+                    },
+                );
+            }
+        });
+        Ok(format!("Bắt đầu chuẩn bị tài nguyên cho profile: {}", instance_id))
     } else {
         Err(format!("Không tìm thấy profile với ID: {}", instance_id))
     }

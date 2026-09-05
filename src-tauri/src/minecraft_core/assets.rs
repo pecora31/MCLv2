@@ -51,25 +51,35 @@ pub async fn download_assets(
     let asset_index: AssetIndex =
         serde_json::from_str(&index_json).map_err(|e| format!("Parse asset index error: {}", e))?;
 
-    let mut tasks = Vec::new();
+    let mut essential_tasks = Vec::new();
+    let mut other_tasks = Vec::new();
     let base_resource_url = "https://resources.download.minecraft.net";
 
-    for (_name, obj) in asset_index.objects {
+    for (name, obj) in asset_index.objects {
         if obj.hash.len() >= 2 {
             let prefix = &obj.hash[..2];
             let dest = objects_dir.join(prefix).join(&obj.hash);
 
-            tasks.push(DownloadTask {
+            let task = DownloadTask {
                 url: format!("{}/{}/{}", base_resource_url, prefix, obj.hash),
                 destination: dest,
                 size: obj.size,
                 sha1: Some(obj.hash),
-            });
+            };
+
+            if name.contains("icon") || name.contains("lang") || name.contains("font") || name.ends_with(".json") {
+                essential_tasks.push(task);
+            } else {
+                other_tasks.push(task);
+            }
         }
     }
 
-    // Download assets with up to 16 concurrent streams
-    download_files_concurrently(app_handle, "Đang tải âm thanh & tài nguyên (Assets)", tasks, 16).await?;
+    // 1. Download essential assets first (fast, few seconds)
+    download_files_concurrently(app_handle, "Tải tài nguyên giao diện (UI Assets)", essential_tasks, 16).await?;
+
+    // 2. Download sound/gameplay assets with 24 parallel streams
+    let _ = download_files_concurrently(app_handle, "Tải tài nguyên âm thanh (Sounds)", other_tasks, 24).await;
 
     Ok(())
 }
