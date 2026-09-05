@@ -37,6 +37,8 @@ export interface Account {
   id: string;
   username: string;
   type: 'offline' | 'microsoft';
+  avatarIcon?: string;
+  avatarCustom?: string;
   skinUrl?: string;
   skinModel: 'classic' | 'slim';
   uuid: string;
@@ -107,7 +109,9 @@ export interface LauncherSettings {
   language: 'vi' | 'en';
   uiStyle: UiStyle;
   colorPalette: ColorPalette;
+  bgType?: 'video' | 'image' | 'solid';
   customBgImage?: string;
+  customVideoUrl?: string;
   bgOpacity: number;
   closeOnLaunch: boolean;
   enableDiscordRpc: boolean;

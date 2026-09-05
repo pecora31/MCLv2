@@ -8,6 +8,7 @@ import { CreateInstanceModal } from './components/instances/CreateInstanceModal'
 import { SkinStudio } from './components/skin/SkinStudio';
 import { ModStore } from './components/mods/ModStore';
 import { SettingsView } from './components/settings/SettingsView';
+import { ProfileView } from './components/profile/ProfileView';
 import { ConsoleModal } from './components/common/ConsoleModal';
 import type { GameInstance, Account, LauncherSettings, LaunchProgress } from './types';
 import { invokeCommand, isTauri } from './services/api';
@@ -308,18 +309,29 @@ export const App: React.FC = () => {
     <div
       className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-[#07090f] text-slate-100 style-${settings.uiStyle || 'glass'} palette-${settings.colorPalette || 'indigo'}`}
     >
-      {/* Custom Background Image Layer */}
-      {settings.customBgImage && (
-        <div
-          className="absolute inset-0 bg-cover bg-center pointer-events-none -z-10 transition-all duration-300"
-          style={{ backgroundImage: `url(${settings.customBgImage})` }}
-        >
+      {/* Dynamic Background Media: Looping Video or Custom Image */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-20">
+        {settings.bgType === 'image' && settings.customBgImage ? (
           <div
-            className="absolute inset-0 bg-[#07090f]"
-            style={{ opacity: settings.bgOpacity ?? 0.6 }}
+            className="w-full h-full bg-cover bg-center transition-all duration-300"
+            style={{ backgroundImage: `url(${settings.customBgImage})` }}
           />
-        </div>
-      )}
+        ) : (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            src={settings.customVideoUrl || '/background.mp4'}
+          />
+        )}
+        {/* Darkness overlay */}
+        <div
+          className="absolute inset-0 bg-[#06080e]"
+          style={{ opacity: settings.bgOpacity ?? 0.5 }}
+        />
+      </div>
 
       {/* Frameless TitleBar */}
       <TitleBar
@@ -331,7 +343,7 @@ export const App: React.FC = () => {
 
       {/* Main App Layout */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Compact Icon-Only Sidebar */}
+        {/* Wider Sidebar (80px) */}
         <Sidebar
           currentTab={currentTab}
           onTabChange={setCurrentTab}
@@ -378,6 +390,16 @@ export const App: React.FC = () => {
               account={account}
               onUpdateSkin={handleUpdateSkin}
               instances={instances}
+            />
+          )}
+
+          {currentTab === 'profile' && (
+            <ProfileView
+              account={account}
+              onUpdateAccount={setAccount}
+              onNavigateSkin={() => setCurrentTab('skin')}
+              instances={instances}
+              language={language}
             />
           )}
 

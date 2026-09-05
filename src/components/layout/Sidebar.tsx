@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Home, Layers, Package, Shirt, Settings, User, Check, Edit2 } from 'lucide-react';
+import { Home, Layers, Package, Shirt, Settings, User, Sparkles } from 'lucide-react';
 import type { Account } from '../../types';
 import { getTranslation, type Language } from '../../locales/i18n';
+import { MINECRAFT_AVATAR_ICONS } from '../profile/ProfileView';
 
-export type NavigationTab = 'home' | 'instances' | 'mods' | 'skin' | 'settings';
+export type NavigationTab = 'home' | 'instances' | 'mods' | 'skin' | 'settings' | 'profile';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -17,14 +18,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentTab,
   onTabChange,
   account,
-  onUpdateUsername,
   language,
 }) => {
-  const [isEditingUser, setIsEditingUser] = useState(false);
-  const [tempUsername, setTempUsername] = useState(account.username);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
-  const [showAccountTooltip, setShowAccountTooltip] = useState(false);
-
   const t = getTranslation(language);
 
   const navItems = [
@@ -35,17 +31,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'settings', label: t.navSettings, icon: Settings },
   ];
 
-  const handleSaveUsername = () => {
-    if (tempUsername.trim()) {
-      onUpdateUsername(tempUsername.trim());
-      setIsEditingUser(false);
-    }
-  };
+  // Resolve preset icon if active
+  const presetAvatar = MINECRAFT_AVATAR_ICONS.find((i) => i.id === (account.avatarIcon || 'creeper')) || MINECRAFT_AVATAR_ICONS[0];
 
   return (
-    <aside className="w-16 bg-[#080b13] border-r border-white/5 flex flex-col justify-between items-center py-3 select-none z-30">
-      {/* Navigation Icons */}
-      <div className="space-y-3 flex flex-col items-center w-full">
+    <aside className="w-20 bg-[#06080e]/95 border-r border-white/5 flex flex-col justify-between items-center py-4 select-none z-30 shrink-0 shadow-2xl backdrop-blur-md">
+      {/* Top Logo & Navigation Icons */}
+      <div className="space-y-4 flex flex-col items-center w-full">
+        {/* Top Logo Icon (Riot Style Emblem) */}
+        <div
+          onClick={() => onTabChange('home')}
+          className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center font-black text-slate-950 text-base shadow-[0_0_20px_rgba(245,158,11,0.4)] cursor-pointer hover:scale-105 transition-transform mb-2 select-none"
+          title="MCLv2 Home"
+        >
+          <span>MC</span>
+        </div>
+
+        <div className="w-8 h-[1px] bg-white/10" />
+
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -55,18 +58,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => onTabChange(item.id as NavigationTab)}
                 onMouseEnter={() => setHoveredTab(item.id)}
                 onMouseLeave={() => setHoveredTab(null)}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                   isActive
-                    ? 'bg-indigo-600/25 text-indigo-400 border border-indigo-500/40 shadow-[0_0_12px_rgba(99,102,241,0.2)]'
+                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_16px_rgba(245,158,11,0.3)]'
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-105' : 'group-hover:scale-105'}`} />
+                <Icon className={`w-6 h-6 transition-transform ${isActive ? 'scale-110 text-amber-300' : 'group-hover:scale-110'}`} />
               </button>
 
               {/* Floating Tooltip */}
               {hoveredTab === item.id && (
-                <div className="absolute left-16 px-2.5 py-1.5 rounded-lg bg-slate-900/95 border border-white/10 text-xs font-medium text-white shadow-xl whitespace-nowrap z-50 pointer-events-none animate-fadeIn">
+                <div className="absolute left-20 px-3 py-1.5 rounded-xl bg-slate-900/95 border border-white/10 text-xs font-bold text-white shadow-2xl whitespace-nowrap z-50 pointer-events-none animate-fadeIn">
                   {item.label}
                 </div>
               )}
@@ -75,53 +78,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Account Info at Bottom */}
-      <div className="relative flex flex-col items-center px-2">
+      {/* Account Avatar at Bottom -> Opens Full Profile Page */}
+      <div className="relative flex flex-col items-center px-2 w-full">
         <button
-          onClick={() => setIsEditingUser(!isEditingUser)}
-          onMouseEnter={() => setShowAccountTooltip(true)}
-          onMouseLeave={() => setShowAccountTooltip(false)}
-          className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-900 border border-white/10 hover:border-indigo-500/50 flex items-center justify-center transition"
+          onClick={() => onTabChange('profile')}
+          onMouseEnter={() => setHoveredTab('profile')}
+          onMouseLeave={() => setHoveredTab(null)}
+          className={`relative w-12 h-12 rounded-2xl overflow-hidden bg-slate-900 border transition-all flex items-center justify-center ${
+            currentTab === 'profile'
+              ? 'border-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.5)] ring-2 ring-amber-400/40 scale-105'
+              : 'border-white/10 hover:border-amber-400/60 hover:scale-105'
+          }`}
         >
-          {account.skinUrl ? (
+          {account.avatarCustom ? (
+            <img
+              src={account.avatarCustom}
+              alt={account.username}
+              className="w-full h-full object-cover"
+            />
+          ) : account.avatarIcon ? (
+            <div className={`w-full h-full flex items-center justify-center text-xl bg-gradient-to-br ${presetAvatar.color}`}>
+              <span className="select-none">{presetAvatar.icon}</span>
+            </div>
+          ) : account.skinUrl ? (
             <img
               src={account.skinUrl}
               alt={account.username}
               className="w-full h-full object-cover rendering-pixelated"
             />
           ) : (
-            <User className="w-5 h-5 text-indigo-400" />
+            <User className="w-6 h-6 text-amber-400" />
           )}
-          <span className="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-950" />
+
+          {/* Active online status dot */}
+          <span className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-950" />
         </button>
 
-        {/* Floating Account Details or Edit Form */}
-        {isEditingUser ? (
-          <div className="absolute left-16 bottom-0 p-3 rounded-xl bg-slate-900/95 border border-white/10 text-xs text-white shadow-2xl z-50 w-52 space-y-2">
-            <div className="font-semibold text-slate-300">{t.changeName}</div>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={tempUsername}
-                onChange={(e) => setTempUsername(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveUsername()}
-                autoFocus
-                className="w-full glass-input px-2 py-1 rounded text-xs text-white"
-              />
-              <button
-                onClick={handleSaveUsername}
-                className="p-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 transition"
-              >
-                <Check className="w-3.5 h-3.5" />
-              </button>
-            </div>
+        {/* Tooltip for profile */}
+        {hoveredTab === 'profile' && (
+          <div className="absolute left-20 bottom-1 px-3 py-2 rounded-xl bg-slate-900/95 border border-white/10 text-xs text-white shadow-2xl whitespace-nowrap z-50 pointer-events-none animate-fadeIn">
+            <div className="font-bold text-amber-300">{account.username}</div>
+            <div className="text-[10px] text-slate-400">Xem Hồ Sơ & Đổi Avatar</div>
           </div>
-        ) : showAccountTooltip ? (
-          <div className="absolute left-16 bottom-0 px-3 py-2 rounded-xl bg-slate-900/95 border border-white/10 text-xs text-white shadow-xl whitespace-nowrap z-50 pointer-events-none">
-            <div className="font-bold text-slate-200">{account.username}</div>
-            <div className="text-[10px] text-slate-400">{account.type.toUpperCase()} • {t.ready}</div>
-          </div>
-        ) : null}
+        )}
       </div>
     </aside>
   );

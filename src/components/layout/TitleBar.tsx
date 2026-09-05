@@ -60,16 +60,16 @@ export const TitleBar: React.FC<TitleBarProps> = ({
   return (
     <header
       data-tauri-drag-region
-      className="titlebar-drag-region h-10 bg-[#090d16]/95 border-b border-white/5 flex items-center justify-between px-3 select-none z-50 sticky top-0"
+      className="titlebar-drag-region h-10 bg-transparent flex items-center justify-between px-4 select-none z-50 sticky top-0"
     >
       {/* Brand & Status */}
       <div className="flex items-center gap-2.5 titlebar-no-drag">
-        <div className="w-5 h-5 rounded-md bg-indigo-600 flex items-center justify-center text-white shadow-sm">
-          <Box className="w-3.5 h-3.5" />
+        <div className="w-5 h-5 rounded-md bg-amber-500 flex items-center justify-center text-slate-950 font-black text-[10px] shadow-sm">
+          MC
         </div>
         <div className="flex items-center gap-2">
           <span className="font-['Outfit'] font-bold text-xs tracking-wider text-white">
-            MCL<span className="text-indigo-400 font-mono text-[11px]">v2</span>
+            MCL<span className="text-amber-400 font-mono text-[11px]">v2</span>
           </span>
         </div>
 

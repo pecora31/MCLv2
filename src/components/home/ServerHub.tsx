@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Wifi, Users, Server, Copy, Check, RefreshCw, Square, ChevronDown, ShieldCheck, Sparkles, Film } from 'lucide-react';
+import { Play, Wifi, Users, Server, Copy, Check, RefreshCw, Square, ChevronDown, ShieldCheck, Sparkles } from 'lucide-react';
 import type { GameInstance, ServerStatus, LaunchProgress } from '../../types';
 import { pingServer } from '../../services/api';
 import { getTranslation, type Language } from '../../locales/i18n';
@@ -29,7 +29,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 }) => {
   const t = getTranslation(language);
   const selectedInstance = instances.find((i) => i.id === selectedInstanceId) || instances[0];
-  const [activeTab, setActiveTab] = useState<'overview' | 'server' | 'news'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'server'>('overview');
   const [copied, setCopied] = useState(false);
   const [isPinging, setIsPinging] = useState(false);
   const [isHoveringStop, setIsHoveringStop] = useState(false);
@@ -75,12 +75,12 @@ export const ServerHub: React.FC<ServerHubProps> = ({
     (launchProgress.stage !== 'idle' && launchProgress.stage !== 'running' && !isRunning);
 
   return (
-    <div className="flex-1 flex flex-col justify-between overflow-hidden relative select-none">
-      {/* Riot-Style Top Navigation Bar */}
-      <div className="px-8 pt-5 pb-3 flex items-center justify-between border-b border-white/5 bg-gradient-to-b from-black/60 to-transparent z-10">
+    <div className="flex-1 flex flex-col justify-between overflow-hidden relative select-none bg-transparent">
+      {/* Riot-Style Top Navigation Bar (Seamless without hard borders) */}
+      <div className="px-8 pt-5 pb-3 flex items-center justify-between bg-gradient-to-b from-black/75 via-black/30 to-transparent z-10">
         {/* Game Title on Left */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-black text-slate-950 text-sm shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center font-black text-slate-950 text-sm shadow-[0_0_15px_rgba(245,158,11,0.4)]">
             MC
           </div>
           <div>
@@ -115,147 +115,63 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           >
             {t.tabServerInfo}
           </button>
-          <button
-            onClick={() => setActiveTab('news')}
-            className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all ${
-              activeTab === 'news'
-                ? 'bg-white/15 text-white shadow-sm border-b-2 border-amber-400'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {t.tabNews}
-          </button>
         </div>
 
         {/* Right Status Pill */}
         <div className="flex items-center gap-2">
-          <div className="px-3 py-1 rounded-full bg-black/40 border border-white/10 flex items-center gap-2 text-xs">
-            <span className={`w-2 h-2 rounded-full ${serverStatus.online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
-            <span className="font-mono text-slate-300">{serverStatus.playersOnline}/{serverStatus.playersMax}</span>
+          <div className="px-3.5 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-md flex items-center gap-2.5 text-xs shadow-lg">
+            <span className={`w-2.5 h-2.5 rounded-full ${serverStatus.online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+            <span className="font-mono text-slate-200 font-semibold">{serverStatus.playersOnline}/{serverStatus.playersMax}</span>
             <span className="text-slate-600">•</span>
-            <span className="font-mono text-emerald-400 text-[11px]">{serverStatus.pingMs ?? '--'} ms</span>
+            <span className="font-mono text-emerald-400 text-xs font-bold">{serverStatus.pingMs ?? '--'} ms</span>
           </div>
         </div>
       </div>
 
-      {/* Main Body Area: Overview vs Server vs News */}
-      <div className="flex-1 overflow-y-auto px-8 py-6 relative z-10">
-        {activeTab === 'overview' && (
-          <div className="h-full flex flex-col justify-between space-y-6">
-            {/* Hero Left Headline & Call To Action */}
-            <div className="max-w-xl space-y-4 pt-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Mùa 2 • Khám Phá Sinh Tồn</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white font-['Outfit'] tracking-tight leading-tight drop-shadow-md">
-                {t.heroTitle}
-              </h1>
-              <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-lg">
-                {t.heroSub}
-              </p>
-              <div className="flex items-center gap-3 pt-1">
-                <button
-                  onClick={handleCopyIp}
-                  className="px-6 py-2.5 rounded-full bg-white hover:bg-slate-200 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2"
-                >
-                  {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                  <span>{copied ? t.copied : `${t.heroCta} (IP)`}</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('server')}
-                  className="px-5 py-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white font-semibold text-xs border border-white/15 transition-all backdrop-blur-sm"
-                >
-                  {t.tabServerInfo}
-                </button>
-              </div>
+      {/* Main Body Area (Minimalist, clean, without news cards clutter) */}
+      <div className="flex-1 flex flex-col justify-center px-10 py-6 relative z-10">
+        {activeTab === 'overview' ? (
+          <div className="max-w-2xl space-y-5 animate-fadeIn">
+            {/* Tag */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md shadow-md">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>MÙA 2 • KHÁM PHÁ SINH TỒN</span>
             </div>
 
-            {/* Bottom Right: 3 Riot-Style Featured Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              {/* Card 1 */}
-              <div
+            {/* Headline */}
+            <h1 className="text-4xl md:text-5xl font-black text-white font-['Outfit'] tracking-tight leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+              {t.heroTitle}
+            </h1>
+
+            {/* Description */}
+            <p className="text-base text-slate-200 leading-relaxed max-w-xl drop-shadow-md font-medium">
+              {t.heroSub}
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={handleCopyIp}
+                className="px-7 py-3 rounded-full bg-white hover:bg-slate-200 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                <span>{copied ? t.copied : `${t.heroCta} (IP: ${serverStatus.ip})`}</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('server')}
-                className="riot-preview-card rounded-2xl bg-black/40 border border-white/10 overflow-hidden group shadow-lg"
+                className="px-6 py-3 rounded-full bg-black/50 hover:bg-black/70 text-white font-bold text-xs border border-white/20 transition-all backdrop-blur-md shadow-lg"
               >
-                <div className="relative h-28 w-full overflow-hidden bg-gradient-to-tr from-amber-950/60 via-slate-900 to-indigo-950/40">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent opacity-60" />
-                  <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[9px] font-extrabold tracking-wider text-amber-300 border border-amber-500/30">
-                    {t.card1Tag}
-                  </div>
-                  <div className="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white/80">
-                    <Server className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-                <div className="p-3.5 space-y-1">
-                  <h3 className="text-xs font-bold text-white group-hover:text-amber-300 transition line-clamp-1">
-                    {t.card1Title}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 line-clamp-1">
-                    IP: {serverStatus.ip} • Online: {serverStatus.playersOnline}
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div
-                onClick={() => setActiveTab('news')}
-                className="riot-preview-card rounded-2xl bg-black/40 border border-white/10 overflow-hidden group shadow-lg"
-              >
-                <div className="relative h-28 w-full overflow-hidden bg-gradient-to-tr from-indigo-950/70 via-slate-900 to-purple-950/40">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent opacity-60" />
-                  <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[9px] font-extrabold tracking-wider text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
-                    <Film className="w-2.5 h-2.5" />
-                    <span>{t.card2Tag}</span>
-                  </div>
-                  <div className="absolute bottom-2.5 right-2.5 px-1.5 py-0.5 rounded bg-black/80 font-mono text-[9px] text-slate-300">
-                    v1.21.4
-                  </div>
-                </div>
-                <div className="p-3.5 space-y-1">
-                  <h3 className="text-xs font-bold text-white group-hover:text-indigo-300 transition line-clamp-1">
-                    {t.card2Title}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 line-clamp-1">
-                    Tích hợp Sodium, Iris Shaders & Voice Chat
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div
-                onClick={() => setActiveTab('news')}
-                className="riot-preview-card rounded-2xl bg-black/40 border border-white/10 overflow-hidden group shadow-lg"
-              >
-                <div className="relative h-28 w-full overflow-hidden bg-gradient-to-tr from-emerald-950/70 via-slate-900 to-teal-950/40">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent opacity-60" />
-                  <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[9px] font-extrabold tracking-wider text-emerald-300 border border-emerald-500/30">
-                    {t.card3Tag}
-                  </div>
-                  <div className="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-emerald-400">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-                <div className="p-3.5 space-y-1">
-                  <h3 className="text-xs font-bold text-white group-hover:text-emerald-300 transition line-clamp-1">
-                    {t.card3Title}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 line-clamp-1">
-                    Đồng bộ hiển thị skin nhóm không cần bản quyền
-                  </p>
-                </div>
-              </div>
+                {t.tabServerInfo}
+              </button>
             </div>
           </div>
-        )}
-
-        {/* Server Info Tab */}
-        {activeTab === 'server' && (
+        ) : (
+          /* Server Info Tab */
           <div className="max-w-3xl space-y-4 animate-fadeIn">
-            <div className="glass-panel rounded-2xl p-6 border border-white/10 space-y-5">
+            <div className="glass-panel rounded-3xl p-6 border border-white/10 space-y-5 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
                     <Server className="w-5 h-5" />
                   </div>
                   <div>
@@ -266,7 +182,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                 <button
                   onClick={handleRefreshPing}
                   disabled={isPinging}
-                  className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition"
+                  className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isPinging ? 'animate-spin' : ''}`} />
                   <span>Làm mới</span>
@@ -274,13 +190,13 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               </div>
 
               {/* MOTD */}
-              <div className="p-4 rounded-xl bg-black/40 border border-white/5 font-mono text-sm text-amber-200 shadow-inner">
+              <div className="p-4 rounded-2xl bg-black/50 border border-white/5 font-mono text-sm text-amber-200 shadow-inner">
                 {serverStatus.motd?.replace(/§[0-9a-fk-or]/g, '') || 'Máy Chủ Minecraft Nhóm Bạn'}
               </div>
 
               {/* Metrics */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div className="text-slate-400 text-xs mb-1 flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-indigo-400" />
                     <span>{t.players}</span>
@@ -290,7 +206,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div className="text-slate-400 text-xs mb-1 flex items-center gap-1.5">
                     <Wifi className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{t.latency}</span>
@@ -300,7 +216,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex flex-col justify-between">
                   <div className="text-slate-400 text-xs mb-1">{t.serverIp}</div>
                   <button
                     onClick={handleCopyIp}
@@ -314,29 +230,14 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             </div>
           </div>
         )}
-
-        {/* News Tab */}
-        {activeTab === 'news' && (
-          <div className="max-w-3xl space-y-4 animate-fadeIn">
-            <div className="glass-panel rounded-2xl p-6 border border-white/10 space-y-4">
-              <h2 className="text-base font-bold text-white">Thông Tin Bản Cập Nhật 1.21.4</h2>
-              <div className="text-xs text-slate-300 space-y-2 leading-relaxed">
-                <p>• Hỗ trợ đầy đủ Minecraft 1.21.4 với nền tảng Fabric Loader v0.16.10.</p>
-                <p>• Tự động tích hợp Sodium tăng tốc đồ họa, nâng cao FPS trung bình lên 200-300%.</p>
-                <p>• Mô-đun CustomSkinLoader tự động nạp skin 3D cho toàn bộ người chơi trong server.</p>
-                <p>• Voice Chat khoảng cách gần (Simple Voice Chat) tương thích trực tiếp.</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Riot-Style Bottom Action Bar */}
-      <div className="bg-[#080c14]/95 border-t border-white/10 p-4 px-8 flex flex-col md:flex-row md:items-center justify-between gap-5 z-20 backdrop-blur-xl shadow-2xl">
-        {/* Left Side: Download & Resource Monitor (Visible when preparing or downloading) */}
+      {/* Riot-Style Bottom Action Bar (Seamless without dividing border lines) */}
+      <div className="bg-gradient-to-t from-black/90 via-black/45 to-transparent pb-6 pt-8 px-8 flex flex-col md:flex-row md:items-center justify-between gap-5 z-20">
+        {/* Left Side: Download & Resource Monitor (Seamlessly floats over video) */}
         <div className="flex-1 min-w-0 pr-4">
           {isPreparingOrDownloading ? (
-            <div className="space-y-2 p-3 rounded-2xl bg-slate-950/70 border border-white/10 shadow-inner animate-fadeIn">
+            <div className="space-y-2 p-3.5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl animate-fadeIn">
               {/* Status Header */}
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 truncate max-w-[65%]">
@@ -344,7 +245,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                   <span className="font-bold text-amber-300 uppercase tracking-wider text-[11px] shrink-0">
                     {launchProgress.stage || 'Chuẩn bị'}:
                   </span>
-                  <span className="text-slate-300 truncate text-xs font-mono">
+                  <span className="text-slate-200 truncate text-xs font-mono">
                     {launchProgress.currentFile || 'Đang kết nối và kiểm tra tệp tin...'}
                   </span>
                 </div>
@@ -369,25 +270,25 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               {/* Progress Bar with Amber/Gold Glow */}
               <div className="w-full h-2.5 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 transition-all duration-200 shadow-[0_0_12px_rgba(245,158,11,0.6)]"
+                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 transition-all duration-200 shadow-[0_0_14px_rgba(245,158,11,0.7)]"
                   style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
                 />
               </div>
             </div>
           ) : (
-            <div className="text-xs text-slate-400 font-medium truncate flex items-center gap-3">
+            <div className="text-xs text-slate-300 font-medium truncate flex items-center gap-3 drop-shadow-md">
               {isRunning ? (
-                <span className="text-emerald-400 flex items-center gap-2 font-mono font-semibold bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
+                <span className="text-emerald-400 flex items-center gap-2 font-mono font-bold bg-black/50 px-4 py-2 rounded-2xl border border-emerald-500/30 backdrop-blur-md shadow-xl">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                   Tiến trình Minecraft đang hoạt động
                 </span>
               ) : (
-                <div className="flex items-center gap-2 text-slate-400">
-                  <span className="font-semibold text-slate-200">{selectedInstance?.name}</span>
-                  <span>•</span>
-                  <span>MC {selectedInstance?.gameVersion}</span>
-                  <span>•</span>
-                  <span>{(selectedInstance?.maxRam || 4096) / 1024} GB RAM</span>
+                <div className="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-2xl border border-white/10 backdrop-blur-md shadow-lg text-slate-300">
+                  <span className="font-bold text-white">{selectedInstance?.name}</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-amber-300 font-mono">MC {selectedInstance?.gameVersion}</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="font-mono text-slate-300">{(selectedInstance?.maxRam || 4096) / 1024} GB RAM</span>
                 </div>
               )}
             </div>
@@ -402,7 +303,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               value={selectedInstanceId}
               onChange={(e) => onSelectInstance(e.target.value)}
               disabled={isRunning || isPreparingOrDownloading}
-              className="w-full h-[52px] appearance-none bg-black/60 hover:bg-black/80 border border-white/10 rounded-2xl px-4 text-xs font-bold text-white pr-9 cursor-pointer disabled:opacity-60 transition shadow-inner"
+              className="w-full h-[52px] appearance-none bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/15 rounded-2xl px-4 text-xs font-bold text-white pr-9 cursor-pointer disabled:opacity-60 transition shadow-xl"
             >
               {instances.map((inst) => (
                 <option key={inst.id} value={inst.id} className="bg-slate-900 text-white font-sans py-2">
@@ -419,7 +320,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               onClick={onStopGame}
               onMouseEnter={() => setIsHoveringStop(true)}
               onMouseLeave={() => setIsHoveringStop(false)}
-              className="btn-riot-running px-8 min-w-[170px] flex items-center justify-center gap-2.5"
+              className="btn-riot-running px-8 min-w-[170px] flex items-center justify-center gap-2.5 shadow-2xl"
             >
               {isHoveringStop ? (
                 <>
@@ -439,7 +340,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               disabled={isPreparingOrDownloading}
               className={`min-w-[170px] flex items-center justify-center gap-2.5 ${
                 isPreparingOrDownloading
-                  ? 'h-[52px] rounded-2xl bg-slate-900/80 text-amber-400/70 border border-amber-500/20 cursor-wait'
+                  ? 'h-[52px] rounded-2xl bg-slate-900/80 text-amber-400/70 border border-amber-500/20 cursor-wait shadow-xl'
                   : 'btn-riot-play'
               }`}
             >

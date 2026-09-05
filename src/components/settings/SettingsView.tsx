@@ -171,69 +171,110 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
             </div>
           </div>
 
-          {/* Custom Background Image */}
+          {/* Background Mode: Video vs Custom Image */}
           <div className="pt-2 border-t border-white/5 space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300 flex items-center gap-2">
                 <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />
-                <span>{t.bgCustom}</span>
+                <span>Nền Launcher (Background Media)</span>
               </label>
 
-              {formData.customBgImage && (
+              {formData.bgType === 'image' && (
                 <button
                   type="button"
-                  onClick={handleResetBg}
-                  className="text-[11px] text-indigo-400 hover:underline"
+                  onClick={() => {
+                    const updated = { ...formData, bgType: 'video' as const, customBgImage: undefined };
+                    setFormData(updated);
+                    onSaveSettings(updated);
+                  }}
+                  className="text-[11px] text-amber-400 hover:underline"
                 >
-                  {t.bgReset}
+                  Dùng Nền Video Mặc Định
                 </button>
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              {/* File upload button */}
-              <label className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition shrink-0">
-                <Upload className="w-3.5 h-3.5" />
-                <span>{t.bgUpload}</span>
-                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageUpload} className="hidden" />
-              </label>
-
-              {/* URL input */}
-              <input
-                type="text"
-                value={formData.customBgImage || ''}
-                onChange={(e) => {
-                  const updated = { ...formData, customBgImage: e.target.value || undefined };
+            {/* Mode Switcher */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...formData, bgType: 'video' as const };
                   setFormData(updated);
                   onSaveSettings(updated);
                 }}
-                placeholder={t.bgUrlPlaceholder}
-                className="w-full glass-input px-3 py-2 rounded-xl text-xs text-white"
-              />
+                className={`p-2.5 rounded-xl border text-xs font-bold text-left transition ${
+                  formData.bgType !== 'image'
+                    ? 'bg-amber-500/20 border-amber-500 text-white shadow-sm'
+                    : 'bg-white/[0.02] border-white/5 text-slate-400 hover:border-white/10'
+                }`}
+              >
+                <div>Nền Video Động (Loop)</div>
+                <div className="text-[10px] text-slate-400 font-normal">Chạy video điện ảnh mượt mà ngầm</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...formData, bgType: 'image' as const };
+                  setFormData(updated);
+                  onSaveSettings(updated);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-bold text-left transition ${
+                  formData.bgType === 'image'
+                    ? 'bg-amber-500/20 border-amber-500 text-white shadow-sm'
+                    : 'bg-white/[0.02] border-white/5 text-slate-400 hover:border-white/10'
+                }`}
+              >
+                <div>Ảnh Tĩnh Cá Nhân</div>
+                <div className="text-[10px] text-slate-400 font-normal">Tải ảnh .png / .jpg từ máy tính</div>
+              </button>
             </div>
 
-            {/* Overlay Darkness Slider */}
-            {formData.customBgImage && (
-              <div className="pt-2">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                  <span>{t.bgOpacity}:</span>
-                  <span className="font-mono text-slate-200">{Math.round((formData.bgOpacity || 0.6) * 100)}%</span>
-                </div>
+            {formData.bgType === 'image' && (
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-1 animate-fadeIn">
+                {/* File upload button */}
+                <label className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition shrink-0">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{t.bgUpload}</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageUpload} className="hidden" />
+                </label>
+
+                {/* URL input */}
                 <input
-                  type="range"
-                  min="0.1"
-                  max="0.9"
-                  step="0.05"
-                  value={formData.bgOpacity || 0.6}
+                  type="text"
+                  value={formData.customBgImage || ''}
                   onChange={(e) => {
-                    const updated = { ...formData, bgOpacity: parseFloat(e.target.value) };
+                    const updated = { ...formData, customBgImage: e.target.value || undefined };
                     setFormData(updated);
                     onSaveSettings(updated);
                   }}
-                  className="w-full accent-indigo-500 cursor-pointer"
+                  placeholder={t.bgUrlPlaceholder}
+                  className="w-full glass-input px-3 py-2 rounded-xl text-xs text-white"
                 />
               </div>
             )}
+
+            {/* Overlay Darkness Slider */}
+            <div className="pt-2">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                <span>{t.bgOpacity} (Độ tối lớp phủ):</span>
+                <span className="font-mono text-slate-200">{Math.round((formData.bgOpacity || 0.55) * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.1"
+                max="0.9"
+                step="0.05"
+                value={formData.bgOpacity || 0.55}
+                onChange={(e) => {
+                  const updated = { ...formData, bgOpacity: parseFloat(e.target.value) };
+                  setFormData(updated);
+                  onSaveSettings(updated);
+                }}
+                className="w-full accent-amber-500 cursor-pointer"
+              />
+            </div>
           </div>
         </div>
 
