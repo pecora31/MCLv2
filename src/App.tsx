@@ -348,12 +348,16 @@ export const App: React.FC = () => {
 
   return (
     <div
-      className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-black text-slate-100 style-riot palette-${settings.colorPalette || 'amber'}`}
+      className={`relative flex flex-col h-screen w-screen overflow-hidden font-sans select-none bg-[#0a0a0a] text-slate-100 style-riot palette-${settings.colorPalette || 'amber'} window-shell`}
     >
-      {/* Dynamic Background Media: Looping Video or Custom Image */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {/* Dynamic Background Media: Looping Video or Custom Image - ONLY shown on Home tab */}
+      <div
+        className={`absolute inset-0 overflow-hidden pointer-events-none z-0 transition-opacity duration-300 ${
+          currentTab === 'home' ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
         {/* Atmospheric fallback gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0e1422] via-[#090d16] to-[#04060a]" />
+        <div className="absolute inset-0 bg-[#0a0a0a]" />
 
         {settings.bgType === 'image' && settings.customBgImage ? (
           <img
@@ -381,7 +385,7 @@ export const App: React.FC = () => {
         )}
         {/* Darkness overlay (vignette) */}
         <div
-          className="absolute inset-0 bg-[#06080e] z-2"
+          className="absolute inset-0 bg-[#0a0a0a] z-2"
           style={{
             opacity: typeof settings.bgOpacity === 'number'
               ? Math.min(Math.max(settings.bgOpacity, 0.1), 0.85)

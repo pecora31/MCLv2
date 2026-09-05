@@ -2,10 +2,10 @@
 
 @layer base {
   :root {
-    --bg-primary: #080b11;
-    --bg-secondary: #0c101a;
-    --bg-card: #101624;
-    --border-subtle: rgba(255, 255, 255, 0.04);
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #121212;
+    --bg-card: #171717;
+    --border-subtle: rgba(255, 255, 255, 0.07);
     --accent-color: #f59e0b;
     --accent-hover: #d97706;
     --accent-glow: rgba(245, 158, 11, 0.4);
@@ -63,9 +63,12 @@
   }
 
   body {
-    background-color: var(--bg-primary);
-    color: #f1f5f9;
-    font-family: 'Barlow', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #0a0a0a;
+    color: #f3f4f6;
+    font-family: 'Outfit', 'Inter', 'Barlow', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.015em;
+    line-height: 1.55;
     user-select: none;
     overflow: hidden;
     height: 100vh;
@@ -85,16 +88,16 @@
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080b11;
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #262626;
   border-radius: 9999px;
 }
 
@@ -102,48 +105,48 @@
   background: var(--accent-color);
 }
 
-/* Typography Utilities */
+/* Typography Utilities - Natural, open letter spacing */
 .font-riot {
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.05em;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.03em;
 }
 
 .font-cinzel {
   font-family: 'Cinzel', serif;
 }
 
-/* Riot Client Matte Obsidian Panels (No Glassmorphism Milky Blur) */
+/* Neutral Matte Obsidian Panels (#0a0a0a theme) */
 .glass-panel,
 .style-riot .glass-panel,
 .style-minimal .glass-panel {
-  background: #0b0f19;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
 }
 
 .glass-card,
 .style-riot .glass-card,
 .style-minimal .glass-card {
-  background: #101624;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #171717;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .glass-card:hover {
-  background: #141c2e;
+  background: #202020;
   border-color: var(--accent-color);
   box-shadow: 0 4px 16px var(--accent-subtle);
 }
 
 .glass-card-active {
-  background: #162035 !important;
+  background: #262626 !important;
   border-color: var(--accent-color) !important;
   box-shadow: 0 0 16px var(--accent-subtle);
 }
 
 .glass-input {
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f0f0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #f8fafc;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -235,28 +238,30 @@
 
 /* Riot-Style Play Button: Flat Matte Warm Gold Pill (Image 1 Style) */
 .btn-riot-play {
-  height: 54px;
-  border-radius: 1.25rem;
+  height: 60px;
+  min-width: 210px;
+  padding: 0 40px;
+  border-radius: 1.5rem;
   background-color: #d8a951;
   color: #0b0e14;
   font-weight: 700;
   font-family: 'Outfit', 'Inter', system-ui, sans-serif;
-  font-size: 1.25rem;
-  letter-spacing: -0.01em;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
   border: none;
   outline: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  box-shadow: 0 0 28px rgba(216, 169, 81, 0.4);
+  gap: 0.85rem;
+  box-shadow: 0 0 32px rgba(216, 169, 81, 0.45);
   transition: background-color 0.12s ease, box-shadow 0.12s ease;
   cursor: pointer;
 }
 
 .btn-riot-play:hover {
   background-color: #e2b564;
-  box-shadow: 0 0 36px rgba(216, 169, 81, 0.6);
+  box-shadow: 0 0 44px rgba(216, 169, 81, 0.65);
 }
 
 .btn-riot-play:active {
@@ -265,9 +270,9 @@
 
 /* Riot Dropdown Pill Button (Next to Play in Image 1) */
 .btn-riot-dropdown {
-  height: 54px;
-  width: 54px;
-  border-radius: 1.25rem;
+  height: 60px;
+  width: 60px;
+  border-radius: 1.5rem;
   background-color: #27231a;
   color: #cca255;
   border: none;
@@ -291,27 +296,36 @@
 
 /* In-Game State Button: Flat, No 3D */
 .btn-riot-running {
-  height: 52px;
-  border-radius: 1.25rem;
+  height: 60px;
+  min-width: 210px;
+  padding: 0 36px;
+  border-radius: 1.5rem;
   background-color: #0d734c;
   color: #ffffff;
-  font-weight: 800;
-  font-family: 'Barlow', 'Inter', system-ui, sans-serif;
-  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
   border: none;
   outline: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  box-shadow: 0 0 20px rgba(13, 115, 76, 0.35);
+  gap: 0.75rem;
+  box-shadow: 0 0 24px rgba(13, 115, 76, 0.4);
   transition: background-color 0.12s ease, box-shadow 0.12s ease;
   cursor: pointer;
 }
 
 .btn-riot-running:hover {
   background-color: #b91c1c !important;
-  box-shadow: 0 0 24px rgba(185, 28, 28, 0.5) !important;
+  box-shadow: 0 0 28px rgba(185, 28, 28, 0.55) !important;
+}
+
+/* Outer Window Perimeter Shadow & Rim Light */
+.window-shell {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 0 40px rgba(0, 0, 0, 0.95);
 }
 
 /* Palette overrides: Clean flat colors, no 3D bevels */

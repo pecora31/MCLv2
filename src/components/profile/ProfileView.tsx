@@ -234,15 +234,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   className={`p-3.5 rounded-xl border text-left transition flex items-center gap-3 group relative ${
                     isSelected
                       ? 'bg-amber-500/20 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]'
-                      : 'bg-[#080c14] border-white/[0.04] text-slate-400 hover:border-white/10 hover:bg-[#0c121e]'
+                      : 'bg-[#141414] border-white/[0.06] text-slate-300 hover:border-white/10 hover:bg-[#1c1c1c]'
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-gradient-to-br ${item.color} shadow-md group-hover:scale-110 transition shrink-0`}>
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br ${item.color} shadow-md transition shrink-0`}>
                     <span className="select-none">{item.icon}</span>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-white truncate font-riot tracking-wide">{item.name}</div>
-                    <div className="text-[10px] text-slate-400 truncate">{item.desc}</div>
+                    <div className="text-sm font-bold text-white truncate font-riot tracking-wide">{item.name}</div>
+                    <div className="text-xs text-slate-400 truncate mt-0.5">{item.desc}</div>
                   </div>
                   {isSelected && (
                     <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]" />

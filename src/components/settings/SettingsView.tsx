@@ -87,30 +87,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto p-6 space-y-6">
+    <div className="flex-1 flex flex-col overflow-y-auto p-10 space-y-7">
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold font-['Outfit'] text-white">{t.settingsTitle}</h1>
-          <p className="text-xs text-slate-400">{t.settingsSub}</p>
+          <h1 className="text-3xl font-extrabold font-['Outfit'] text-white tracking-normal">{t.settingsTitle}</h1>
+          <p className="text-base text-slate-300 mt-1 tracking-wide">{t.settingsSub}</p>
         </div>
 
         <button
           onClick={handleSave}
-          className="btn-primary py-2 px-5 rounded-xl font-['Outfit'] font-semibold text-xs flex items-center gap-1.5 shadow-md"
+          className="btn-primary py-3 px-6 rounded-2xl font-['Outfit'] font-bold text-sm flex items-center gap-2 shadow-lg tracking-wide"
         >
           {savedSuccess ? <Check className="w-4 h-4 text-emerald-300" /> : <Check className="w-4 h-4" />}
           <span>{savedSuccess ? t.saved : t.btnSave}</span>
         </button>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-5 max-w-3xl">
+      <form onSubmit={handleSave} className="space-y-6 max-w-3xl">
         {/* 1. Theme & Interface Style */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
-          <div className="flex items-center gap-2.5">
-            <Palette className="w-4 h-4 text-indigo-400" />
+        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+          <div className="flex items-center gap-3">
+            <Palette className="w-5 h-5 text-amber-400" />
             <div>
-              <h3 className="text-sm font-semibold text-white">{t.uiSection}</h3>
+              <h3 className="text-base font-bold text-white tracking-wide">{t.uiSection}</h3>
             </div>
           </div>
 
