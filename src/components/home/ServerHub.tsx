@@ -134,50 +134,21 @@ export const ServerHub: React.FC<ServerHubProps> = ({
               {t.heroSub}
             </p>
 
-            {/* Ergonomic Primary Action Zone: [ ▶ Chơi ] [ ▼ ] + Concise Profile Pill + Compact Progress */}
-            <div className="space-y-3 pt-2">
-              <div className="flex flex-wrap items-center gap-3.5">
-                {/* Play Button Group */}
-                <div className="relative flex items-center gap-2.5 shrink-0">
-                  {/* Active Profile Dropdown Popover */}
-                  {isProfileDropdownOpen && (
-                    <div className="absolute left-0 bottom-full mb-3 w-80 rounded-2xl bg-[#141414] border border-white/10 shadow-2xl p-2 z-50 space-y-1">
-                      <div className="px-3.5 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider font-riot">
-                        Chọn Profile Phiên Bản
-                      </div>
-                      {instances.map((inst) => (
-                        <button
-                          key={inst.id}
-                          onClick={() => {
-                            onSelectInstance(inst.id);
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center justify-between transition-colors ${
-                            inst.id === selectedInstanceId
-                              ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
-                              : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                          }`}
-                        >
-                          <span className="truncate font-semibold">{inst.name}</span>
-                          <span className="text-xs text-slate-400 font-mono shrink-0 ml-2">
-                            {inst.loader.toUpperCase()} {inst.gameVersion}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* BIG Riot Play Button: "▶ Chơi" (Image 1 Style) */}
+            {/* Ergonomic Primary Action Zone */}
+            <div className="relative pt-3">
+              <div className="flex items-center gap-3">
+                {/* 1. Standalone Play Button with Absolute Zero-Layout-Shift Progress Bar */}
+                <div className="relative shrink-0">
                   {isRunning ? (
                     <button
                       onClick={onStopGame}
                       onMouseEnter={() => setIsHoveringStop(true)}
                       onMouseLeave={() => setIsHoveringStop(false)}
-                      className="btn-riot-running"
+                      className="btn-riot-running h-[56px] min-w-[170px] px-8 rounded-2xl flex items-center justify-center gap-3 text-lg font-bold shadow-xl"
                     >
                       {isHoveringStop ? (
                         <>
-                          <Square className="w-6 h-6 fill-current" />
+                          <Square className="w-5 h-5 fill-current" />
                           <span>{t.btnStopGame}</span>
                         </>
                       ) : (
@@ -193,97 +164,123 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                       disabled={isPreparingOrDownloading}
                       className={`${
                         isPreparingOrDownloading
-                          ? 'h-[60px] min-w-[210px] px-10 rounded-3xl bg-[#141414] text-amber-400/80 border border-amber-500/30 cursor-wait flex items-center justify-center gap-3'
-                          : 'btn-riot-play'
+                          ? 'h-[56px] min-w-[170px] px-8 rounded-2xl bg-[#161616] text-amber-400 border border-amber-500/40 cursor-wait flex items-center justify-center gap-3 shadow-xl'
+                          : 'btn-riot-play h-[56px] min-w-[170px] px-8 rounded-2xl flex items-center justify-center gap-3 text-xl font-bold shadow-xl'
                       }`}
                     >
                       {isPreparingOrDownloading ? (
                         <>
-                          <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
-                          <span className="text-lg font-bold">{t.btnLoading}</span>
+                          <RefreshCw className="w-5 h-5 animate-spin text-amber-400" />
+                          <span className="text-base font-bold">{t.btnLoading}</span>
                         </>
                       ) : (
                         <>
-                          <Play className="w-6 h-6 fill-current" />
-                          <span className="text-xl font-bold font-riot tracking-wide">{language === 'vi' ? 'Chơi' : 'Play'}</span>
+                          <Play className="w-5 h-5 fill-current" />
+                          <span className="tracking-wide">{language === 'vi' ? 'Chơi' : 'Play'}</span>
                         </>
                       )}
                     </button>
                   )}
 
-                  {/* Dropdown Button [ ▼ ] (Image 1 Style) */}
+                  {/* Compact Progress Bar directly underneath Play button - Absolute so ZERO layout shift */}
+                  {isPreparingOrDownloading && (
+                    <div className="absolute top-[calc(100%+10px)] left-0 w-[240px] space-y-2 p-2.5 rounded-xl bg-[#141414] border border-amber-500/40 shadow-2xl z-40 animate-fadeIn">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                          {launchProgress.speedBps > 0 ? (
+                            <span className="text-emerald-400 font-bold text-xs">
+                              {(launchProgress.speedBps / (1024 * 1024)).toFixed(1)} MB/s
+                            </span>
+                          ) : (
+                            <span className="text-amber-300 font-semibold text-xs">{launchProgress.stage || 'Chuẩn bị'}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {launchProgress.totalBytes > 0 && (
+                            <span className="text-slate-400 text-[11px]">
+                              {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(0)}/{(launchProgress.totalBytes / (1024 * 1024)).toFixed(0)} MB
+                            </span>
+                          )}
+                          <span className="font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded text-[10px] border border-amber-500/40">
+                            {Math.max(5, launchProgress.percentage)}%
+                          </span>
+                        </div>
+                      </div>
+                      {/* Amber Gold Progress Bar */}
+                      <div className="w-full h-1.5 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/[0.08]">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#d8a951] to-amber-400 transition-all duration-200 shadow-[0_0_10px_rgba(216,169,81,0.6)]"
+                          style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Profile Info Pill with Integrated Dropdown Arrow */}
+                <div className="relative">
                   <button
                     onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
                     disabled={isRunning || isPreparingOrDownloading}
-                    title="Chọn phiên bản trò chơi"
-                    className="btn-riot-dropdown"
+                    title="Bấm để chọn phiên bản"
+                    className={`h-[56px] px-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border transition-colors shadow-lg flex items-center gap-3 text-slate-200 cursor-pointer ${
+                      isProfileDropdownOpen ? 'border-amber-400/50 bg-[#1c1c1c]' : 'border-white/[0.08] hover:border-white/20'
+                    }`}
                   >
-                    <ChevronDown className={`w-6 h-6 transition-transform duration-150 ${isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''}`} />
-                  </button>
-                </div>
-
-                {/* Concise Profile Info Pill */}
-                <button
-                  onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-                  title="Bấm để đổi phiên bản profile"
-                  className="px-4 py-3 rounded-2xl bg-[#141414]/90 hover:bg-[#1a1a1a] border border-white/[0.08] hover:border-white/20 transition-colors shadow-lg flex items-center gap-2.5 text-slate-300 cursor-pointer"
-                >
-                  <span className="font-bold text-white text-sm tracking-wide">{selectedInstance?.name}</span>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-amber-300 font-mono text-xs font-semibold">MC {selectedInstance?.gameVersion}</span>
-                  <span className="text-slate-600">•</span>
-                  <span className="font-mono text-slate-400 text-xs">{(selectedInstance?.maxRam || 4096) / 1024} GB</span>
-                </button>
-
-                {/* Secondary Button: Server Info */}
-                <button
-                  onClick={() => setActiveTab('server')}
-                  className="px-6 py-3 rounded-2xl bg-[#141414]/80 hover:bg-[#1c1c1c] text-white font-bold text-sm border border-white/[0.08] transition-colors shadow-lg tracking-wider uppercase"
-                >
-                  {t.tabServerInfo}
-                </button>
-              </div>
-
-              {/* Compact Progress Bar directly underneath Play button */}
-              {isPreparingOrDownloading && (
-                <div className="w-[330px] space-y-2 p-3 rounded-2xl bg-[#141414]/95 border border-amber-500/30 shadow-2xl animate-fadeIn">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                      {launchProgress.speedBps > 0 ? (
-                        <span className="text-emerald-400 font-bold">
-                          {(launchProgress.speedBps / (1024 * 1024)).toFixed(1)} MB/s
-                        </span>
-                      ) : (
-                        <span className="text-amber-300 font-semibold">{launchProgress.stage || 'Chuẩn bị'}</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {launchProgress.totalBytes > 0 && (
-                        <span className="text-slate-400">
-                          {(launchProgress.downloadedBytes / (1024 * 1024)).toFixed(0)}/{(launchProgress.totalBytes / (1024 * 1024)).toFixed(0)} MB
-                        </span>
-                      )}
-                      <span className="font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded text-[11px] border border-amber-500/40">
-                        {Math.max(5, launchProgress.percentage)}%
+                    <div className="flex flex-col text-left">
+                      <span className="font-bold text-white text-sm tracking-wide leading-tight truncate max-w-[170px]">
+                        {selectedInstance?.name}
+                      </span>
+                      <span className="text-amber-400 text-xs font-semibold leading-tight">
+                        {selectedInstance?.loader ? selectedInstance.loader.charAt(0).toUpperCase() + selectedInstance.loader.slice(1) : 'Vanilla'} {selectedInstance?.gameVersion}
                       </span>
                     </div>
-                  </div>
-                  {/* Amber Gold Progress Bar */}
-                  <div className="w-full h-2 rounded-full bg-black/80 overflow-hidden p-0.5 border border-white/[0.08]">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#d8a951] to-amber-400 transition-all duration-200 shadow-[0_0_10px_rgba(216,169,81,0.6)]"
-                      style={{ width: `${Math.max(5, launchProgress.percentage)}%` }}
+                    <div className="w-px h-6 bg-white/10 mx-0.5" />
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-400 transition-transform duration-150 ${
+                        isProfileDropdownOpen ? 'rotate-180 text-amber-300' : ''
+                      }`}
                     />
-                  </div>
+                  </button>
+
+                  {/* Active Profile Dropdown Popover */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute left-0 top-[calc(100%+8px)] w-72 rounded-2xl bg-[#141414] border border-white/10 shadow-2xl p-2 z-50 space-y-1 animate-fadeIn">
+                      <div className="px-3 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        Chọn Phiên Bản
+                      </div>
+                      <div className="max-h-56 overflow-y-auto space-y-1 custom-scrollbar">
+                        {instances.map((inst) => (
+                          <button
+                            key={inst.id}
+                            onClick={() => {
+                              onSelectInstance(inst.id);
+                              setIsProfileDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                              inst.id === selectedInstanceId
+                                ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
+                                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                            }`}
+                          >
+                            <span className="truncate font-semibold">{inst.name}</span>
+                            <span className="text-[11px] text-slate-400 font-mono shrink-0 ml-2">
+                              {inst.loader.toUpperCase()} {inst.gameVersion}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         ) : (
           /* Server Info Tab */
           <div className="max-w-3xl space-y-4 animate-fadeIn">
-            <div className="glass-panel rounded-2xl p-6 border border-white/[0.04] space-y-5 shadow-2xl">
+            <div className="minimal-panel rounded-2xl p-6 border border-white/[0.06] space-y-5 shadow-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
@@ -347,9 +344,23 @@ export const ServerHub: React.FC<ServerHubProps> = ({
         )}
       </div>
 
-      {/* Clean Bottom Footer: Server IP & Status */}
+      {/* Clean Bottom Footer: Server Info & Server IP Together */}
       <div className="bg-gradient-to-t from-black/95 via-black/50 to-transparent pb-6 pt-6 px-12 flex items-center justify-between z-20">
         <div className="flex items-center gap-3">
+          {/* Server Info Toggle Button */}
+          <button
+            onClick={() => setActiveTab(activeTab === 'server' ? 'overview' : 'server')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-2 shadow-md ${
+              activeTab === 'server'
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                : 'bg-[#141414] hover:bg-[#1c1c1c] text-slate-300 hover:text-white border-white/[0.08]'
+            }`}
+          >
+            <Server className="w-3.5 h-3.5 text-amber-400" />
+            <span>{activeTab === 'server' ? 'Quay lại Trang Chủ' : t.tabServerInfo}</span>
+          </button>
+
+          {/* Copy IP Button */}
           <button
             onClick={handleCopyIp}
             className="px-4 py-2 rounded-xl bg-[#141414]/90 hover:bg-[#1f1f1f] text-slate-300 hover:text-amber-300 text-xs font-mono border border-white/[0.06] transition-colors flex items-center gap-2 shadow-md"

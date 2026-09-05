@@ -88,7 +88,7 @@ export const ModStore: React.FC<ModStoreProps> = ({ activeInstance }) => {
             <Package className="w-3.5 h-3.5" />
             <span>Kho Mod & Shader</span>
           </div>
-          <h1 className="text-2xl font-bold font-['Outfit'] text-white">Quản Lý Mods & Shaders</h1>
+          <h1 className="text-2xl font-bold font-riot text-white">Quản Lý Mods & Shaders</h1>
           <p className="text-sm text-slate-400">
             Cài đặt từ Modrinth hoặc thêm file .jar vào profile <strong>{activeInstance.name}</strong>.
           </p>

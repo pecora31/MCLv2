@@ -91,33 +91,31 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold font-['Outfit'] text-white tracking-normal">{t.settingsTitle}</h1>
+          <h1 className="text-3xl font-extrabold font-riot text-white tracking-normal">{t.settingsTitle}</h1>
           <p className="text-base text-slate-300 mt-1 tracking-wide">{t.settingsSub}</p>
         </div>
 
         <button
           onClick={handleSave}
-          className="btn-primary py-3 px-6 rounded-2xl font-['Outfit'] font-bold text-sm flex items-center gap-2 shadow-lg tracking-wide"
+          className="btn-primary py-3 px-6 rounded-2xl font-riot font-bold text-sm flex items-center gap-2 shadow-lg tracking-wide"
         >
           {savedSuccess ? <Check className="w-4 h-4 text-emerald-300" /> : <Check className="w-4 h-4" />}
           <span>{savedSuccess ? t.saved : t.btnSave}</span>
         </button>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6 max-w-3xl">
+      <div className="max-w-4xl space-y-6">
         {/* 1. Theme & Interface Style */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Palette className="w-5 h-5 text-amber-400" />
-            <div>
-              <h3 className="text-base font-bold text-white tracking-wide">{t.uiSection}</h3>
-            </div>
+            <h3 className="text-base font-bold text-white tracking-wide">{t.uiSection}</h3>
           </div>
 
-          {/* Style Selector: Riot Client vs Minimalist vs Glassmorphism */}
+          {/* Style Selector: Riot Client vs Minimalist */}
           <div>
             <label className="block text-xs text-slate-400 mb-2">{t.uiStyle}</label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -125,7 +123,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
                   setFormData(updated);
                   onSaveSettings(updated);
                 }}
-                className={`p-3 rounded-xl border text-left transition ${
+                className={`p-3.5 rounded-xl border text-left transition ${
                   formData.uiStyle === 'riot' || !formData.uiStyle
                     ? 'border-amber-500 bg-amber-500/10 text-white font-semibold shadow-sm'
                     : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
@@ -142,7 +140,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
                   setFormData(updated);
                   onSaveSettings(updated);
                 }}
-                className={`p-3 rounded-xl border text-left transition ${
+                className={`p-3.5 rounded-xl border text-left transition ${
                   formData.uiStyle === 'minimal'
                     ? 'border-amber-500 bg-amber-500/10 text-white font-semibold'
                     : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
@@ -150,23 +148,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
               >
                 <div className="text-xs font-bold text-slate-200">{t.styleMinimal}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">Đường nét phẳng, tối giản, sắc nét</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = { ...formData, uiStyle: 'glass' as UiStyle };
-                  setFormData(updated);
-                  onSaveSettings(updated);
-                }}
-                className={`p-3 rounded-xl border text-left transition ${
-                  formData.uiStyle === 'glass'
-                    ? 'border-amber-500 bg-amber-500/10 text-white font-semibold'
-                    : 'border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10'
-                }`}
-              >
-                <div className="text-xs font-bold text-slate-200">{t.styleGlass}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Hiệu ứng mờ không gian</div>
               </button>
             </div>
           </div>
@@ -490,7 +471,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
             className="w-full glass-input p-2.5 rounded-xl text-xs font-mono text-slate-300 resize-none"
           />
         </div>
-      </form>
+      </div>
     </div>
   );
 };

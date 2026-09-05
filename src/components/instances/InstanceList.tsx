@@ -30,7 +30,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
             <Layers className="w-4 h-4" />
             <span>Danh Sách Profile</span>
           </div>
-          <h1 className="text-3xl font-extrabold font-['Outfit'] text-white tracking-normal">Danh Sách Phiên Bản Game</h1>
+          <h1 className="text-3xl font-extrabold font-riot text-white tracking-normal">Danh Sách Phiên Bản Game</h1>
           <p className="text-base text-slate-300 mt-1 tracking-wide">
             Mỗi profile được lưu trữ tại thư mục riêng biệt, hoạt động độc lập.
           </p>
@@ -38,7 +38,7 @@ export const InstanceList: React.FC<InstanceListProps> = ({
 
         <button
           onClick={onOpenCreateModal}
-          className="btn-primary py-3 px-6 rounded-2xl font-['Outfit'] font-bold text-sm flex items-center gap-2 shadow-lg shrink-0 tracking-wide"
+          className="btn-primary py-3 px-6 rounded-2xl font-riot font-bold text-sm flex items-center gap-2 shadow-lg shrink-0 tracking-wide"
         >
           <Plus className="w-4 h-4" />
           <span>Tạo Profile Mới</span>

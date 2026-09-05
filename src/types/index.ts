@@ -98,7 +98,7 @@ export interface JavaInstallation {
   is64Bit: boolean;
 }
 
-export type UiStyle = 'riot' | 'minimal' | 'glass';
+export type UiStyle = 'riot' | 'minimal';
 export type ColorPalette = 'indigo' | 'emerald' | 'amber' | 'rose' | 'cyan' | 'slate';
 
 export interface LauncherSettings {

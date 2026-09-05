@@ -120,7 +120,7 @@ export const CreateInstanceModal: React.FC<CreateInstanceModalProps> = ({ isOpen
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold font-['Outfit'] text-white">Tạo Profile / Phiên Bản Mới</h2>
+              <h2 className="text-base font-bold font-riot text-white">Tạo Profile / Phiên Bản Mới</h2>
               <p className="text-[11px] text-slate-400">Tùy chọn phiên bản game, mod loader và cấu hình RAM</p>
             </div>
           </div>

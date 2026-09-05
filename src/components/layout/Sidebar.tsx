@@ -1,4 +1,4 @@
-import React from 'react';
+import mclLogo from '../../assets/logo.png';
 import { Home, Layers, Package, Shirt, Settings, User } from 'lucide-react';
 import type { Account } from '../../types';
 import { getTranslation, type Language } from '../../locales/i18n';
@@ -39,9 +39,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-20 bg-[#0a0a0a] flex flex-col justify-between items-center py-5 select-none z-30 shrink-0 h-full border-r border-white/[0.06]">
       {/* Top MCL Logo - Subdued (chìm), Unclickable */}
       <div className="w-full flex items-center justify-center pt-1 select-none pointer-events-none">
-        <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-slate-500/70 font-black text-xs font-mono tracking-widest">
-          MCL
-        </div>
+        <img
+          src={mclLogo}
+          alt="MCL"
+          className="w-12 h-auto object-contain opacity-85 hover:opacity-100 transition-opacity drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+        />
       </div>
 
       {/* Vertically Centered Navigation Menu Cluster */}

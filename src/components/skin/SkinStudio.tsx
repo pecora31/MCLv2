@@ -149,7 +149,7 @@ export const SkinStudio: React.FC<SkinStudioProps> = ({ account, onUpdateSkin, i
             <Shirt className="w-3.5 h-3.5" />
             <span>Skin Studio 3D</span>
           </div>
-          <h1 className="text-2xl font-bold font-['Outfit'] text-white">
+          <h1 className="text-2xl font-bold font-riot text-white">
             Xem Trước & Cài Đặt Skin
           </h1>
           <p className="text-sm text-slate-400">
@@ -159,7 +159,7 @@ export const SkinStudio: React.FC<SkinStudioProps> = ({ account, onUpdateSkin, i
 
         <button
           onClick={handleApplySkin}
-          className="btn-primary py-2.5 px-6 rounded-xl font-['Outfit'] font-bold text-sm flex items-center gap-2 shadow-lg shrink-0"
+          className="btn-primary py-2.5 px-6 rounded-xl font-riot font-bold text-sm flex items-center gap-2 shadow-lg shrink-0"
         >
           <Sparkles className="w-4 h-4" />
           <span>Lưu Skin</span>
