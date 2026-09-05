@@ -38,10 +38,27 @@ async fn launch_instance(
     app: tauri::AppHandle,
     instance_id: String,
     username: String,
+    instance_data: Option<GameInstance>,
 ) -> Result<String, String> {
     use tauri::Emitter;
-    let instances = instance_manager::load_instances();
-    if let Some(inst) = instances.into_iter().find(|i| i.id == instance_id) {
+
+    // Resolve target instance (prefer direct instance_data from frontend if supplied)
+    let target_instance = if let Some(data) = instance_data {
+        // Save to instances.json to ensure disk persistence
+        let mut list = instance_manager::load_instances();
+        if let Some(pos) = list.iter().position(|i| i.id == data.id) {
+            list[pos] = data.clone();
+        } else {
+            list.push(data.clone());
+        }
+        let _ = instance_manager::save_instances(&list);
+        Some(data)
+    } else {
+        let instances = instance_manager::load_instances();
+        instances.into_iter().find(|i| i.id == instance_id)
+    };
+
+    if let Some(inst) = target_instance {
         let app_handle = app.clone();
         tokio::spawn(async move {
             if let Err(e) = minecraft_core::launcher::prepare_and_launch(&app_handle, &inst, &username).await {
@@ -64,6 +81,12 @@ async fn launch_instance(
     } else {
         Err(format!("Không tìm thấy profile với ID: {}", instance_id))
     }
+}
+
+#[tauri::command]
+fn cancel_download() -> Result<bool, String> {
+    minecraft_core::downloader::request_cancel();
+    Ok(true)
 }
 
 #[tauri::command]
@@ -121,6 +144,7 @@ pub fn run() {
             ping_minecraft_server,
             get_local_mods,
             launch_instance,
+            cancel_download,
             kill_game
         ])
         .run(tauri::generate_context!())

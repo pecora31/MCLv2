@@ -18,6 +18,7 @@ pub async fn prepare_and_launch(
     instance: &GameInstance,
     username: &str,
 ) -> Result<(), String> {
+    super::downloader::reset_cancel();
     let launcher_dir = get_launcher_dir();
     let common_dir = launcher_dir.join("common");
     let libraries_dir = common_dir.join("libraries");
@@ -297,9 +298,10 @@ pub async fn prepare_and_launch(
     // Auto-connect to server if configured
     if let Some(server_ip) = &instance.server_ip {
         if !server_ip.is_empty() {
-            cmd.arg("--server").arg(server_ip);
             let port = instance.server_port.unwrap_or(25565);
+            cmd.arg("--server").arg(server_ip);
             cmd.arg("--port").arg(port.to_string());
+            cmd.arg("--quickPlayMultiplayer").arg(format!("{}:{}", server_ip, port));
         }
     }
 

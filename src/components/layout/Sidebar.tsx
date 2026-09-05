@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     MINECRAFT_AVATAR_ICONS[0];
 
   return (
-    <aside className="w-20 bg-[#0a0a0a] flex flex-col justify-between items-center py-5 select-none z-30 shrink-0 h-full border-r border-white/[0.06]">
+    <aside className="w-20 bg-[#0a0a0a]/92 backdrop-blur-md flex flex-col justify-between items-center py-5 select-none z-30 shrink-0 h-full border-r border-white/[0.05]">
       {/* Top MCL Logo - Subdued (chìm), Unclickable */}
       <div className="w-full flex items-center justify-center pt-1 select-none pointer-events-none">
         <img

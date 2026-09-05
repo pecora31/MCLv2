@@ -1,11 +1,21 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::Semaphore;
+
+pub static CANCEL_DOWNLOAD: AtomicBool = AtomicBool::new(false);
+
+pub fn request_cancel() {
+    CANCEL_DOWNLOAD.store(true, Ordering::Relaxed);
+}
+
+pub fn reset_cancel() {
+    CANCEL_DOWNLOAD.store(false, Ordering::Relaxed);
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -80,6 +90,10 @@ pub async fn download_files_concurrently(
     let mut handles = Vec::new();
 
     for task in tasks_to_download {
+        if CANCEL_DOWNLOAD.load(Ordering::Relaxed) {
+            return Err("Tải tài nguyên đã bị hủy".to_string());
+        }
+
         let permit = semaphore.clone().acquire_owned().await.unwrap();
         let client = client.clone();
         let app = app_handle.clone();
@@ -89,6 +103,10 @@ pub async fn download_files_concurrently(
 
         let handle = tokio::spawn(async move {
             let _permit = permit; // holds permit until task finishes
+
+            if CANCEL_DOWNLOAD.load(Ordering::Relaxed) {
+                return;
+            }
 
             if let Some(parent) = task.destination.parent() {
                 let _ = fs::create_dir_all(parent);
@@ -110,6 +128,9 @@ pub async fn download_files_concurrently(
                     };
 
                     while let Some(chunk) = response.chunk().await.ok().flatten() {
+                        if CANCEL_DOWNLOAD.load(Ordering::Relaxed) {
+                            break;
+                        }
                         use tokio::io::AsyncWriteExt;
                         let _ = file.write_all(&chunk).await;
                         downloaded.fetch_add(chunk.len() as u64, Ordering::Relaxed);
@@ -124,17 +145,19 @@ pub async fn download_files_concurrently(
             let current_downloaded = downloaded.load(Ordering::Relaxed);
             let speed = (current_downloaded as f64 / elapsed_sec) as u64;
 
-            let _ = app.emit(
-                "download-progress",
-                DownloadProgressPayload {
-                    stage,
-                    percentage: percent,
-                    current_file: file_name,
-                    downloaded_bytes: current_downloaded,
-                    total_bytes,
-                    speed_bps: speed,
-                },
-            );
+            if !CANCEL_DOWNLOAD.load(Ordering::Relaxed) {
+                let _ = app.emit(
+                    "download-progress",
+                    DownloadProgressPayload {
+                        stage,
+                        percentage: percent,
+                        current_file: file_name,
+                        downloaded_bytes: current_downloaded,
+                        total_bytes,
+                        speed_bps: speed,
+                    },
+                );
+            }
         });
 
         handles.push(handle);

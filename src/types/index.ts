@@ -57,6 +57,14 @@ export interface ServerStatus {
   favicon?: string;
 }
 
+export interface SavedServer {
+  id: string;
+  name: string;
+  ip: string;
+  port: number;
+  motd?: string;
+}
+
 export interface ModrinthMod {
   project_id: string;
   slug: string;
@@ -83,7 +91,7 @@ export interface LocalMod {
 }
 
 export interface LaunchProgress {
-  stage: 'idle' | 'checking' | 'downloading' | 'verifying' | 'extracting' | 'launching' | 'running';
+  stage: string;
   percentage: number;
   currentFile: string;
   downloadedBytes: number;
