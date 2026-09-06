@@ -138,6 +138,24 @@
     box-shadow: 0 0 14px var(--accent-glow) !important;
   }
 
+  /* Dynamic Hover Overrides for All Themes */
+  [class*="palette-"] .hover\:text-amber-300:hover,
+  [class*="palette-"] .hover\:text-amber-400:hover {
+    color: var(--accent-light) !important;
+  }
+
+  [class*="palette-"] .hover\:border-amber-400\/40:hover,
+  [class*="palette-"] .hover\:border-amber-400:hover,
+  [class*="palette-"] .hover\:border-amber-500:hover,
+  [class*="palette-"] .hover\:border-amber-500\/30:hover {
+    border-color: var(--accent-border) !important;
+  }
+
+  [class*="palette-"] .hover\:bg-amber-500\/10:hover,
+  [class*="palette-"] .hover\:bg-amber-500\/20:hover {
+    background-color: var(--accent-bg) !important;
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;

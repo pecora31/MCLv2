@@ -163,20 +163,20 @@ export const ServerHub: React.FC<ServerHubProps> = ({
         <div className="p-1.5 rounded-full bg-[#141414]/90 border border-white/[0.08] flex items-center gap-1.5 shadow-lg">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors ${
+            className={`px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors border ${
               activeTab === 'overview'
-                ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500/25 text-amber-300 border-amber-500/40'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             Overview
           </button>
           <button
             onClick={() => setActiveTab('server')}
-            className={`px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors ${
+            className={`px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors border ${
               activeTab === 'server'
-                ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500/25 text-amber-300 border-amber-500/40'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             Server Info & Hub
@@ -363,10 +363,10 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                               onSelectInstance(inst.id);
                               setIsProfileDropdownOpen(false);
                             }}
-                            className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                            className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-between transition-colors border ${
                               inst.id === selectedInstanceId
-                                ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30'
-                                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                ? 'bg-amber-500/20 text-amber-300 font-bold border-amber-500/30'
+                                : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-white'
                             }`}
                           >
                             <span className="truncate font-semibold">{inst.name}</span>
@@ -412,10 +412,10 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                                 onSelectActiveServer(srv.id);
                                 setIsServerDropdownOpen(false);
                               }}
-                              className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition ${
+                              className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition border ${
                                 srv.id === activeServerId
-                                  ? 'bg-amber-500/20 text-amber-300 font-bold'
-                                  : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                  ? 'bg-amber-500/20 text-amber-300 font-bold border-amber-500/30'
+                                  : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-white'
                               }`}
                             >
                               <span className="truncate font-semibold">{srv.name}</span>
@@ -454,7 +454,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                     className={`px-2.5 py-1.5 rounded-xl text-xs font-mono flex items-center gap-1.5 transition border ${
                       copied
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-white/[0.04] text-slate-300 hover:text-amber-300 border-white/[0.06] hover:border-white/15'
+                        : 'bg-white/[0.04] text-slate-300 hover:text-amber-300 border-white/[0.06] hover:border-amber-400/40'
                     }`}
                     title="Click to copy server IP address"
                   >
@@ -494,7 +494,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             <div className="minimal-panel rounded-2xl p-6 border border-white/[0.06] space-y-5 shadow-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] text-amber-400 flex items-center justify-center border border-white/10">
                     <Server className="w-5 h-5" />
                   </div>
                   <div>
