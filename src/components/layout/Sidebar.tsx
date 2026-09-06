@@ -64,9 +64,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Smooth Sliding Active Backdrop Tile behind active nav button */}
           <div
-            className="absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-xl bg-white/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
+            className="absolute left-0 right-0 mx-auto w-12 h-12 rounded-xl bg-white/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
             style={{
-              transform: `translate(-50%, ${activeNavIndex !== -1 ? activeNavIndex * 76 : 0}px)`,
+              transform: `translateY(${activeNavIndex !== -1 ? activeNavIndex * 76 : 0}px)`,
               opacity: activeNavIndex !== -1 ? 1 : 0,
               top: 0,
             }}
@@ -79,13 +79,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div key={item.id} className="relative group flex items-center justify-center w-full h-12">
                 <button
                   onClick={() => onTabChange(item.id as NavigationTab)}
-                  className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 border-none outline-none cursor-pointer ${
+                  className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-150 border-none outline-none cursor-pointer ${
                     isActive
-                      ? 'text-amber-400 scale-105'
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.05] hover:scale-105'
+                      ? 'text-amber-400'
+                      : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
                   }`}
                 >
-                  <Icon className="w-6 h-6 transition-transform duration-200" />
+                  <Icon className="w-6 h-6" />
                 </button>
 
                 {/* Pure CSS Tooltip (Zero JS delay, positioned comfortably outside sidebar) */}
