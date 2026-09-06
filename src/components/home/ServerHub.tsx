@@ -263,11 +263,11 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                       onMouseEnter={() => setIsHoveringLoadingButton(true)}
                       onMouseLeave={() => setIsHoveringLoadingButton(false)}
                       title="Click to cancel download"
-                      className="w-[220px] h-[64px] rounded-2xl bg-[#161616] border border-amber-500/50 hover:border-red-500/60 transition-colors shadow-2xl flex items-center justify-center gap-3.5 group cursor-pointer shrink-0 outline-none"
+                      className="w-[220px] h-[64px] px-4 rounded-2xl bg-[#161616] border border-amber-500/50 hover:border-red-500/60 transition-colors shadow-2xl flex items-center justify-center gap-3 group cursor-pointer shrink-0 outline-none"
                     >
                       {/* Circular Progress Ring */}
-                      <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
-                        <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
+                      <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
+                        <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
                           {/* Background Ring */}
                           <circle
                             cx="18"
@@ -296,17 +296,17 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                         {/* Center Icon or Percentage */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           {isHoveringLoadingButton ? (
-                            <Pause className="w-4 h-4 text-red-400 fill-current animate-pulse" />
+                            <Pause className="w-3.5 h-3.5 text-red-400 fill-current animate-pulse" />
                           ) : (
-                            <span className="text-[10px] font-mono font-bold text-amber-300">
+                            <span className="text-[9px] font-mono font-bold text-amber-300">
                               {progressPercent}%
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Unified App Typography: Single clean label without subtitle */}
-                      <span className="tracking-wider text-xl font-black text-white group-hover:text-red-300 transition-colors">
+                      {/* Unified App Typography: Well-balanced font size */}
+                      <span className="tracking-wider text-sm font-black text-white group-hover:text-red-300 transition-colors uppercase">
                         {isHoveringLoadingButton ? 'CANCEL' : 'DOWNLOADING'}
                       </span>
                     </button>
