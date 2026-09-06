@@ -398,7 +398,13 @@ export const App: React.FC = () => {
     const setupListeners = async () => {
       try {
         unlistenProgress = await listen<LaunchProgress>('download-progress', (event) => {
-          setLaunchProgress(event.payload);
+          setLaunchProgress((prev) => {
+            const nextPercent = Math.max(prev.percentage || 0, event.payload.percentage || 0);
+            return {
+              ...event.payload,
+              percentage: nextPercent,
+            };
+          });
           if (event.payload.stage === 'Lỗi' || event.payload.stage === 'Error') {
             setIsPreparing(false);
           }

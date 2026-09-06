@@ -42,6 +42,8 @@ pub async fn download_files_concurrently(
     stage_name: &str,
     tasks: Vec<DownloadTask>,
     max_concurrent: usize,
+    base_percent: u32,
+    target_percent: u32,
 ) -> Result<(), String> {
     if tasks.is_empty() {
         return Ok(());
@@ -71,7 +73,7 @@ pub async fn download_files_concurrently(
             "download-progress",
             DownloadProgressPayload {
                 stage: stage_name.to_string(),
-                percentage: 85,
+                percentage: target_percent,
                 current_file: "Tất cả tệp đã có sẵn trong bộ nhớ đệm".to_string(),
                 downloaded_bytes: 0,
                 total_bytes: 0,
@@ -87,6 +89,11 @@ pub async fn download_files_concurrently(
 
     let semaphore = Arc::new(Semaphore::new(max_concurrent));
     let start_time = Instant::now();
+    let stage_span = if target_percent > base_percent {
+        (target_percent - base_percent) as f64
+    } else {
+        1.0
+    };
 
     let mut handles = Vec::new();
 
@@ -140,7 +147,8 @@ pub async fn download_files_concurrently(
             }
 
             let done = completed.fetch_add(1, Ordering::Relaxed) + 1;
-            let percent = ((done as f64 / total_files as f64) * 100.0).min(100.0) as u32;
+            let ratio = (done as f64 / total_files as f64).min(1.0);
+            let percent = (base_percent as f64 + ratio * stage_span).min(target_percent as f64) as u32;
 
             let elapsed_sec = start_time.elapsed().as_secs_f64().max(0.1);
             let current_downloaded = downloaded.load(Ordering::Relaxed);

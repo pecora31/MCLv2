@@ -263,7 +263,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                       onMouseEnter={() => setIsHoveringLoadingButton(true)}
                       onMouseLeave={() => setIsHoveringLoadingButton(false)}
                       title="Click to cancel download"
-                      className="w-[220px] h-[64px] rounded-2xl bg-[#161616] border border-amber-500/50 hover:border-red-500/60 transition-colors shadow-2xl flex items-center px-4 gap-3.5 group cursor-pointer shrink-0"
+                      className="w-[220px] h-[64px] rounded-2xl bg-[#161616] border border-amber-500/50 hover:border-red-500/60 transition-colors shadow-2xl flex items-center justify-center gap-3.5 group cursor-pointer shrink-0 outline-none"
                     >
                       {/* Circular Progress Ring */}
                       <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
@@ -305,19 +305,10 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                         </div>
                       </div>
 
-                      {/* Status Text inside button */}
-                      <div className="flex flex-col text-left min-w-0">
-                        <span className="text-xs font-bold text-white tracking-wider truncate">
-                          {isHoveringLoadingButton ? 'CANCEL' : 'DOWNLOADING...'}
-                        </span>
-                        <span className="text-[10px] font-mono text-amber-400 truncate">
-                          {isHoveringLoadingButton
-                            ? 'Click to stop'
-                            : launchProgress.speedBps > 0
-                            ? `${(launchProgress.speedBps / (1024 * 1024)).toFixed(1)} MB/s`
-                            : 'Preparing files'}
-                        </span>
-                      </div>
+                      {/* Unified App Typography: Single clean label without subtitle */}
+                      <span className="tracking-wider text-xl font-black text-white group-hover:text-red-300 transition-colors">
+                        {isHoveringLoadingButton ? 'CANCEL' : 'DOWNLOADING'}
+                      </span>
                     </button>
                   ) : (
                     <button

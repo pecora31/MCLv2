@@ -21,6 +21,8 @@ pub async fn download_assets(
     app_handle: &AppHandle,
     common_dir: &Path,
     asset_info: &AssetIndexInfo,
+    base_percent: u32,
+    target_percent: u32,
 ) -> Result<(), String> {
     let assets_dir = common_dir.join("assets");
     let indexes_dir = assets_dir.join("indexes");
@@ -75,11 +77,32 @@ pub async fn download_assets(
         }
     }
 
+    let span = if target_percent > base_percent {
+        target_percent - base_percent
+    } else {
+        10
+    };
+    let mid_percent = base_percent + (span * 30 / 100);
+
     // 1. Download essential assets first (fast, few seconds)
-    download_files_concurrently(app_handle, "Tải tài nguyên giao diện (UI Assets)", essential_tasks, 16).await?;
+    download_files_concurrently(
+        app_handle,
+        "Tải tài nguyên giao diện (UI Assets)",
+        essential_tasks,
+        16,
+        base_percent,
+        mid_percent,
+    ).await?;
 
     // 2. Download sound/gameplay assets with 24 parallel streams
-    let _ = download_files_concurrently(app_handle, "Tải tài nguyên âm thanh (Sounds)", other_tasks, 24).await;
+    let _ = download_files_concurrently(
+        app_handle,
+        "Tải tài nguyên âm thanh (Sounds)",
+        other_tasks,
+        24,
+        mid_percent,
+        target_percent,
+    ).await;
 
     Ok(())
 }

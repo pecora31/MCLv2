@@ -49,7 +49,7 @@ pub async fn prepare_and_launch(
         "download-progress",
         DownloadProgressPayload {
             stage: "Kiểm tra phiên bản".to_string(),
-            percentage: 15,
+            percentage: 5,
             current_file: format!("Mojang Version Manifest ({})", instance.game_version),
             downloaded_bytes: 0,
             total_bytes: 0,
@@ -58,7 +58,7 @@ pub async fn prepare_and_launch(
     );
     let version_details = get_version_details(&common_dir, &instance.game_version).await?;
 
-    // 2. Download Client.jar
+    // 2. Download Client.jar (5% -> 25%)
     let client_jar_path = common_dir
         .join("versions")
         .join(&instance.game_version)
@@ -70,9 +70,9 @@ pub async fn prepare_and_launch(
         size: version_details.downloads.client.size,
         sha1: Some(version_details.downloads.client.sha1.clone()),
     };
-    download_files_concurrently(app_handle, "Đang tải Client JAR gốc", vec![client_task], 1).await?;
+    download_files_concurrently(app_handle, "Đang tải Client JAR gốc", vec![client_task], 1, 5, 25).await?;
 
-    // 3. Download Libraries & Collect Classpaths
+    // 3. Download Libraries & Collect Classpaths (25% -> 60% / 70%)
     let mut classpath_entries: Vec<PathBuf> = Vec::new();
     let mut library_download_tasks: Vec<DownloadTask> = Vec::new();
 
@@ -116,7 +116,9 @@ pub async fn prepare_and_launch(
             chrono::Local::now().format("%H:%M:%S")
         ),
     );
-    download_files_concurrently(app_handle, "Đang tải thư viện Libraries", library_download_tasks, 12).await?;
+    let has_fabric = instance.loader == "fabric";
+    let lib_target = if has_fabric { 60 } else { 70 };
+    download_files_concurrently(app_handle, "Đang tải thư viện Libraries", library_download_tasks, 12, 25, lib_target).await?;
 
     // 4. Mod Loader: Fabric handling
     let mut main_class = version_details.main_class.clone();
@@ -184,11 +186,11 @@ pub async fn prepare_and_launch(
                 }
             }
 
-            download_files_concurrently(app_handle, "Đang tải Fabric Libraries", fabric_tasks, 6).await?;
+            download_files_concurrently(app_handle, "Đang tải Fabric Libraries", fabric_tasks, 6, 60, 72).await?;
         }
     }
 
-    // 5. Assets download
+    // 5. Assets download (70%/72% -> 94%)
     let _ = app_handle.emit(
         "mc-log",
         format!(
@@ -196,7 +198,8 @@ pub async fn prepare_and_launch(
             chrono::Local::now().format("%H:%M:%S")
         ),
     );
-    let _ = download_assets(app_handle, &common_dir, &version_details.asset_index).await;
+    let assets_start = if has_fabric { 72 } else { 70 };
+    let _ = download_assets(app_handle, &common_dir, &version_details.asset_index, assets_start, 94).await;
 
     // 6. In-Game Skin Feature
     if instance.enable_skin_in_game {
