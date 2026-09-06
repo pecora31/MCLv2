@@ -242,17 +242,17 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                       onClick={onStopGame}
                       onMouseEnter={() => setIsHoveringStop(true)}
                       onMouseLeave={() => setIsHoveringStop(false)}
-                      className="btn-riot-running w-[220px] h-[64px] rounded-2xl flex items-center justify-center gap-3 text-lg font-bold shadow-xl shrink-0"
+                      className="btn-riot-running w-[220px] h-[64px] rounded-2xl flex items-center justify-center gap-3 text-xl font-bold shadow-xl shrink-0"
                     >
                       {isHoveringStop ? (
                         <>
                           <Square className="w-5 h-5 fill-current" />
-                          <span>STOP GAME</span>
+                          <span className="tracking-wider text-2xl font-black">STOP</span>
                         </>
                       ) : (
                         <>
-                          <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-                          <span>IN GAME</span>
+                          <span className="w-2.5 h-2.5 rounded-full bg-slate-300 animate-pulse" />
+                          <span className="tracking-wider text-2xl font-black">RUNNING</span>
                         </>
                       )}
                     </button>
@@ -745,12 +745,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
           </button>
         </div>
 
-        {isRunning && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081810] border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Minecraft is Running</span>
-          </div>
-        )}
+        <div />
       </div>
     </div>
   );
