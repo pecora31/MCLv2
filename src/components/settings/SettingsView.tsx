@@ -22,7 +22,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
   }, [settings]);
 
   useEffect(() => {
-    handleDetectJava();
+    const timer = setTimeout(() => {
+      handleDetectJava();
+    }, 20);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleDetectJava = async () => {
@@ -167,14 +170,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
                       setFormData(updated);
                       onSaveSettings(updated);
                     }}
-                    className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 transition ${
+                    className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 transition cursor-pointer ${
                       isSelected
-                        ? 'border-white/40 bg-white/10 shadow-sm'
+                        ? 'border-amber-400 bg-white/10 shadow-sm ring-2 ring-amber-400/40 scale-105'
                         : 'border-white/5 bg-black/20 hover:border-white/20'
                     }`}
                   >
-                    <span className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: p.color }} />
-                    <span className="text-[11px] font-medium text-slate-300 truncate w-full text-center">{p.name}</span>
+                    <span className="w-5 h-5 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: p.color }} />
+                    <span className={`text-[11px] font-medium truncate w-full text-center ${isSelected ? 'text-white font-bold' : 'text-slate-300'}`}>{p.name}</span>
                   </button>
                 );
               })}

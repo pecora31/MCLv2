@@ -7,6 +7,13 @@ mod server_ping;
 
 use models::{GameInstance, JavaInstallation, LocalMod, ServerStatus};
 use tauri::Manager;
+use std::sync::{Mutex, OnceLock};
+
+static CACHED_JAVAS: OnceLock<Mutex<Vec<JavaInstallation>>> = OnceLock::new();
+
+fn get_cached_javas() -> &'static Mutex<Vec<JavaInstallation>> {
+    CACHED_JAVAS.get_or_init(|| Mutex::new(Vec::new()))
+}
 
 #[tauri::command]
 fn get_instances() -> Vec<GameInstance> {
@@ -19,8 +26,21 @@ fn save_instances(instances: Vec<GameInstance>) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn detect_java() -> Vec<JavaInstallation> {
-    java_detector::detect_installed_javas()
+async fn detect_java() -> Vec<JavaInstallation> {
+    {
+        let lock = get_cached_javas().lock().unwrap();
+        if !lock.is_empty() {
+            return lock.clone();
+        }
+    }
+    let javas = tokio::task::spawn_blocking(java_detector::detect_installed_javas)
+        .await
+        .unwrap_or_default();
+    {
+        let mut lock = get_cached_javas().lock().unwrap();
+        *lock = javas.clone();
+    }
+    javas
 }
 
 #[tauri::command]
@@ -135,6 +155,16 @@ pub fn run() {
                     }
                 }
             }
+
+            // Pre-warm Java detection asynchronously in background on launch
+            tokio::spawn(async {
+                let javas = tokio::task::spawn_blocking(java_detector::detect_installed_javas)
+                    .await
+                    .unwrap_or_default();
+                let mut lock = get_cached_javas().lock().unwrap();
+                *lock = javas;
+            });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

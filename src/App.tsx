@@ -616,18 +616,18 @@ export const App: React.FC = () => {
             {/* Sidebar on left remains 100% visible and interactive! Backdrop is subtle (bg-black/25) */}
             {currentTab !== 'home' && (
               <div
-                className="absolute inset-0 z-40 flex items-center justify-center p-6 sm:p-8 bg-black/25 backdrop-blur-[2px] animate-fadeIn"
+                className="absolute inset-0 z-40 flex items-center justify-center p-6 sm:p-8 bg-black/25 backdrop-blur-[2px] animate-modalBackdrop"
                 onClick={() => setCurrentTab('home')}
               >
                 <div
-                  className="w-full max-w-6xl h-[92vh] rounded-3xl bg-[#111111]/92 border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col overflow-hidden animate-scaleUp"
+                  className="w-full max-w-6xl h-[92vh] rounded-3xl bg-[#111111]/92 border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col overflow-hidden animate-modalScale"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Overlay Window Header Bar */}
                   <div className="flex items-center justify-between px-8 py-3.5 border-b border-white/[0.08] bg-[#141414]/90 shrink-0">
                     <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 rounded-full bg-amber-400" />
-                      <span className="text-xs font-bold font-riot text-slate-300 uppercase tracking-widest">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 shadow-accent-glow" />
+                      <span className="text-xs font-bold font-riot text-slate-300 uppercase tracking-widest transition-all duration-200">
                         {currentTab === 'instances' && 'Instance Profiles'}
                         {currentTab === 'mods' && 'Mods & Shaders'}
                         {currentTab === 'skin' && '3D Skin Studio'}
@@ -644,57 +644,59 @@ export const App: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Overlay Window Body Content */}
-                  <div className="flex-1 flex overflow-hidden">
-                    {currentTab === 'instances' && (
-                      <InstanceList
-                        instances={instances}
-                        selectedInstanceId={selectedInstanceId}
-                        onSelectInstance={setSelectedInstanceId}
-                        onLaunchInstance={(id) => {
-                          setSelectedInstanceId(id);
-                          setCurrentTab('home');
-                          handleLaunch();
-                        }}
-                        onEditInstance={handleEditInstance}
-                        onDeleteInstance={handleDeleteInstance}
-                        onOpenCreateModal={() => setIsCreateModalOpen(true)}
-                        isRunning={isRunning}
-                      />
-                    )}
+                  {/* Overlay Window Body Content with Smooth Tab Transition */}
+                  <div className="flex-1 flex overflow-hidden relative">
+                    <div key={currentTab} className="w-full h-full flex animate-tabSlideFade overflow-hidden">
+                      {currentTab === 'instances' && (
+                        <InstanceList
+                          instances={instances}
+                          selectedInstanceId={selectedInstanceId}
+                          onSelectInstance={setSelectedInstanceId}
+                          onLaunchInstance={(id) => {
+                            setSelectedInstanceId(id);
+                            setCurrentTab('home');
+                            handleLaunch();
+                          }}
+                          onEditInstance={handleEditInstance}
+                          onDeleteInstance={handleDeleteInstance}
+                          onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                          isRunning={isRunning}
+                        />
+                      )}
 
-                    {currentTab === 'mods' && (
-                      <ModStore
-                        activeInstance={activeInstance}
-                        onOpenCreateModal={() => setIsCreateModalOpen(true)}
-                      />
-                    )}
+                      {currentTab === 'mods' && (
+                        <ModStore
+                          activeInstance={activeInstance}
+                          onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                        />
+                      )}
 
-                    {currentTab === 'skin' && (
-                      <SkinStudio
-                        account={account}
-                        onUpdateSkin={handleUpdateSkin}
-                        instances={instances}
-                      />
-                    )}
+                      {currentTab === 'skin' && (
+                        <SkinStudio
+                          account={account}
+                          onUpdateSkin={handleUpdateSkin}
+                          instances={instances}
+                        />
+                      )}
 
-                    {currentTab === 'profile' && (
-                      <ProfileView
-                        account={account}
-                        onUpdateAccount={setAccount}
-                        onNavigateSkin={() => setCurrentTab('skin')}
-                        instances={instances}
-                        language={language}
-                      />
-                    )}
+                      {currentTab === 'profile' && (
+                        <ProfileView
+                          account={account}
+                          onUpdateAccount={setAccount}
+                          onNavigateSkin={() => setCurrentTab('skin')}
+                          instances={instances}
+                          language={language}
+                        />
+                      )}
 
-                    {currentTab === 'settings' && (
-                      <SettingsView
-                        settings={settings}
-                        onSaveSettings={setSettings}
-                        language={language}
-                      />
-                    )}
+                      {currentTab === 'settings' && (
+                        <SettingsView
+                          settings={settings}
+                          onSaveSettings={setSettings}
+                          language={language}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
