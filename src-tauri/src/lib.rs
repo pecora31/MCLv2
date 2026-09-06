@@ -26,20 +26,13 @@ fn save_instances(instances: Vec<GameInstance>) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn detect_java() -> Vec<JavaInstallation> {
-    {
-        let lock = get_cached_javas().lock().unwrap();
-        if !lock.is_empty() {
-            return lock.clone();
-        }
+fn detect_java() -> Vec<JavaInstallation> {
+    let mut lock = get_cached_javas().lock().unwrap();
+    if !lock.is_empty() {
+        return lock.clone();
     }
-    let javas = tokio::task::spawn_blocking(java_detector::detect_installed_javas)
-        .await
-        .unwrap_or_default();
-    {
-        let mut lock = get_cached_javas().lock().unwrap();
-        *lock = javas.clone();
-    }
+    let javas = java_detector::detect_installed_javas();
+    *lock = javas.clone();
     javas
 }
 
@@ -156,11 +149,9 @@ pub fn run() {
                 }
             }
 
-            // Pre-warm Java detection asynchronously in background on launch
-            tokio::spawn(async {
-                let javas = tokio::task::spawn_blocking(java_detector::detect_installed_javas)
-                    .await
-                    .unwrap_or_default();
+            // Pre-warm Java detection in background OS thread on launch
+            std::thread::spawn(|| {
+                let javas = java_detector::detect_installed_javas();
                 let mut lock = get_cached_javas().lock().unwrap();
                 *lock = javas;
             });

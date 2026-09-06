@@ -28,6 +28,7 @@ pub struct DownloadProgressPayload {
     pub speed_bps: u64,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct DownloadTask {
     pub url: String,
