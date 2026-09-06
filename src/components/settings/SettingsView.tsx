@@ -348,14 +348,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
             <div className="pt-2">
               <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
                 <span>{t.bgOpacity} (Độ tối lớp phủ):</span>
-                <span className="font-mono text-slate-200">{Math.round((formData.bgOpacity || 0.55) * 100)}%</span>
+                <span className="font-mono text-slate-200">{Math.round((formData.bgOpacity !== undefined ? formData.bgOpacity : 0.3) * 100)}%</span>
               </div>
               <input
                 type="range"
                 min="0.1"
                 max="0.9"
                 step="0.05"
-                value={formData.bgOpacity || 0.55}
+                value={formData.bgOpacity !== undefined ? formData.bgOpacity : 0.3}
                 onChange={(e) => {
                   const updated = { ...formData, bgOpacity: parseFloat(e.target.value) };
                   setFormData(updated);

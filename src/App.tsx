@@ -149,7 +149,7 @@ const DEFAULT_SETTINGS: LauncherSettings = {
   uiStyle: 'riot',
   colorPalette: 'amber',
   bgType: 'video',
-  bgOpacity: 0.5,
+  bgOpacity: 0.3,
   closeOnLaunch: false,
   enableDiscordRpc: true,
   serverHost: 'play.ourserver.mc',
@@ -184,9 +184,14 @@ export const App: React.FC = () => {
   const [settings, setSettings] = useState<LauncherSettings>(() => {
     const saved = localStorage.getItem('mcl_settings');
     const parsed = saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+    const bgOpacity =
+      parsed.bgOpacity !== undefined && parsed.bgOpacity !== 0.5 && parsed.bgOpacity !== 0.55
+        ? parsed.bgOpacity
+        : 0.3;
     return {
       ...DEFAULT_SETTINGS,
       ...parsed,
+      bgOpacity,
       language: 'en',
       bgType: parsed.bgType || (parsed.customBgImage ? 'image' : 'video'),
     };
@@ -561,7 +566,7 @@ export const App: React.FC = () => {
           {/* Contrast & Tint Overlays */}
           <div
             className="absolute inset-0 bg-black z-2 pointer-events-none transition-opacity duration-300"
-            style={{ opacity: settings.bgOpacity ?? 0.55 }}
+            style={{ opacity: settings.bgOpacity ?? 0.3 }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-3 pointer-events-none" />
         </div>
