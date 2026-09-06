@@ -80,50 +80,72 @@
   /* Universal Theme Accent Propagation: Dynamic overrides for all colored elements */
   [class*="palette-"] .text-amber-400,
   [class*="palette-"] .text-amber-500,
+  [class*="palette-"] .text-amber-600,
   [class*="palette-"] .text-theme {
     color: var(--accent-color) !important;
   }
 
-  [class*="palette-"] .text-amber-300,
+  [class*="palette-"] .text-amber-100,
   [class*="palette-"] .text-amber-200,
+  [class*="palette-"] .text-amber-300,
   [class*="palette-"] .text-theme-light {
     color: var(--accent-light) !important;
   }
 
   [class*="palette-"] .bg-amber-400,
   [class*="palette-"] .bg-amber-500,
+  [class*="palette-"] .bg-amber-600,
   [class*="palette-"] .bg-theme {
     background-color: var(--accent-color) !important;
   }
 
+  [class*="palette-"] .bg-amber-400\/10,
+  [class*="palette-"] .bg-amber-400\/15,
+  [class*="palette-"] .bg-amber-400\/20,
+  [class*="palette-"] .bg-amber-400\/25,
   [class*="palette-"] .bg-amber-500\/10,
   [class*="palette-"] .bg-amber-500\/15,
   [class*="palette-"] .bg-amber-500\/20,
   [class*="palette-"] .bg-amber-500\/25,
-  [class*="palette-"] .bg-amber-400\/10,
-  [class*="palette-"] .bg-amber-400\/20,
+  [class*="palette-"] .bg-amber-500\/30,
   [class*="palette-"] .bg-theme-subtle {
     background-color: var(--accent-bg) !important;
   }
 
+  /* Solid accent borders */
+  [class*="palette-"] .border-amber-300,
   [class*="palette-"] .border-amber-400,
   [class*="palette-"] .border-amber-500,
+  [class*="palette-"] .border-amber-600,
   [class*="palette-"] .border-theme {
     border-color: var(--accent-color) !important;
   }
 
+  /* Subtle / Opacity accent borders */
+  [class*="palette-"] .border-amber-400\/10,
+  [class*="palette-"] .border-amber-400\/20,
+  [class*="palette-"] .border-amber-400\/30,
+  [class*="palette-"] .border-amber-400\/40,
+  [class*="palette-"] .border-amber-400\/50,
+  [class*="palette-"] .border-amber-400\/60,
+  [class*="palette-"] .border-amber-500\/10,
+  [class*="palette-"] .border-amber-500\/20,
   [class*="palette-"] .border-amber-500\/30,
   [class*="palette-"] .border-amber-500\/40,
   [class*="palette-"] .border-amber-500\/50,
-  [class*="palette-"] .border-amber-400\/40,
-  [class*="palette-"] .border-amber-400\/60,
+  [class*="palette-"] .border-amber-500\/60,
   [class*="palette-"] .border-theme-subtle {
     border-color: var(--accent-border) !important;
   }
 
   [class*="palette-"] .ring-amber-400,
-  [class*="palette-"] .ring-amber-400\/40,
+  [class*="palette-"] .ring-amber-500,
   [class*="palette-"] .ring-amber-400\/20,
+  [class*="palette-"] .ring-amber-400\/30,
+  [class*="palette-"] .ring-amber-400\/40,
+  [class*="palette-"] .ring-amber-500\/20,
+  [class*="palette-"] .ring-amber-500\/30,
+  [class*="palette-"] .ring-amber-500\/40,
   [class*="palette-"] .ring-theme {
     --tw-ring-color: var(--accent-border) !important;
   }
@@ -154,6 +176,12 @@
   [class*="palette-"] .hover\:bg-amber-500\/10:hover,
   [class*="palette-"] .hover\:bg-amber-500\/20:hover {
     background-color: var(--accent-bg) !important;
+  }
+
+  /* Dynamic Focus Overrides for Input Fields */
+  [class*="palette-"] .focus\:border-amber-400:focus,
+  [class*="palette-"] .focus\:border-amber-500:focus {
+    border-color: var(--accent-color) !important;
   }
 
   * {
@@ -500,7 +528,7 @@
 @keyframes modalScaleIn {
   0% {
     opacity: 0;
-    transform: scale(0.965) translateY(8px);
+    transform: scale(0.98) translateY(6px);
   }
   100% {
     opacity: 1;
@@ -511,20 +539,20 @@
 @keyframes tabSlideFade {
   0% {
     opacity: 0;
-    transform: translateY(12px) scale(0.995);
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 .animate-modalBackdrop {
-  animation: modalBackdropFade 0.18s ease-out both;
+  animation: modalBackdropFade 0.15s ease-out both;
 }
 
 .animate-modalScale {
-  animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: modalScaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
 }
 

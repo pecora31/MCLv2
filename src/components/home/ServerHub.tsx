@@ -52,6 +52,20 @@ export const ServerHub: React.FC<ServerHubProps> = ({
   const currentSavedServer = savedServers.find((s) => s.id === activeServerId) || savedServers[0];
 
   const [activeTab, setActiveTab] = useState<'overview' | 'server'>('overview');
+  const overviewTabRef = React.useRef<HTMLButtonElement>(null);
+  const serverTabRef = React.useRef<HTMLButtonElement>(null);
+  const [tabPillStyle, setTabPillStyle] = useState<{ left: number; width: number }>({ left: 6, width: 96 });
+
+  React.useLayoutEffect(() => {
+    const target = activeTab === 'overview' ? overviewTabRef.current : serverTabRef.current;
+    if (target) {
+      setTabPillStyle({
+        left: target.offsetLeft,
+        width: target.offsetWidth,
+      });
+    }
+  }, [activeTab, language]);
+
   const [copied, setCopied] = useState(false);
   const [isPinging, setIsPinging] = useState(false);
   const [isHoveringStop, setIsHoveringStop] = useState(false);
@@ -159,24 +173,35 @@ export const ServerHub: React.FC<ServerHubProps> = ({
     <div className="flex-1 flex flex-col justify-between overflow-hidden relative select-none bg-transparent">
       {/* Top Header Capsule Bar */}
       <div className="px-10 pt-4 pb-2 flex items-center justify-between z-10 bg-transparent">
-        {/* Center Capsule Tabs */}
-        <div className="p-1.5 rounded-full bg-[#141414]/90 border border-white/[0.08] flex items-center gap-1.5 shadow-lg">
+        {/* Center Capsule Tabs with Smooth Sliding Pill */}
+        <div className="relative p-1.5 rounded-full bg-[#141414]/90 border border-white/[0.08] flex items-center shadow-lg">
+          {/* Smooth Sliding Pill Indicator */}
+          <div
+            className="absolute top-1.5 bottom-1.5 rounded-full bg-amber-500/25 border border-amber-500/40 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
+            style={{
+              left: `${tabPillStyle.left}px`,
+              width: `${tabPillStyle.width}px`,
+            }}
+          />
+
           <button
+            ref={overviewTabRef}
             onClick={() => setActiveTab('overview')}
-            className={`px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors border ${
+            className={`relative z-10 px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors duration-200 border-none outline-none cursor-pointer ${
               activeTab === 'overview'
-                ? 'bg-amber-500/25 text-amber-300 border-amber-500/40'
-                : 'border-transparent text-slate-400 hover:text-white'
+                ? 'text-amber-300'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             Overview
           </button>
           <button
+            ref={serverTabRef}
             onClick={() => setActiveTab('server')}
-            className={`px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors border ${
+            className={`relative z-10 px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors duration-200 border-none outline-none cursor-pointer ${
               activeTab === 'server'
-                ? 'bg-amber-500/25 text-amber-300 border-amber-500/40'
-                : 'border-transparent text-slate-400 hover:text-white'
+                ? 'text-amber-300'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             Server Info & Hub
@@ -189,8 +214,9 @@ export const ServerHub: React.FC<ServerHubProps> = ({
 
       {/* Main Body Area */}
       <div className="flex-1 flex flex-col justify-center px-12 py-3 relative z-10">
-        {activeTab === 'overview' ? (
-          <div className="max-w-2xl space-y-5 animate-fadeIn">
+        <div key={activeTab} className="w-full animate-tabSlideFade">
+          {activeTab === 'overview' ? (
+            <div className="max-w-2xl space-y-5">
             {/* Version Badge: strictly BETA 0.2.1 */}
             <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold tracking-widest shadow-sm">
               <span>BETA 0.2.1</span>
@@ -319,8 +345,10 @@ export const ServerHub: React.FC<ServerHubProps> = ({
                     onClick={selectedInstance ? () => setIsProfileDropdownOpen((prev) => !prev) : onOpenCreateModal}
                     disabled={isRunning || isPreparingOrDownloading}
                     title={selectedInstance ? 'Click to select profile' : 'Click to create profile'}
-                    className={`w-[280px] h-[64px] px-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border transition-colors shadow-lg flex items-center justify-between cursor-pointer shrink-0 ${
-                      isProfileDropdownOpen ? 'border-amber-400/50 bg-[#1c1c1c]' : 'border-white/[0.08] hover:border-white/20'
+                    className={`w-[280px] h-[64px] px-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border transition-colors shadow-lg flex items-center justify-between cursor-pointer shrink-0 outline-none ${
+                      isProfileDropdownOpen
+                        ? 'border-amber-400 bg-[#1c1c1c] ring-1 ring-amber-400/40 shadow-sm'
+                        : 'border-white/[0.08] hover:border-white/20'
                     }`}
                   >
                     <div className="flex flex-col text-left flex-1 min-w-0 pr-2">
@@ -698,6 +726,7 @@ export const ServerHub: React.FC<ServerHubProps> = ({
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Clean Bottom Footer */}

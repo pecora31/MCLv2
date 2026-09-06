@@ -8,7 +8,7 @@ import { CreateInstanceModal } from './components/instances/CreateInstanceModal'
 import { EditInstanceModal } from './components/instances/EditInstanceModal';
 import { SkinStudio } from './components/skin/SkinStudio';
 import { ModStore } from './components/mods/ModStore';
-import { SettingsView } from './components/settings/SettingsView';
+import { SettingsView, setPrewarmedJavaList } from './components/settings/SettingsView';
 import { ProfileView } from './components/profile/ProfileView';
 import { ConsoleModal } from './components/common/ConsoleModal';
 import type { GameInstance, Account, LauncherSettings, LaunchProgress, SavedServer } from './types';
@@ -279,7 +279,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Load instances from backend if in Tauri
+  // Load instances from backend if in Tauri & pre-warm Java detection in background
   useEffect(() => {
     const initBackend = async () => {
       if (isTauri()) {
@@ -291,6 +291,15 @@ export const App: React.FC = () => {
         } catch (err) {
           console.warn('Backend instances fallback:', err);
         }
+
+        // Pre-warm Java detection in background so Settings opens instantly with zero delay
+        invokeCommand<any[]>('detect_java')
+          .then((javas) => {
+            if (javas && javas.length > 0) {
+              setPrewarmedJavaList(javas);
+            }
+          })
+          .catch(() => {});
       }
     };
     initBackend();

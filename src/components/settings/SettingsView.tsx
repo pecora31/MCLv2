@@ -10,10 +10,19 @@ interface SettingsViewProps {
   language: Language;
 }
 
+// Module-level cache so reopening Settings renders in 0ms with zero delay
+let cachedJavaList: JavaInstallation[] = [];
+let hasInitialDetected = false;
+
+export const setPrewarmedJavaList = (list: JavaInstallation[]) => {
+  cachedJavaList = list;
+  hasInitialDetected = true;
+};
+
 export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSettings, language }) => {
   const t = getTranslation(language);
   const [formData, setFormData] = useState<LauncherSettings>(settings);
-  const [javaList, setJavaList] = useState<JavaInstallation[]>([]);
+  const [javaList, setJavaList] = useState<JavaInstallation[]>(cachedJavaList);
   const [detectingJava, setDetectingJava] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -22,19 +31,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSaveSett
   }, [settings]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Only detect on mount if cache is not yet populated
+    if (!hasInitialDetected && cachedJavaList.length === 0) {
       handleDetectJava();
-    }, 20);
-    return () => clearTimeout(timer);
+    }
   }, []);
 
   const handleDetectJava = async () => {
     setDetectingJava(true);
     try {
       const list = await invokeCommand<JavaInstallation[]>('detect_java');
-      setJavaList(list || []);
-      if (!formData.defaultJavaPath && list?.length > 0) {
-        setFormData((prev) => ({ ...prev, defaultJavaPath: list[0].path }));
+      const resolved = list || [];
+      cachedJavaList = resolved;
+      hasInitialDetected = true;
+      setJavaList(resolved);
+      if (!formData.defaultJavaPath && resolved.length > 0) {
+        setFormData((prev) => ({ ...prev, defaultJavaPath: resolved[0].path }));
       }
     } catch {
       // fallback

@@ -35,6 +35,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     MINECRAFT_AVATAR_ICONS.find((i) => i.id === (account.avatarIcon || 'creeper')) ||
     MINECRAFT_AVATAR_ICONS[0];
 
+  const activeNavIndex = navItems.findIndex((item) => item.id === currentTab);
+
   return (
     <aside className="w-20 bg-[#121318]/70 backdrop-blur-xl flex flex-col justify-between items-center py-5 select-none z-50 shrink-0 h-full border-r border-white/[0.08] shadow-[4px_0_24px_rgba(0,0,0,0.35)]">
       {/* Top MCL Logo - Subdued (chìm), Unclickable */}
@@ -46,44 +48,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       </div>
 
-      {/* Vertically Centered Navigation Menu Cluster */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-7 w-full">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentTab === item.id;
-          return (
-            <div key={item.id} className="relative group flex items-center justify-center w-full">
-              {/* Left Edge Active Indicator Bar (strictly anchored to outer edge x=0) */}
-              {isActive && (
-                <span className="absolute left-0 top-1.5 bottom-1.5 w-1.5 rounded-r bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]" />
-              )}
+      {/* Vertically Centered Navigation Menu Cluster with Smooth Sliding Indicator & Active Tile */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full">
+        <div className="relative flex flex-col items-center gap-7 w-full">
+          {/* Smooth Sliding Active Indicator Bar along Left Edge */}
+          <div
+            className="absolute left-0 w-1.5 rounded-r bg-amber-400 shadow-accent-glow transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
+            style={{
+              transform: `translateY(${activeNavIndex !== -1 ? activeNavIndex * 76 + 6 : 6}px)`,
+              height: '36px',
+              opacity: activeNavIndex !== -1 ? 1 : 0,
+              top: 0,
+            }}
+          />
 
-              <button
-                onClick={() => onTabChange(item.id as NavigationTab)}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-100 border-none outline-none ${
-                  isActive
-                    ? 'bg-white/10 text-amber-400'
-                    : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'
-                }`}
-              >
-                <Icon className="w-6 h-6" />
-              </button>
+          {/* Smooth Sliding Active Backdrop Tile behind active nav button */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-xl bg-white/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none"
+            style={{
+              transform: `translate(-50%, ${activeNavIndex !== -1 ? activeNavIndex * 76 : 0}px)`,
+              opacity: activeNavIndex !== -1 ? 1 : 0,
+              top: 0,
+            }}
+          />
 
-              {/* Pure CSS Tooltip (Zero JS delay, positioned comfortably outside sidebar) */}
-              <div className="absolute left-[88px] px-3.5 py-1.5 rounded-lg bg-[#161616] border border-white/10 text-xs font-semibold text-white shadow-2xl whitespace-nowrap z-[60] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-                {item.label}
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentTab === item.id;
+            return (
+              <div key={item.id} className="relative group flex items-center justify-center w-full h-12">
+                <button
+                  onClick={() => onTabChange(item.id as NavigationTab)}
+                  className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 border-none outline-none cursor-pointer ${
+                    isActive
+                      ? 'text-amber-400 scale-105'
+                      : 'text-slate-400 hover:text-white hover:bg-white/[0.05] hover:scale-105'
+                  }`}
+                >
+                  <Icon className="w-6 h-6 transition-transform duration-200" />
+                </button>
+
+                {/* Pure CSS Tooltip (Zero JS delay, positioned comfortably outside sidebar) */}
+                <div className="absolute left-[88px] px-3.5 py-1.5 rounded-lg bg-[#161616] border border-white/10 text-xs font-semibold text-white shadow-2xl whitespace-nowrap z-[60] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+                  {item.label}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Account Avatar at Bottom -> Opens Full Profile Page (Circular, No Online Dot) */}
       <div className="relative group flex flex-col items-center px-2 pb-1 w-full">
         {/* Left Edge Active Indicator Bar for Profile */}
-        {currentTab === 'profile' && (
-          <span className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]" />
-        )}
+        <span
+          className={`absolute left-0 top-2 bottom-2 w-1.5 rounded-r bg-amber-400 shadow-accent-glow transition-opacity duration-200 pointer-events-none ${
+            currentTab === 'profile' ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
 
         <button
           onClick={() => onTabChange('profile')}
